@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:non_helmet_mobile/pages/edit_profile.dart';
+import 'package:non_helmet_mobile/pages/gallert.dart';
+import 'package:non_helmet_mobile/pages/settings.dart';
+import 'package:non_helmet_mobile/pages/upload_Page/upload_home.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -35,9 +39,9 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   children: <Widget>[
                     buildAc(
-                      () => print('Login with Facebook'),
-                      const NetworkImage("https://media.istockphoto.com/photos/freedom-chains-that-transform-into-birds-charge-concept-picture-id1322104312")
-                    ),
+                        EditProfile(),
+                        const NetworkImage(
+                            "https://media.istockphoto.com/photos/freedom-chains-that-transform-into-birds-charge-concept-picture-id1322104312")),
                   ],
                 ),
               ),
@@ -111,21 +115,19 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 70.0),
+                padding: const EdgeInsets.symmetric(vertical: 50.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    buildSocialBtn(() {
-                      /* getImage(); */
-                      /*  getVideo(); */
-                    },
+                    buildSocialBtn(
+                        1,
                         const Icon(
                           Icons.camera_alt,
                           size: 60,
                         ),
                         "ตรวจจับ"),
                     buildSocialBtn(
-                        null,
+                        2,
                         const Icon(
                           Icons.video_collection,
                           size: 60,
@@ -140,14 +142,14 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     buildSocialBtn(
-                        null,
+                        3,
                         const Icon(
                           Icons.cloud_download,
                           size: 60,
                         ),
                         "อัปโหลด"),
                     buildSocialBtn(
-                        null,
+                        4,
                         const Icon(
                           Icons.settings_outlined,
                           size: 60,
@@ -161,27 +163,39 @@ class _HomePageState extends State<HomePage> {
         )));
   }
 
-  Widget buildSocialBtn(onTap, icon, content) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 110.0,
-        width: 110.0,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.amber,
-          border: Border.all(color: Colors.black, width: 2.5),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black,
-              offset: Offset(0, 2),
-              blurRadius: 5.0,
-            ),
-          ],
-        ),
+  Widget buildSocialBtn(onPressed, icon, content) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.amber,
+        border: Border.all(color: Colors.black, width: 2.5),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(0, 2),
+            blurRadius: 5.0,
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: () {
+          if (onPressed == 1) {
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => onPressed == 2
+                      ? GallertPage()
+                      : onPressed == 3
+                          ? Upload()
+                          : onPressed == 4
+                              ? SettingPage()
+                              : HomePage()),
+            );
+          }
+        },
         child: Column(
           children: [
-            const SizedBox(height: 10),
             icon,
             Text(
               "$content",
@@ -189,13 +203,24 @@ class _HomePageState extends State<HomePage> {
             )
           ],
         ),
+        style: ElevatedButton.styleFrom(
+          shape: const CircleBorder(),
+          padding: const EdgeInsets.all(25),
+          // primary: Colors.blue, // <-- Button color
+          // onPrimary: Colors.red, // <-- Splash color
+        ),
       ),
     );
   }
 
   Widget buildAc(onTap, logo) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => onTap),
+        );
+      },
       child: Container(
         height: 50.0,
         width: 50.0,
@@ -209,10 +234,7 @@ class _HomePageState extends State<HomePage> {
               blurRadius: 6.0,
             ),
           ],
-          image: DecorationImage(
-            image: logo,
-            fit: BoxFit.fill
-          ),
+          image: DecorationImage(image: logo, fit: BoxFit.fill),
         ),
       ),
     );

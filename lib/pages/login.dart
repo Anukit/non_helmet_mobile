@@ -95,21 +95,22 @@ class _Login_PageState extends State<Login_Page> {
   Widget buildInputEmail() {
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         labelText: 'อีเมลผู้ใช้',
-        prefixIcon: Icon(Icons.person),
-        labelStyle: TextStyle(color: Colors.black, fontSize: 15),
+        prefixIcon: const Icon(Icons.person),
+        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 18),
         fillColor: Colors.white,
         filled: true,
-        errorStyle: TextStyle(
+        errorStyle: const TextStyle(
           color: Colors.red,
           fontSize: 15,
         ),
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(20))),
       ),
       validator: FormBuilderValidators.compose([
         FormBuilderValidators.required(context, errorText: "กรุณากรอกอีเมล"),
+        FormBuilderValidators.email(context, errorText: "รูปแบบอีเมลไม่ถูกต้อง")
       ]),
       onSaved: (value) {
         profiles.email = value!;
@@ -134,7 +135,7 @@ class _Login_PageState extends State<Login_Page> {
           },
           icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility),
         ),
-        labelStyle: const TextStyle(color: Colors.black, fontSize: 15),
+        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 18),
         fillColor: Colors.white,
         filled: true,
         errorStyle: const TextStyle(

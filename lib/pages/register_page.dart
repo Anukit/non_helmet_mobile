@@ -110,6 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget buildName() {
     return TextFormField(
       keyboardType: TextInputType.name,
+      style: const TextStyle(fontSize: 18),
       decoration: InputDecoration(
         labelText: 'ชื่อ',
         labelStyle: TextStyle(fontSize: 18, color: Colors.grey.shade600),
@@ -137,6 +138,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget buildSurname() {
     return TextFormField(
       keyboardType: TextInputType.name,
+      style: const TextStyle(fontSize: 18),
       decoration: InputDecoration(
         labelText: 'นามสกุล',
         labelStyle: TextStyle(fontSize: 18, color: Colors.grey.shade600),
@@ -164,6 +166,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget buildEmail() {
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
+      style: const TextStyle(fontSize: 18),
       decoration: InputDecoration(
         labelText: 'อีเมล',
         labelStyle: TextStyle(fontSize: 18, color: Colors.grey.shade600),
@@ -193,6 +196,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return TextFormField(
       obscureText: _isObscure,
       keyboardType: TextInputType.visiblePassword,
+      style: const TextStyle(fontSize: 18),
       decoration: InputDecoration(
         labelText: 'รหัสผ่าน',
         labelStyle: TextStyle(fontSize: 18, color: Colors.grey.shade600),
@@ -221,6 +225,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return TextFormField(
       obscureText: _isObscure,
       keyboardType: TextInputType.visiblePassword,
+      style: const TextStyle(fontSize: 18),
       decoration: InputDecoration(
         labelText: 'ยืนยันรหัสผ่าน',
         labelStyle: TextStyle(fontSize: 18, color: Colors.grey.shade600),
