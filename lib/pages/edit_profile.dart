@@ -70,9 +70,9 @@ class _EditProfileState extends State<EditProfile> {
                           const SizedBox(height: 20.0),
                           buildShowPic(),
                           const SizedBox(height: 50.0),
-                          buildName(),
+                          buildFirstname(),
                           const SizedBox(height: 20.0),
-                          buildSurname(),
+                          buildLastname(),
                           const SizedBox(height: 50.0),
                           buildConfirm()
                         ],
@@ -119,7 +119,7 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-  Widget buildName() {
+  Widget buildFirstname() {
     return TextFormField(
       initialValue: "อนุกฤษณ์",
       keyboardType: TextInputType.name,
@@ -144,12 +144,12 @@ class _EditProfileState extends State<EditProfile> {
         FormBuilderValidators.required(context, errorText: "กรุณากรอกชื่อ"),
       ]),
       onSaved: (value) {
-        profiles.name = value!;
+        profiles.firstname = value!;
       },
     );
   }
 
-  Widget buildSurname() {
+  Widget buildLastname() {
     return TextFormField(
       initialValue: "สอนบุญตา",
       keyboardType: TextInputType.name,
@@ -174,7 +174,7 @@ class _EditProfileState extends State<EditProfile> {
         FormBuilderValidators.required(context, errorText: "กรุณากรอกนามสกุล"),
       ]),
       onSaved: (value) {
-        profiles.surname = value!;
+        profiles.lastname = value!;
       },
     );
   }

@@ -1,7 +1,7 @@
 class Profile {
   late int uid;
-  late String name;
-  late String surname;
+  late String firstname;
+  late String lastname;
   late String email;
   late String password;
 

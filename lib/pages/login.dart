@@ -208,13 +208,20 @@ class _Login_PageState extends State<Login_Page> {
             ),
           ),
           color: Colors.amber,
-          child: const Text(
-            "เข้าสู่ระบบ",
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+          child: Column(
+            children: const [
+              Text(
+                "เข้าสู่ระบบ",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(
+                height: 3,
+              ),
+            ],
           ),
           onPressed: () {
             formKey.currentState!.save();

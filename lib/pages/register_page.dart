@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:non_helmet_mobile/models/profile.dart';
+import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/login.dart';
+import 'package:non_helmet_mobile/widgets/load_dialog.dart';
+import 'package:non_helmet_mobile/widgets/showdialog.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key? key}) : super(key: key);
@@ -61,11 +64,11 @@ class _RegisterPageState extends State<RegisterPage> {
                             const SizedBox(
                               height: 30,
                             ),
-                            buildName(),
+                            buildFirstname(),
                             const SizedBox(
                               height: 15,
                             ),
-                            buildSurname(),
+                            buildLastname(),
                             const SizedBox(
                               height: 15,
                             ),
@@ -107,7 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Widget buildName() {
+  Widget buildFirstname() {
     return TextFormField(
       keyboardType: TextInputType.name,
       style: const TextStyle(fontSize: 18),
@@ -130,12 +133,12 @@ class _RegisterPageState extends State<RegisterPage> {
         FormBuilderValidators.required(context, errorText: "กรุณากรอกชื่อ"),
       ]),
       onSaved: (value) {
-        profiles.name = value!;
+        profiles.firstname = value!;
       },
     );
   }
 
-  Widget buildSurname() {
+  Widget buildLastname() {
     return TextFormField(
       keyboardType: TextInputType.name,
       style: const TextStyle(fontSize: 18),
@@ -158,7 +161,7 @@ class _RegisterPageState extends State<RegisterPage> {
         FormBuilderValidators.required(context, errorText: "กรุณากรอกนามสกุล"),
       ]),
       onSaved: (value) {
-        profiles.surname = value!;
+        profiles.lastname = value!;
       },
     );
   }
@@ -214,6 +217,8 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       validator: FormBuilderValidators.compose([
         FormBuilderValidators.required(context, errorText: "กรุณากรอกรหัสผ่าน"),
+        FormBuilderValidators.minLength(context, 6,
+            errorText: "กรุณากรอกรหัสผ่านมากกว่า 6 ตัว")
       ]),
       onSaved: (value) {
         profiles.password = value!;
@@ -353,13 +358,41 @@ class _RegisterPageState extends State<RegisterPage> {
         onPressed: () {
           formKey.currentState!.save();
           if (formKey.currentState!.validate()) {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => Login_Page()),
-            // );
+            postdataUser();
           }
         },
       ),
     );
+  }
+
+  postdataUser() async {
+    DateTime now = DateTime.now();
+
+    if (_acceptRegis) {
+      ShowloadDialog().showLoading(context);
+      var result = await registerUser({
+        "email": profiles.email,
+        "firstname": profiles.firstname,
+        "lastname": profiles.lastname,
+        "password": profiles.password,
+        "datetime": now.toString()
+      });
+      try {
+        if (result.ok) {
+          Navigator.of(context, rootNavigator: true).pop();
+          var listdata = result.data;
+          if (listdata["data"] == "Duplicate_Email") {
+            normalDialog(context, "มีอีเมลนี้แล้ว");
+          } else if (listdata["data"] == "RigisError") {
+            normalDialog(context, "ลงทะเบียนไม่สำเร็จ");
+          } else {
+            normalDialog2(context, "ลงทะเบียนสำเร็จ");
+          }
+        }
+        // ignore: empty_catches
+      } catch (e) {}
+    } else {
+      normalDialog(context, "กรุณากดยอมรับข้อตกลง");
+    }
   }
 }
