@@ -5,6 +5,7 @@ import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/login.dart';
 import 'package:non_helmet_mobile/widgets/load_dialog.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
+import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key? key}) : super(key: key);
@@ -365,7 +366,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  postdataUser() async {
+  Future<void> postdataUser() async {
     DateTime now = DateTime.now();
 
     if (_acceptRegis) {
@@ -378,7 +379,7 @@ class _RegisterPageState extends State<RegisterPage> {
         "datetime": now.toString()
       });
       try {
-        if (result.ok) {
+        if (result.pass) {
           Navigator.of(context, rootNavigator: true).pop();
           var listdata = result.data;
           if (listdata["data"] == "Duplicate_Email") {
@@ -386,7 +387,7 @@ class _RegisterPageState extends State<RegisterPage> {
           } else if (listdata["data"] == "RigisError") {
             normalDialog(context, "ลงทะเบียนไม่สำเร็จ");
           } else {
-            normalDialog2(context, "ลงทะเบียนสำเร็จ");
+            succeedDialog(context, "ลงทะเบียนสำเร็จ", SplashPage());
           }
         }
         // ignore: empty_catches

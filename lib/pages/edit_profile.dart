@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:non_helmet_mobile/models/profile.dart';
+import 'package:non_helmet_mobile/modules/service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfile extends StatefulWidget {
   EditProfile({Key? key}) : super(key: key);
@@ -16,9 +18,41 @@ class _EditProfileState extends State<EditProfile> {
   File? _image;
   final ImagePicker _picker = ImagePicker();
   final formKey = GlobalKey<FormState>();
-  Profile profiles = Profile();
+  // Profile profiles = Profile();
+  TextEditingController firstname = TextEditingController();
+  TextEditingController lastname = TextEditingController();
 
-  Future getImage() async {
+  @override
+  void initState() {
+    // ignore: todo
+    // TODO: implement initState
+    super.initState();
+    getData();
+  }
+
+  @override
+  void dispose() {
+    firstname.dispose();
+    lastname.dispose();
+    super.dispose();
+  }
+
+  Future<void> getData() async {
+    final prefs = await SharedPreferences.getInstance();
+    int user_id = prefs.getInt('user_id') ?? 0;
+    var result = await getDataUser(user_id);
+    try {
+      if (result.pass) {
+        var listdata = result.data["data"][0];
+        setState(() {
+          firstname.text = listdata["firstname"];
+          lastname.text = listdata["lastname"];
+        });
+      }
+    } catch (e) {}
+  }
+
+  Future<void> getImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
     setState(() {
@@ -121,7 +155,7 @@ class _EditProfileState extends State<EditProfile> {
 
   Widget buildFirstname() {
     return TextFormField(
-      initialValue: "อนุกฤษณ์",
+      controller: firstname,
       keyboardType: TextInputType.name,
       style: const TextStyle(fontSize: 18),
       decoration: InputDecoration(
@@ -144,14 +178,14 @@ class _EditProfileState extends State<EditProfile> {
         FormBuilderValidators.required(context, errorText: "กรุณากรอกชื่อ"),
       ]),
       onSaved: (value) {
-        profiles.firstname = value!;
+        firstname.text = value!;
       },
     );
   }
 
   Widget buildLastname() {
     return TextFormField(
-      initialValue: "สอนบุญตา",
+      controller: lastname,
       keyboardType: TextInputType.name,
       style: const TextStyle(fontSize: 18),
       decoration: InputDecoration(
@@ -174,7 +208,7 @@ class _EditProfileState extends State<EditProfile> {
         FormBuilderValidators.required(context, errorText: "กรุณากรอกนามสกุล"),
       ]),
       onSaved: (value) {
-        profiles.lastname = value!;
+        lastname.text = value!;
       },
     );
   }

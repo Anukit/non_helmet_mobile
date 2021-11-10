@@ -1,8 +1,12 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:non_helmet_mobile/models/profile.dart';
+import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/edit_profile.dart';
+import 'package:non_helmet_mobile/utility/total_utility.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingPage extends StatefulWidget {
   SettingPage({Key? key}) : super(key: key);
@@ -12,6 +16,32 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
+  Profile profiles = Profile();
+
+  @override
+  void initState() {
+    // ignore: todo
+    // TODO: implement initState
+    super.initState();
+    getData();
+  }
+
+  Future<void> getData() async {
+    final prefs = await SharedPreferences.getInstance();
+    int user_id = prefs.getInt('user_id') ?? 0;
+    var result = await getDataUser(user_id);
+    try {
+      if (result.pass) {
+        var listdata = result.data["data"];
+        for (var modelData in listdata) {
+          setState(() {
+            profiles = Profile.fromJson(modelData);
+          });
+        }
+      }
+    } catch (e) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -201,14 +231,17 @@ class _SettingPageState extends State<SettingPage> {
           style: TextStyle(fontSize: 15),
         ),
         Container(
-          padding: EdgeInsets.symmetric(vertical: 2.5),
-          width: double.infinity,
-          child: const Text(
-            "Anukit084@hotmail.com",
-            style: TextStyle(
-                fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold),
-          ), //แสดงอีเมลผู้ใช้งาน
-        )
+            padding: EdgeInsets.symmetric(vertical: 2.5),
+            width: double.infinity,
+            child: profiles.email != null
+                ? Text(
+                    "${profiles.email}", //แสดงอีเมลผู้ใช้งาน
+                    style: const TextStyle(
+                        fontSize: 20,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold),
+                  )
+                : const Text("กรุณารอสักครู่"))
       ],
     );
   }
@@ -249,10 +282,7 @@ class _SettingPageState extends State<SettingPage> {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SplashPage()),
-          );
+          logout();
         },
         style: ElevatedButton.styleFrom(
             primary: Colors.red, minimumSize: const Size(0, 45)),
@@ -262,6 +292,15 @@ class _SettingPageState extends State<SettingPage> {
               fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
+    );
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SplashPage()),
     );
   }
 }

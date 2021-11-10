@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:non_helmet_mobile/models/profile.dart';
+import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/homepage.dart';
 import 'package:non_helmet_mobile/pages/register_page.dart';
+import 'package:non_helmet_mobile/widgets/load_dialog.dart';
+import 'package:non_helmet_mobile/widgets/showdialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login_Page extends StatefulWidget {
   Login_Page({Key? key}) : super(key: key);
@@ -226,14 +230,42 @@ class _Login_PageState extends State<Login_Page> {
           onPressed: () {
             formKey.currentState!.save();
             if (formKey.currentState!.validate()) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HomePage()),
-              );
+              login();
             }
           },
         ),
       ),
     ]);
+  }
+
+  Future<void> login() async {
+    ShowloadDialog().showLoading(context);
+    var result = await postLogin(
+        {"email": profiles.email, "password": profiles.password});
+    try {
+      if (result.pass) {
+        Navigator.of(context, rootNavigator: true).pop();
+        var listdata = result.data;
+        if (listdata["status"] == "Succeed") {
+          int user_id = listdata["data"][0]["id"];
+          setUserid(user_id);
+        } else if (listdata["data"] == "Invalid email") {
+          normalDialog(context, "อีเมลไม่ถูกต้อง");
+        } else if (listdata["data"] == "Incorrect password") {
+          normalDialog(context, "รหัสผ่านไม่ถูกต้อง");
+        }
+      }
+    } catch (e) {}
+  }
+
+  Future<void> setUserid(user_id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var setId_ok = await prefs.setInt('user_id', user_id);
+    if (setId_ok) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
+    }
   }
 }

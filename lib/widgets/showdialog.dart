@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 
 Future<void> normalDialog(BuildContext context, String message) async {
   showDialog(
@@ -29,7 +28,8 @@ Future<void> normalDialog(BuildContext context, String message) async {
   );
 }
 
-Future<void> normalDialog2(BuildContext context, String message) async {
+Future<void> succeedDialog(
+    BuildContext context, String message, dynamic onpressed) async {
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -49,7 +49,7 @@ Future<void> normalDialog2(BuildContext context, String message) async {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SplashPage()),
+                  MaterialPageRoute(builder: (context) => onpressed),
                 );
               },
             ),
