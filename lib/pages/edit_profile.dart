@@ -1,10 +1,17 @@
 import 'dart:io';
+import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:non_helmet_mobile/models/profile.dart';
+import 'package:non_helmet_mobile/modules/constant.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
+import 'package:non_helmet_mobile/pages/homepage.dart';
+import 'package:non_helmet_mobile/widgets/load_dialog.dart';
+import 'package:non_helmet_mobile/widgets/showdialog.dart';
+import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfile extends StatefulWidget {
@@ -15,10 +22,11 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  int user_id = 0;
   File? _image;
   final ImagePicker _picker = ImagePicker();
   final formKey = GlobalKey<FormState>();
-  // Profile profiles = Profile();
+  String imageName = "";
   TextEditingController firstname = TextEditingController();
   TextEditingController lastname = TextEditingController();
 
@@ -38,15 +46,17 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<void> getData() async {
+    print("VVVVVV");
     final prefs = await SharedPreferences.getInstance();
-    int user_id = prefs.getInt('user_id') ?? 0;
+    user_id = prefs.getInt('user_id') ?? 0;
     var result = await getDataUser(user_id);
     try {
       if (result.pass) {
-        var listdata = result.data["data"][0];
         setState(() {
+          var listdata = result.data["data"][0];
           firstname.text = listdata["firstname"];
           lastname.text = listdata["lastname"];
+          imageName = listdata["image_profile"];
         });
       }
     } catch (e) {}
@@ -117,6 +127,7 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Widget buildShowPic() {
+    print("ASSAS");
     return SizedBox(
       height: 120,
       width: 120,
@@ -126,9 +137,36 @@ class _EditProfileState extends State<EditProfile> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(72.0),
-            // ignore: unnecessary_null_comparison
             child: _image == null
-                ? const CircleAvatar()
+                ? FutureBuilder(
+                    future: getImageDB(),
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.data != null && snapshot.data != "false") {
+                        return Container(
+                          height: 50.0,
+                          width: 50.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                offset: Offset(0, 2),
+                                blurRadius: 6.0,
+                              ),
+                            ],
+                            image: DecorationImage(
+                                image: NetworkImage("${snapshot.data}"),
+                                fit: BoxFit.fill),
+                          ),
+                        );
+                      } else {
+                        return const CircleAvatar(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                    },
+                  )
                 : Image.file(
                     _image!,
                     fit: BoxFit.cover,
@@ -236,14 +274,82 @@ class _EditProfileState extends State<EditProfile> {
           onPressed: () {
             formKey.currentState!.save();
             if (formKey.currentState!.validate()) {
-              /* Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HomePage()),
-              ); */
+              editprofile();
             }
           },
         ),
       ),
     ]);
+  }
+
+  Future<String> getImageDB() async {
+    if (imageName != "") {
+      String urlImage = "${Constant().domain}/profiles/${imageName}";
+      var response = await Dio().get(urlImage);
+      try {
+        if (response.statusCode == 200) {
+          return urlImage;
+        } else {
+          return "false";
+        }
+      } catch (e) {
+        return "false";
+      }
+    } else {
+      return "false";
+    }
+  }
+
+  Future<void> editprofile() async {
+    ShowloadDialog().showLoading(context);
+    DateTime now = DateTime.now();
+    var result = await postEditProfile({
+      "user_id": user_id,
+      "firstname": firstname.text,
+      "lastname": lastname.text,
+      "datetime": now.toString(),
+    });
+    try {
+      if (result.pass) {
+        if (result.data["data"] == "Succeed") {
+          if (_image?.path != null) {
+            uploadImage();
+          } else {
+            succeedDialog(context, "บันทึกสำเร็จ", HomePage());
+          }
+        } else {
+          normalDialog(context, "บันทึกไม่สำเร็จ");
+        }
+      } else {}
+    } catch (e) {}
+  }
+
+  Future<void> uploadImage() async {
+    String uploadurl = "${Constant().domain}/AboutFile/uploadImage";
+    //สุ่มชื่อ
+    Random random = Random();
+    int num = random.nextInt(4294967296);
+    String newNameTmage = user_id.toString() +
+        "_" +
+        num.toString() +
+        "." +
+        _image!.path.split('.').last;
+    FormData formdata = FormData.fromMap({
+      //file download
+      "file":
+          await MultipartFile.fromFile(_image!.path, filename: newNameTmage),
+      "file_type": '1',
+    });
+
+    Response response = await Dio().post(
+      uploadurl,
+      data: formdata,
+    );
+    Navigator.of(context, rootNavigator: true).pop();
+    if (response.statusCode == 200) {
+      succeedDialog(context, "บันทึกสำเร็จ", HomePage());
+    } else {
+      normalDialog(context, "อัปโหลดรูปไม่สำเร็จ");
+    }
   }
 }

@@ -52,3 +52,17 @@ Future<RequestResult> getDataUser(user_id) async {
   }
 }
 
+Future<RequestResult> postEditProfile([dynamic data]) async {
+  try {
+    var url = "${Constant().domain}/EditProfile/PostEditProfile";
+    var dataStr = jsonEncode(data);
+    var result = await http.post(Uri.parse(url), body: dataStr, headers: {
+      "Content-Type": "application/json",
+    });
+    return RequestResult(true, jsonDecode(result.body));
+  } catch (e) {
+    print(e);
+    return RequestResult(true, "");
+  }
+}
+
