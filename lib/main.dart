@@ -1,8 +1,18 @@
+// ignore_for_file: empty_catches, unused_catch_clause, avoid_print
+
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 
-void main() {
+late List<CameraDescription> cameras;
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    print('Error: $e.code \n Eooro Message: $e.message');
+  }
   runApp(const MyApp());
 }
 
