@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/models/profile.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/edit_profile.dart';
-import 'package:non_helmet_mobile/utility/total_utility.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,30 +15,28 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  Profile profiles = Profile();
-
   @override
   void initState() {
     // ignore: todo
     // TODO: implement initState
     super.initState();
-    getData();
+    //getData();
   }
 
-  Future<void> getData() async {
+  Future<String> getData() async {
     final prefs = await SharedPreferences.getInstance();
     int user_id = prefs.getInt('user_id') ?? 0;
     var result = await getDataUser(user_id);
     try {
       if (result.pass) {
         var listdata = result.data["data"];
-        for (var modelData in listdata) {
-          setState(() {
-            profiles = Profile.fromJson(modelData);
-          });
-        }
+        return listdata[0]["email"];
+      } else {
+        return "";
       }
-    } catch (e) {}
+    } catch (e) {
+      return "";
+    }
   }
 
   @override
@@ -97,6 +94,7 @@ class _SettingPageState extends State<SettingPage> {
 
   //แก้ไขข้อมูลส่วนตัว
   Widget buildEditProfile() {
+    print("1");
     return ElevatedButton(
       onPressed: () {
         Navigator.push(
@@ -132,6 +130,7 @@ class _SettingPageState extends State<SettingPage> {
 
   //เปลี่ยนรหัสผ่าน
   Widget buildChangePw() {
+    print("2");
     return ElevatedButton(
       onPressed: () {},
       style: ElevatedButton.styleFrom(
@@ -231,17 +230,26 @@ class _SettingPageState extends State<SettingPage> {
           style: TextStyle(fontSize: 15),
         ),
         Container(
-            padding: EdgeInsets.symmetric(vertical: 2.5),
-            width: double.infinity,
-            child: profiles.email != null
-                ? Text(
-                    "${profiles.email}", //แสดงอีเมลผู้ใช้งาน
-                    style: const TextStyle(
-                        fontSize: 20,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold),
-                  )
-                : const Text("กรุณารอสักครู่"))
+          padding: EdgeInsets.symmetric(vertical: 2.5),
+          width: double.infinity,
+          child: FutureBuilder(
+            future: getData(),
+            //initialData: InitialData,
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.hasData) {
+                return Text(
+                  "${snapshot.data}", //แสดงอีเมลผู้ใช้งาน
+                  style: const TextStyle(
+                      fontSize: 20,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
+                );
+              } else {
+                return const Text("กรุณารอสักครู่");
+              }
+            },
+          ),
+        )
       ],
     );
   }

@@ -1,8 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:non_helmet_mobile/modules/constant.dart';
+import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/edit_profile.dart';
 import 'package:non_helmet_mobile/pages/gallert.dart';
 import 'package:non_helmet_mobile/pages/settings.dart';
 import 'package:non_helmet_mobile/pages/upload_Page/upload_home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -38,10 +42,7 @@ class _HomePageState extends State<HomePage> {
                 padding: EdgeInsets.symmetric(vertical: 0.0),
                 child: Row(
                   children: <Widget>[
-                    buildAc(
-                        EditProfile(),
-                        const NetworkImage(
-                            "https://media.istockphoto.com/photos/freedom-chains-that-transform-into-birds-charge-concept-picture-id1322104312")),
+                    buildimageAc(EditProfile()),
                   ],
                 ),
               ),
@@ -119,14 +120,14 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    buildSocialBtn(
+                    buildMenuBtn(
                         1,
                         const Icon(
                           Icons.camera_alt,
                           size: 60,
                         ),
                         "ตรวจจับ"),
-                    buildSocialBtn(
+                    buildMenuBtn(
                         2,
                         const Icon(
                           Icons.video_collection,
@@ -141,14 +142,14 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    buildSocialBtn(
+                    buildMenuBtn(
                         3,
                         const Icon(
                           Icons.cloud_download,
                           size: 60,
                         ),
                         "อัปโหลด"),
-                    buildSocialBtn(
+                    buildMenuBtn(
                         4,
                         const Icon(
                           Icons.settings_outlined,
@@ -163,7 +164,8 @@ class _HomePageState extends State<HomePage> {
         )));
   }
 
-  Widget buildSocialBtn(onPressed, icon, content) {
+  Widget buildMenuBtn(onPressed, icon, content) {
+    print("1");
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
@@ -213,7 +215,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildAc(onTap, logo) {
+  Widget buildimageAc(onTap) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -221,22 +223,58 @@ class _HomePageState extends State<HomePage> {
           MaterialPageRoute(builder: (context) => onTap),
         );
       },
-      child: Container(
-        height: 50.0,
-        width: 50.0,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              offset: Offset(0, 2),
-              blurRadius: 6.0,
-            ),
-          ],
-          image: DecorationImage(image: logo, fit: BoxFit.fill),
-        ),
+      child: FutureBuilder(
+        future: getImage(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.data != null && snapshot.data != "false") {
+            return Container(
+              height: 50.0,
+              width: 50.0,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    offset: Offset(0, 2),
+                    blurRadius: 6.0,
+                  ),
+                ],
+                image: DecorationImage(
+                    image: NetworkImage("${snapshot.data}"), fit: BoxFit.fill),
+              ),
+            );
+          } else {
+            return const CircleAvatar(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
       ),
     );
+  }
+
+  Future<String> getImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    int user_id = prefs.getInt('user_id') ?? 0;
+    var result = await getDataUser(user_id);
+    try {
+      if (result.pass) {
+        var imagename = result.data["data"][0]["image_profile"];
+        String urlImage = "${Constant().domain}/profiles/$imagename";
+        var response = await Dio().get(urlImage);
+        if (response.statusCode == 200) {
+          return urlImage;
+        } else {
+          return "false";
+        }
+      } else {
+        return "false";
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+      return "false";
+    }
   }
 }
