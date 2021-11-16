@@ -2,12 +2,15 @@
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:non_helmet_mobile/pages/camera/home_view.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 
 late List<CameraDescription> cameras;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   try {
     cameras = await availableCameras();
   } on CameraException catch (e) {
@@ -22,11 +25,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: true,
-        title: 'Non Helmet Detection',
-        theme: ThemeData(
-          primarySwatch: Colors.amber,
-        ),
-        home: SplashPage());
+      debugShowCheckedModeBanner: true,
+      title: 'Non Helmet Detection',
+      theme: ThemeData(
+        primarySwatch: Colors.amber,
+      ),
+      //home: SplashPage()
+      home: HomeView(),
+    );
   }
 }
