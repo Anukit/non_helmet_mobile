@@ -66,3 +66,45 @@ Future<RequestResult> postEditProfile([dynamic data]) async {
   }
 }
 
+Future<RequestResult> postChangePW([dynamic data]) async {
+  try {
+    var url = "${Constant().domain}/ChangePW/PostChangePW";
+    var dataStr = jsonEncode(data);
+    var result = await http.post(Uri.parse(url), body: dataStr, headers: {
+      "Content-Type": "application/json",
+    });
+    return RequestResult(true, jsonDecode(result.body));
+  } catch (e) {
+    print(e);
+    return RequestResult(true, "");
+  }
+}
+
+Future<RequestResult> ForgotPW_ReqOTP([dynamic data]) async {
+  try {
+    var url = "${Constant().domain}/ForgotPW/PostReqOTP";
+    var dataStr = jsonEncode(data);
+    var result = await http.post(Uri.parse(url), body: dataStr, headers: {
+      "Content-Type": "application/json",
+    });
+    return RequestResult(true, jsonDecode(result.body));
+  } catch (e) {
+    print(e);
+    return RequestResult(true, "");
+  }
+}
+
+Future<RequestResult> ForgotPW_CreatePW([dynamic data]) async {
+  try {
+    var url = "${Constant().domain}/ForgotPW/PostCreatePW";
+    var dataStr = jsonEncode(data);
+    var result = await http.post(Uri.parse(url), body: dataStr, headers: {
+      "Content-Type": "application/json",
+    });
+    return RequestResult(true, jsonDecode(result.body));
+  } catch (e) {
+    print(e);
+    return RequestResult(true, "");
+  }
+}
+

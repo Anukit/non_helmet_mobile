@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/models/profile.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
+import 'package:non_helmet_mobile/pages/changepassword.dart';
 import 'package:non_helmet_mobile/pages/edit_profile.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,8 +27,9 @@ class _SettingPageState extends State<SettingPage> {
   Future<String> getData() async {
     final prefs = await SharedPreferences.getInstance();
     int user_id = prefs.getInt('user_id') ?? 0;
-    var result = await getDataUser(user_id);
+
     try {
+      var result = await getDataUser(user_id);
       if (result.pass) {
         var listdata = result.data["data"];
         return listdata[0]["email"];
@@ -132,7 +134,12 @@ class _SettingPageState extends State<SettingPage> {
   Widget buildChangePw() {
     print("2");
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ChangePassword()),
+        );
+      },
       style: ElevatedButton.styleFrom(
         primary: Colors.grey[300],
       ),

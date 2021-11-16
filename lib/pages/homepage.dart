@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/modules/constant.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/edit_profile.dart';
-import 'package:non_helmet_mobile/pages/gallert.dart';
+import 'package:non_helmet_mobile/pages/video.dart';
 import 'package:non_helmet_mobile/pages/settings.dart';
 import 'package:non_helmet_mobile/pages/upload_Page/upload_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -133,7 +133,7 @@ class _HomePageState extends State<HomePage> {
                           Icons.video_collection,
                           size: 60,
                         ),
-                        "แกลเลอรี"),
+                        "วิดีโอ"),
                   ],
                 ),
               ),
@@ -187,7 +187,7 @@ class _HomePageState extends State<HomePage> {
               context,
               MaterialPageRoute(
                   builder: (context) => onPressed == 2
-                      ? GallertPage()
+                      ? VideoPage()
                       : onPressed == 3
                           ? Upload()
                           : onPressed == 4
@@ -226,7 +226,9 @@ class _HomePageState extends State<HomePage> {
       child: FutureBuilder(
         future: getImage(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.data != null && snapshot.data != "false") {
+          if (snapshot.data != null &&
+              snapshot.data != "false" &&
+              snapshot.data != "Error") {
             return Container(
               height: 50.0,
               width: 50.0,
@@ -244,6 +246,8 @@ class _HomePageState extends State<HomePage> {
                     image: NetworkImage("${snapshot.data}"), fit: BoxFit.fill),
               ),
             );
+          } else if (snapshot.data == "Error") {
+            return const CircleAvatar();
           } else {
             return const CircleAvatar(
               child: CircularProgressIndicator(),
@@ -257,8 +261,9 @@ class _HomePageState extends State<HomePage> {
   Future<String> getImage() async {
     final prefs = await SharedPreferences.getInstance();
     int user_id = prefs.getInt('user_id') ?? 0;
-    var result = await getDataUser(user_id);
+
     try {
+      var result = await getDataUser(user_id);
       if (result.pass) {
         var imagename = result.data["data"][0]["image_profile"];
         String urlImage = "${Constant().domain}/profiles/$imagename";
@@ -274,7 +279,7 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       // ignore: avoid_print
       print(e);
-      return "false";
+      return "Error";
     }
   }
 }

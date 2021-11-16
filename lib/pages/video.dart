@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class GallertPage extends StatefulWidget {
-  GallertPage({Key? key}) : super(key: key);
+class VideoPage extends StatefulWidget {
+  VideoPage({Key? key}) : super(key: key);
 
   @override
-  _GallertPageState createState() => _GallertPageState();
+  _VideoPageState createState() => _VideoPageState();
 }
 
-class _GallertPageState extends State<GallertPage> {
+class _VideoPageState extends State<VideoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +22,7 @@ class _GallertPageState extends State<GallertPage> {
         ),
       ),
       title: const Text(
-        'แกลเลอรี',
+        'วิดีโอ',
         style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,

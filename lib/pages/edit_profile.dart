@@ -5,13 +5,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:non_helmet_mobile/models/profile.dart';
 import 'package:non_helmet_mobile/modules/constant.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/homepage.dart';
 import 'package:non_helmet_mobile/widgets/load_dialog.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
-import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfile extends StatefulWidget {
@@ -46,11 +44,12 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<void> getData() async {
-    print("VVVVVV");
+    print("getData");
     final prefs = await SharedPreferences.getInstance();
     user_id = prefs.getInt('user_id') ?? 0;
-    var result = await getDataUser(user_id);
+
     try {
+      var result = await getDataUser(user_id);
       if (result.pass) {
         setState(() {
           var listdata = result.data["data"][0];
@@ -81,6 +80,10 @@ class _EditProfileState extends State<EditProfile> {
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => HomePage()),
+            // );
           },
           icon: const Icon(
             Icons.arrow_back_ios,
@@ -127,7 +130,7 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Widget buildShowPic() {
-    print("ASSAS");
+    print("buildShowPic");
     return SizedBox(
       height: 120,
       width: 120,
@@ -141,7 +144,12 @@ class _EditProfileState extends State<EditProfile> {
                 ? FutureBuilder(
                     future: getImageDB(),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      if (snapshot.data != null && snapshot.data != "false") {
+                      if (snapshot.hasError) {
+                        return const CircleAvatar();
+                      }
+                      if (snapshot.data != null &&
+                          snapshot.data != "false" &&
+                          snapshot.data != "Error") {
                         return Container(
                           height: 50.0,
                           width: 50.0,
@@ -283,6 +291,7 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<String> getImageDB() async {
+    print("getImageDB");
     if (imageName != "") {
       String urlImage = "${Constant().domain}/profiles/${imageName}";
       var response = await Dio().get(urlImage);
@@ -293,23 +302,24 @@ class _EditProfileState extends State<EditProfile> {
           return "false";
         }
       } catch (e) {
-        return "false";
+        return "Error";
       }
     } else {
-      return "false";
+      return "Error";
     }
   }
 
   Future<void> editprofile() async {
     ShowloadDialog().showLoading(context);
     DateTime now = DateTime.now();
-    var result = await postEditProfile({
-      "user_id": user_id,
-      "firstname": firstname.text,
-      "lastname": lastname.text,
-      "datetime": now.toString(),
-    });
+
     try {
+      var result = await postEditProfile({
+        "user_id": user_id,
+        "firstname": firstname.text,
+        "lastname": lastname.text,
+        "datetime": now.toString(),
+      });
       if (result.pass) {
         if (result.data["data"] == "Succeed") {
           if (_image?.path != null) {
@@ -327,11 +337,10 @@ class _EditProfileState extends State<EditProfile> {
   Future<void> uploadImage() async {
     String uploadurl = "${Constant().domain}/AboutFile/uploadImage";
     //สุ่มชื่อ
-    Random random = Random();
-    int num = random.nextInt(4294967296);
+    int genName = DateTime.now().millisecondsSinceEpoch;
     String newNameTmage = user_id.toString() +
         "_" +
-        num.toString() +
+        genName.toString() +
         "." +
         _image!.path.split('.').last;
     FormData formdata = FormData.fromMap({

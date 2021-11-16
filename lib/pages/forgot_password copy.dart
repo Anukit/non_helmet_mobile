@@ -1,0 +1,564 @@
+import 'package:flutter/material.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:non_helmet_mobile/models/profile.dart';
+import 'package:non_helmet_mobile/modules/service.dart';
+import 'package:non_helmet_mobile/widgets/load_dialog.dart';
+import 'package:non_helmet_mobile/widgets/showdialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class ForgotPassword extends StatefulWidget {
+  ForgotPassword({Key? key}) : super(key: key);
+
+  @override
+  _ForgotPasswordState createState() => _ForgotPasswordState();
+}
+
+class _ForgotPasswordState extends State<ForgotPassword> {
+  late String newPassword;
+  bool _isObscure = true;
+  bool _showpass = false;
+  String otpEmail = "123456";
+  String otpUser = "";
+  final formKey = GlobalKey<FormState>();
+  Profile profiles = Profile();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black,
+          ),
+        ),
+        title: const Text(
+          'เปลี่ยนรหัสผ่าน',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+          //textAlign: TextAlign.center,
+        ),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+            child: Form(
+          key: formKey,
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            buildEmail(),
+                            const SizedBox(
+                              height: 15,
+                            ),
+                            reqOTPbt(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        )),
+      ),
+    );
+  }
+
+  Widget buildEmail() {
+    return TextFormField(
+      keyboardType: TextInputType.emailAddress,
+      style: const TextStyle(fontSize: 18),
+      decoration: InputDecoration(
+        labelText: 'อีเมลผู้ใช้',
+        labelStyle: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+        fillColor: Colors.white,
+        errorStyle: const TextStyle(color: Colors.red, fontSize: 14),
+        prefixIcon: const Icon(
+          Icons.email,
+          color: Colors.grey,
+        ),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(10),
+          ),
+        ),
+      ),
+      validator: FormBuilderValidators.compose([
+        FormBuilderValidators.required(context, errorText: "กรุณากรอกอีเมล"),
+        FormBuilderValidators.email(context, errorText: "รูปแบบอีเมลไม่ถูกต้อง")
+      ]),
+      onSaved: (value) {
+        profiles.email = value!;
+      },
+    );
+  }
+
+  Widget reqOTPbt() {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.amber.shade400,
+        // border: Border.all(color: Colors.amber),
+      ),
+      child: MaterialButton(
+        padding: const EdgeInsets.all(12.0),
+        child: Text(
+          'ขอ OTP',
+          style: TextStyle(
+              fontSize: 20,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.bold),
+        ),
+        onPressed: () {
+          formKey.currentState!.save();
+          if (formKey.currentState!.validate()) {
+            reqOTP();
+          }
+        },
+      ),
+    );
+  }
+
+  Future<void> reqOTP() async {
+    //ShowloadDialog().showLoading(context);
+    // final prefs = await SharedPreferences.getInstance();
+    // int user_id = prefs.getInt('user_id') ?? 0;
+    // DateTime now = DateTime.now();
+    dialogInputOTP();
+
+    // try {
+    //   var result = await ForgotPW_ReqOTP({
+    //     "email": profiles.email,
+    //   });
+    //   if (result.pass) {
+    //     Navigator.of(context, rootNavigator: true).pop();
+    //     print(result.data);
+    //     if (result.data["status"] == "Succeed") {
+    //       normalDialog2(
+    //         context,
+    //       );
+    //     } else if (result.data["data"] == "Invalid email") {
+    //       normalDialog(context, "ไม่มีอีเมลนี้ในระบบ");
+    //     } else {
+    //       normalDialog(context, "บันทึกไม่สำเร็จ");
+    //     }
+    //   }
+    // } catch (e) {}
+  }
+
+  Future<void> dialogInputOTP() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => SimpleDialog(
+        title: const Text(
+          'กรุณากรอกรหัส OTP ที่ได้รับ',
+          style: TextStyle(
+            fontSize: 17,
+          ),
+        ),
+        children: <Widget>[
+          SingleChildScrollView(
+              child: Container(
+            padding: const EdgeInsets.all(10),
+            child: TextFormField(
+              keyboardType: TextInputType.number,
+              style: const TextStyle(fontSize: 18),
+              decoration: InputDecoration(
+                labelText: 'รหัส OTP',
+                labelStyle:
+                    TextStyle(fontSize: 18, color: Colors.grey.shade600),
+                fillColor: Colors.white,
+                errorStyle: const TextStyle(color: Colors.red, fontSize: 14),
+                prefixIcon: const Icon(
+                  Icons.email,
+                  color: Colors.grey,
+                ),
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
+                  ),
+                ),
+              ),
+              onChanged: (value) {
+                otpUser = value;
+              },
+            ),
+          )),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                margin: const EdgeInsets.fromLTRB(10, 12, 10, 12),
+                child: ElevatedButton(
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
+                    child: const Text(
+                      'ตกลง',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                  ),
+                  onPressed: () {
+                    if (otpUser.isEmpty) {
+                      normalDialog(context, "กรุณากรอก OTP");
+                    } else {
+                      if (otpUser == otpEmail) {
+                        showDialogs();
+                      } else {
+                        normalDialog(context, "OTP ไม่ถูกต้อง");
+                      }
+                    }
+                    //Navigator.of(context).pop();
+                  },
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(10, 12, 10, 12),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.grey.shade300,
+                  ),
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(2, 10, 2, 10),
+                    child: const Text(
+                      'ยกเลิก',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                  ),
+                  onPressed: () {
+                    otpUser = "";
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildShowPassword() {
+    return Container(
+      height: 20.0,
+      child: Row(
+        children: <Widget>[
+          Checkbox(
+            value: _showpass,
+            //checkColor: Colors.white,
+            //activeColor: Colors.black,
+            onChanged: (value) {
+              print(_showpass);
+
+              setState(() {
+                _showpass = value!;
+                _isObscure = !_isObscure;
+              });
+            },
+          ),
+          const Text(
+            'แสดงรหัสผ่าน',
+            style: TextStyle(
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> dialogCreatePW() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => SimpleDialog(
+        title: const Text(
+          'สร้างรหัสผ่านใหม่',
+          style: TextStyle(
+            fontSize: 17,
+          ),
+        ),
+        children: <Widget>[
+          SingleChildScrollView(
+              child: Container(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        obscureText: _isObscure,
+                        keyboardType: TextInputType.number,
+                        style: const TextStyle(fontSize: 18),
+                        decoration: InputDecoration(
+                          labelText: 'รหัสผ่านใหม่',
+                          labelStyle: TextStyle(
+                              fontSize: 18, color: Colors.grey.shade600),
+                          fillColor: Colors.white,
+                          errorStyle:
+                              const TextStyle(color: Colors.red, fontSize: 14),
+                          prefixIcon: const Icon(
+                            Icons.email,
+                            color: Colors.grey,
+                          ),
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          otpUser = value;
+                        },
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      TextFormField(
+                        obscureText: _isObscure,
+                        keyboardType: TextInputType.number,
+                        style: const TextStyle(fontSize: 18),
+                        decoration: InputDecoration(
+                          labelText: 'ยืนยันรหัสผ่าน',
+                          labelStyle: TextStyle(
+                              fontSize: 18, color: Colors.grey.shade600),
+                          fillColor: Colors.white,
+                          errorStyle:
+                              const TextStyle(color: Colors.red, fontSize: 14),
+                          prefixIcon: const Icon(
+                            Icons.email,
+                            color: Colors.grey,
+                          ),
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          otpUser = value;
+                        },
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      buildShowPassword()
+                    ],
+                  ))),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                margin: const EdgeInsets.fromLTRB(10, 12, 10, 12),
+                child: ElevatedButton(
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
+                    child: const Text(
+                      'ตกลง',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                  ),
+                  onPressed: () {},
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(10, 12, 10, 12),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.grey.shade300,
+                  ),
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(2, 10, 2, 10),
+                    child: const Text(
+                      'ยกเลิก',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                  ),
+                  onPressed: () {
+                    otpUser = "";
+                    int count = 0;
+                    Navigator.popUntil(context, (route) {
+                      return count++ == 2;
+                    });
+                  },
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  showDialogs() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              actions: [
+                Column(
+                  children: [
+                    SingleChildScrollView(
+                        child: Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(
+                              children: [
+                                TextFormField(
+                                  obscureText: _isObscure,
+                                  keyboardType: TextInputType.number,
+                                  style: const TextStyle(fontSize: 18),
+                                  decoration: InputDecoration(
+                                    labelText: 'รหัสผ่านใหม่',
+                                    labelStyle: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.grey.shade600),
+                                    fillColor: Colors.white,
+                                    errorStyle: const TextStyle(
+                                        color: Colors.red, fontSize: 14),
+                                    prefixIcon: const Icon(
+                                      Icons.email,
+                                      color: Colors.grey,
+                                    ),
+                                    border: const OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(10),
+                                      ),
+                                    ),
+                                  ),
+                                  onChanged: (value) {
+                                    otpUser = value;
+                                  },
+                                ),
+                                const SizedBox(
+                                  height: 15,
+                                ),
+                                TextFormField(
+                                  obscureText: _isObscure,
+                                  keyboardType: TextInputType.number,
+                                  style: const TextStyle(fontSize: 18),
+                                  decoration: InputDecoration(
+                                    labelText: 'ยืนยันรหัสผ่าน',
+                                    labelStyle: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.grey.shade600),
+                                    fillColor: Colors.white,
+                                    errorStyle: const TextStyle(
+                                        color: Colors.red, fontSize: 14),
+                                    prefixIcon: const Icon(
+                                      Icons.email,
+                                      color: Colors.grey,
+                                    ),
+                                    border: const OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(10),
+                                      ),
+                                    ),
+                                  ),
+                                  onChanged: (value) {
+                                    otpUser = value;
+                                  },
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                SizedBox(
+                                  height: 20.0,
+                                  child: Row(
+                                    children: <Widget>[
+                                      Checkbox(
+                                        value: _showpass,
+                                        //checkColor: Colors.white,
+                                        //activeColor: Colors.black,
+                                        onChanged: (value) {
+                                          print(_showpass);
+
+                                          setState(() {
+                                            _showpass = value!;
+                                            _isObscure = !_isObscure;
+                                          });
+                                        },
+                                      ),
+                                      const Text(
+                                        'แสดงรหัสผ่าน',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ))),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(10, 12, 10, 12),
+                          child: ElevatedButton(
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
+                              child: const Text(
+                                'ตกลง',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 18),
+                              ),
+                            ),
+                            onPressed: () {},
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(10, 12, 10, 12),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.grey.shade300,
+                            ),
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(2, 10, 2, 10),
+                              child: const Text(
+                                'ยกเลิก',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 18),
+                              ),
+                            ),
+                            onPressed: () {
+                              otpUser = "";
+                              int count = 0;
+                              Navigator.popUntil(context, (route) {
+                                return count++ == 2;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ],
+            );
+          });
+        });
+  }
+}

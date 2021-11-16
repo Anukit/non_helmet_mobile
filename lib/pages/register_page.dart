@@ -371,14 +371,15 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if (_acceptRegis) {
       ShowloadDialog().showLoading(context);
-      var result = await registerUser({
-        "email": profiles.email,
-        "firstname": profiles.firstname,
-        "lastname": profiles.lastname,
-        "password": profiles.password,
-        "datetime": now.toString()
-      });
+
       try {
+        var result = await registerUser({
+          "email": profiles.email,
+          "firstname": profiles.firstname,
+          "lastname": profiles.lastname,
+          "password": profiles.password,
+          "datetime": now.toString()
+        });
         if (result.pass) {
           Navigator.of(context, rootNavigator: true).pop();
           var listdata = result.data;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:non_helmet_mobile/models/profile.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
+import 'package:non_helmet_mobile/pages/forgot_password.dart';
 import 'package:non_helmet_mobile/pages/homepage.dart';
 import 'package:non_helmet_mobile/pages/register_page.dart';
 import 'package:non_helmet_mobile/widgets/load_dialog.dart';
@@ -168,10 +169,10 @@ class _Login_PageState extends State<Login_Page> {
           style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
         ),
         onPressed: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => ForgetPassword()),
-          // );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ForgotPassword()),
+          );
         },
       ),
     );
@@ -240,9 +241,10 @@ class _Login_PageState extends State<Login_Page> {
 
   Future<void> login() async {
     ShowloadDialog().showLoading(context);
-    var result = await postLogin(
-        {"email": profiles.email, "password": profiles.password});
+
     try {
+      var result = await postLogin(
+          {"email": profiles.email, "password": profiles.password});
       if (result.pass) {
         Navigator.of(context, rootNavigator: true).pop();
         var listdata = result.data;
