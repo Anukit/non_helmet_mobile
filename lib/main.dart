@@ -3,7 +3,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:non_helmet_mobile/pages/camera/home_view.dart';
+import 'package:non_helmet_mobile/pages/capture_detection/home_screen_camera.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 
 late List<CameraDescription> cameras;
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.amber,
       ),
       //home: SplashPage()
-      home: HomeView(),
+      home: HomeScreen(cameras),
     );
   }
 }
