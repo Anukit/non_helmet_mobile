@@ -3,7 +3,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:non_helmet_mobile/pages/capture_detection/home_screen_camera.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 
 late List<CameraDescription> cameras;
@@ -11,11 +10,11 @@ late List<CameraDescription> cameras;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  try {
-    cameras = await availableCameras();
-  } on CameraException catch (e) {
-    print('Error: $e.code \n Eooro Message: $e.message');
-  }
+  // try {
+  //   cameras = await availableCameras();
+  // } on CameraException catch (e) {
+  //   print('Error: $e.code \n Eooro Message: $e.message');
+  // }
   runApp(const MyApp());
 }
 
@@ -30,8 +29,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-      //home: SplashPage()
-      home: HomeScreen(cameras),
+      home: SplashPage()
+      //home: HomeScreen(cameras),
     );
   }
 }

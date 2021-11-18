@@ -144,6 +144,8 @@ class _EditProfileState extends State<EditProfile> {
                 ? FutureBuilder(
                     future: getImageDB(),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      print("snapshot.data = ${snapshot.data}");
+                      print("snapshot.hasError = ${snapshot.hasError}");
                       if (snapshot.hasError) {
                         return const CircleAvatar();
                       }
@@ -168,6 +170,8 @@ class _EditProfileState extends State<EditProfile> {
                                 fit: BoxFit.fill),
                           ),
                         );
+                      } else if (snapshot.data == "Error") {
+                        return const CircleAvatar();
                       } else {
                         return const CircleAvatar(
                           child: CircularProgressIndicator(),
@@ -305,7 +309,7 @@ class _EditProfileState extends State<EditProfile> {
         return "Error";
       }
     } else {
-      return "Error";
+      return "false";
     }
   }
 
@@ -335,7 +339,7 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<void> uploadImage() async {
-    String uploadurl = "${Constant().domain}/AboutFile/uploadImage";
+    String uploadurl = "${Constant().domain}/EditProfile/uploadImageProfile";
     //สุ่มชื่อ
     int genName = DateTime.now().millisecondsSinceEpoch;
     String newNameTmage = user_id.toString() +

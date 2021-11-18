@@ -18,7 +18,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   late String newPassword;
   bool _isObscure = true;
   bool _showpass = false;
-  String otpEmail = "";
   String otpUser = "";
   final formKey = GlobalKey<FormState>();
   Profile profiles = Profile();
@@ -142,23 +141,44 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   Future<void> reqOTP() async {
     ShowloadDialog().showLoading(context);
-
     try {
-      var result = await ForgotPW_ReqOTP({
+      var result = await req_OTP({
+        "user_id": 0,
         "email": profiles.email,
+        "type": 2,
+        "datetime": DateTime.now().toString()
       });
       if (result.pass) {
         Navigator.of(context, rootNavigator: true).pop();
         if (result.data["status"] == "Succeed") {
-          Future.delayed(const Duration(milliseconds: 1000 * 60), () {
-            otpEmail = "";
-          });
-          otpEmail = result.data["data"];
           dialogInputOTP();
         } else if (result.data["data"] == "Invalid email") {
           normalDialog(context, "ไม่มีอีเมลนี้ในระบบ");
         } else {
           normalDialog(context, "บันทึกไม่สำเร็จ");
+        }
+      }
+    } catch (e) {}
+  }
+
+  Future<void> checkOTP() async {
+    ShowloadDialog().showLoading(context);
+    try {
+      var result = await check_OTP({
+        "otp": otpUser,
+        "user_id": 0,
+        "email": profiles.email,
+        "type": 2,
+        "datetime": DateTime.now().toString()
+      });
+      if (result.pass) {
+        Navigator.of(context, rootNavigator: true).pop();
+        if (result.data["status"] == "Succeed") {
+          dialogCreatePW();
+        } else if (result.data["data"] == "Invalid OTP") {
+          normalDialog(context, "รหัส OTP ไม่ถูกต้อง");
+        } else {
+          normalDialog(context, "หมดเวลาส่ง OTP กรุณาขอ OTP ใหม่อีกครั้ง");
         }
       }
     } catch (e) {}
@@ -170,7 +190,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       barrierDismissible: false,
       builder: (context) => SimpleDialog(
         title: const Text(
-          'กรอกรหัส OTP ที่ได้รับใน 1 นาที',
+          'กรอกรหัส OTP ที่ได้รับใน 5 นาที',
           style: TextStyle(
             fontSize: 17,
           ),
@@ -218,20 +238,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     ),
                   ),
                   onPressed: () {
-                    if (otpUser.isEmpty) {
-                      normalDialog(context, "กรุณากรอก OTP");
-                    } else {
-                      if (otpUser == otpEmail) {
-                        dialogCreatePW();
-                      } else if (otpEmail.isEmpty) {
-                        normalDialog(
-                            context, "หมดเวลาส่ง OTP กรุณาขอ OTP ใหม่อีกครั้ง");
-                      } else {
-                        normalDialog(
-                            context, "OTP ไม่ถูกต้อง กรุณาตรวจสอบ OTP");
-                      }
-                    }
-                    //Navigator.of(context).pop();
+                    checkOTP();
                   },
                 ),
               ),

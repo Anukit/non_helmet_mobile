@@ -1,7 +1,9 @@
+import 'package:camera/camera.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/modules/constant.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
+import 'package:non_helmet_mobile/pages/capture_detection/home_screen_camera.dart';
 import 'package:non_helmet_mobile/pages/edit_profile.dart';
 import 'package:non_helmet_mobile/pages/video.dart';
 import 'package:non_helmet_mobile/pages/settings.dart';
@@ -180,8 +182,17 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
           if (onPressed == 1) {
+            late List<CameraDescription> cameras;
+            try {
+              cameras = await availableCameras();
+            } on CameraException catch (e) {
+              print('Error: $e.code \n Eooro Message: $e.message');
+              cameras = [];
+            }
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => HomeScreen(cameras)));
           } else {
             Navigator.push(
               context,

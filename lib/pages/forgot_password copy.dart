@@ -4,6 +4,7 @@ import 'package:non_helmet_mobile/models/profile.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/widgets/load_dialog.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
+import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -17,7 +18,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   late String newPassword;
   bool _isObscure = true;
   bool _showpass = false;
-  String otpEmail = "123456";
   String otpUser = "";
   final formKey = GlobalKey<FormState>();
   Profile profiles = Profile();
@@ -36,7 +36,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           ),
         ),
         title: const Text(
-          'เปลี่ยนรหัสผ่าน',
+          'สร้างรหัสผ่านใหม่',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -139,40 +139,81 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     );
   }
 
-  Future<void> reqOTP() async {
-    //ShowloadDialog().showLoading(context);
-    // final prefs = await SharedPreferences.getInstance();
-    // int user_id = prefs.getInt('user_id') ?? 0;
-    // DateTime now = DateTime.now();
-    dialogInputOTP();
-
-    // try {
-    //   var result = await ForgotPW_ReqOTP({
-    //     "email": profiles.email,
-    //   });
-    //   if (result.pass) {
-    //     Navigator.of(context, rootNavigator: true).pop();
-    //     print(result.data);
-    //     if (result.data["status"] == "Succeed") {
-    //       normalDialog2(
-    //         context,
-    //       );
-    //     } else if (result.data["data"] == "Invalid email") {
-    //       normalDialog(context, "ไม่มีอีเมลนี้ในระบบ");
-    //     } else {
-    //       normalDialog(context, "บันทึกไม่สำเร็จ");
-    //     }
-    //   }
-    // } catch (e) {}
+    Future<void> reqOTP() async {
+    try {
+      var result = await req_OTP({
+        "user_id": 0,
+        "email": profiles.email,
+        "type": 1,
+        "datetime": DateTime.now().toString()
+      });
+      if (result.pass) {
+        Navigator.of(context, rootNavigator: true).pop();
+        if (result.data["status"] == "Succeed") {
+          dialogInputOTP();
+        } else if (result.data["data"] == "Invalid email") {
+          normalDialog(context, "ไม่มีอีเมลนี้ในระบบ");
+        } else {
+          normalDialog(context, "บันทึกไม่สำเร็จ");
+        }
+      }
+    } catch (e) {}
   }
 
-  Future<void> dialogInputOTP() async {
+   Future<void> checkOTP() async {
+    ShowloadDialog().showLoading(context);
+    try {
+      var result = await check_OTP({
+        "otp": otpUser,
+        "user_id": 0,
+        "email": profiles.email,
+        "type": 1,
+        "datetime": DateTime.now().toString()
+      });
+      if (result.pass) {
+        Navigator.of(context, rootNavigator: true).pop();
+        if (result.data["status"] == "Succeed") {
+          succeedDialog(context, "ลงทะเบียนสำเร็จ", SplashPage());
+        } else if (result.data["data"] == "Invalid OTP") {
+          normalDialog(context, "รหัส OTP ไม่ถูกต้อง");
+        } else {
+          normalDialog(context, "หมดเวลาส่ง OTP กรุณาขอ OTP ใหม่อีกครั้ง");
+        }
+      }
+    } catch (e) {}
+  }
+
+/*   Future<void> reqOTP() async {
+    ShowloadDialog().showLoading(context);
+
+    try {
+      var result = await ForgotPW_ReqOTP({
+        "email": profiles.email,
+      });
+      if (result.pass) {
+        Navigator.of(context, rootNavigator: true).pop();
+        if (result.data["status"] == "Succeed") {
+          Future.delayed(const Duration(milliseconds: 1000 * 60), () {
+            otpEmail = "";
+          });
+          otpEmail = result.data["data"];
+          dialogInputOTP();
+        } else if (result.data["data"] == "Invalid email") {
+          normalDialog(context, "ไม่มีอีเมลนี้ในระบบ");
+        } else {
+          normalDialog(context, "บันทึกไม่สำเร็จ");
+        }
+      }
+    } catch (e) {}
+  } */
+
+  dialogInputOTP() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => SimpleDialog(
         title: const Text(
-          'กรุณากรอกรหัส OTP ที่ได้รับ',
+          'กรอกรหัส OTP ที่ได้รับใน 5 นาที',
           style: TextStyle(
             fontSize: 17,
           ),
@@ -220,16 +261,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     ),
                   ),
                   onPressed: () {
-                    if (otpUser.isEmpty) {
-                      normalDialog(context, "กรุณากรอก OTP");
-                    } else {
-                      if (otpUser == otpEmail) {
-                        showDialogs();
-                      } else {
-                        normalDialog(context, "OTP ไม่ถูกต้อง");
-                      }
-                    }
-                    //Navigator.of(context).pop();
+                    checkOTP();
                   },
                 ),
               ),
@@ -260,164 +292,18 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     );
   }
 
-  Widget buildShowPassword() {
-    return Container(
-      height: 20.0,
-      child: Row(
-        children: <Widget>[
-          Checkbox(
-            value: _showpass,
-            //checkColor: Colors.white,
-            //activeColor: Colors.black,
-            onChanged: (value) {
-              print(_showpass);
-
-              setState(() {
-                _showpass = value!;
-                _isObscure = !_isObscure;
-              });
-            },
-          ),
-          const Text(
-            'แสดงรหัสผ่าน',
-            style: TextStyle(
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> dialogCreatePW() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => SimpleDialog(
-        title: const Text(
-          'สร้างรหัสผ่านใหม่',
-          style: TextStyle(
-            fontSize: 17,
-          ),
-        ),
-        children: <Widget>[
-          SingleChildScrollView(
-              child: Container(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        obscureText: _isObscure,
-                        keyboardType: TextInputType.number,
-                        style: const TextStyle(fontSize: 18),
-                        decoration: InputDecoration(
-                          labelText: 'รหัสผ่านใหม่',
-                          labelStyle: TextStyle(
-                              fontSize: 18, color: Colors.grey.shade600),
-                          fillColor: Colors.white,
-                          errorStyle:
-                              const TextStyle(color: Colors.red, fontSize: 14),
-                          prefixIcon: const Icon(
-                            Icons.email,
-                            color: Colors.grey,
-                          ),
-                          border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10),
-                            ),
-                          ),
-                        ),
-                        onChanged: (value) {
-                          otpUser = value;
-                        },
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      TextFormField(
-                        obscureText: _isObscure,
-                        keyboardType: TextInputType.number,
-                        style: const TextStyle(fontSize: 18),
-                        decoration: InputDecoration(
-                          labelText: 'ยืนยันรหัสผ่าน',
-                          labelStyle: TextStyle(
-                              fontSize: 18, color: Colors.grey.shade600),
-                          fillColor: Colors.white,
-                          errorStyle:
-                              const TextStyle(color: Colors.red, fontSize: 14),
-                          prefixIcon: const Icon(
-                            Icons.email,
-                            color: Colors.grey,
-                          ),
-                          border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10),
-                            ),
-                          ),
-                        ),
-                        onChanged: (value) {
-                          otpUser = value;
-                        },
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      buildShowPassword()
-                    ],
-                  ))),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                margin: const EdgeInsets.fromLTRB(10, 12, 10, 12),
-                child: ElevatedButton(
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-                    child: const Text(
-                      'ตกลง',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                  ),
-                  onPressed: () {},
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(10, 12, 10, 12),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.grey.shade300,
-                  ),
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(2, 10, 2, 10),
-                    child: const Text(
-                      'ยกเลิก',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                  ),
-                  onPressed: () {
-                    otpUser = "";
-                    int count = 0;
-                    Navigator.popUntil(context, (route) {
-                      return count++ == 2;
-                    });
-                  },
-                ),
-              ),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  showDialogs() {
+  dialogCreatePW() {
     showDialog(
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
+              title: const Text(
+                'สร้างรหัสผ่านใหม่',
+                style: TextStyle(
+                  fontSize: 17,
+                ),
+              ),
               actions: [
                 Column(
                   children: [
@@ -428,7 +314,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               children: [
                                 TextFormField(
                                   obscureText: _isObscure,
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.visiblePassword,
                                   style: const TextStyle(fontSize: 18),
                                   decoration: InputDecoration(
                                     labelText: 'รหัสผ่านใหม่',
@@ -449,7 +335,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                     ),
                                   ),
                                   onChanged: (value) {
-                                    otpUser = value;
+                                    profiles.password = value;
                                   },
                                 ),
                                 const SizedBox(
@@ -457,7 +343,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 ),
                                 TextFormField(
                                   obscureText: _isObscure,
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.visiblePassword,
                                   style: const TextStyle(fontSize: 18),
                                   decoration: InputDecoration(
                                     labelText: 'ยืนยันรหัสผ่าน',
@@ -478,7 +364,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                     ),
                                   ),
                                   onChanged: (value) {
-                                    otpUser = value;
+                                    newPassword = value;
                                   },
                                 ),
                                 const SizedBox(
@@ -493,8 +379,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                         //checkColor: Colors.white,
                                         //activeColor: Colors.black,
                                         onChanged: (value) {
-                                          print(_showpass);
-
                                           setState(() {
                                             _showpass = value!;
                                             _isObscure = !_isObscure;
@@ -526,7 +410,13 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                     fontWeight: FontWeight.bold, fontSize: 18),
                               ),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              if (profiles.password == newPassword) {
+                                createPW();
+                              } else {
+                                normalDialog(context, "รหัสผ่านไม่ตรงกัน");
+                              }
+                            },
                           ),
                         ),
                         Container(
@@ -560,5 +450,26 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             );
           });
         });
+  }
+
+  Future<void> createPW() async {
+    ShowloadDialog().showLoading(context);
+    DateTime now = DateTime.now();
+
+    try {
+      var result = await ForgotPW_CreatePW({
+        "email": profiles.email,
+        "new_password": newPassword,
+        "datetime": now.toString(),
+      });
+      if (result.pass) {
+        Navigator.of(context, rootNavigator: true).pop();
+        if (result.data["data"] == "Succeed") {
+          succeedDialog(context, "สร้างรหัสผ่านใหม่สำเร็จ", SplashPage());
+        } else {
+          normalDialog(context, "สร้างรหัสผ่านใหม่ไม่สำเร็จ");
+        }
+      }
+    } catch (e) {}
   }
 }

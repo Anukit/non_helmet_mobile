@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
         result = await Tflite.loadModel(
             labels: "assets/tflite/ssd_mobilenet.txt",
             model: "assets/tflite/ssd_mobilenet.tflite",
-            useGpuDelegate: true);
+            useGpuDelegate: false);
     }
     print(result);
   }
@@ -54,9 +54,35 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void initState() {
+    // ignore: todo
+    // TODO: implement initState
+    super.initState();
+    onSelectModel(ssd);
+  }
+
+  @override
   Widget build(BuildContext context) {
     Size screen = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.black,
+          ),
+        ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                print("ไปหน้าตั้งค่ากล้อง");
+              },
+              icon: const Icon(Icons.settings_outlined, color: Colors.black))
+        ],
+      ),
       body: _model == ""
           ? Container()
           : Stack(
@@ -71,12 +97,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     _model)
               ],
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          onSelectModel(ssd);
-        },
-        child: const Icon(Icons.photo_camera),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     onSelectModel(ssd);
+      //   },
+      //   child: const Icon(Icons.photo_camera),
+      // ),
     );
   }
 }
