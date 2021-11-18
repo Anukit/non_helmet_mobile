@@ -13,7 +13,7 @@ const String ssd = "My model";
 class HomeScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
 
-  HomeScreen(this.cameras);
+  const HomeScreen(this.cameras);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -27,15 +27,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   loadModel() async {
     String? result;
-
     switch (_model) {
       case ssd:
         result = await Tflite.loadModel(
             labels: "assets/tflite/ssd_mobilenet.txt",
-            model: "assets/tflite/ssd_mobilenet.tflite");
+            model: "assets/tflite/ssd_mobilenet.tflite",
+            useGpuDelegate: true);
     }
-
-    // ignore: avoid_print
     print(result);
   }
 
@@ -77,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () {
           onSelectModel(ssd);
         },
-        child: Icon(Icons.photo_camera),
+        child: const Icon(Icons.photo_camera),
       ),
     );
   }

@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 //import 'package:image/image.dart' as img;
 
 //สำหรับการเทสระบบตรวจจับ
-
 const String ssd = "SSD MobileNet";
 const String yolo = "Tiny YOLOv2";
 
@@ -16,7 +15,7 @@ class TfliteHome extends StatefulWidget {
 }
 
 class TfliteHomeState extends State<TfliteHome> {
-  String _model = ssd;
+  final String _model = ssd;
   File? _image;
 
   double? _imageWidth;
@@ -43,20 +42,25 @@ class TfliteHomeState extends State<TfliteHome> {
       if (_model == yolo) {
         res = (await Tflite.loadModel(
             model: "assets\tflite\my_model.tflite",
-            labels: "assets\tflite\my_model.txt"))!;
+            labels: "assets\tflite\my_model.txt",
+            useGpuDelegate: true))!;
       } else {
         res = (await Tflite.loadModel(
-            model: "aassets\tflite\my_model.tflite",
-            labels: "assets\tflite\my_model.txt"))!;
+            model: "assets\tflite\my_model.tflite",
+            labels: "assets\tflite\my_model.txt",
+            useGpuDelegate: true))!;
       }
+      // ignore: avoid_print
       print(res);
     } on PlatformException {
+      // ignore: avoid_print
       print("Failed to load the model");
     }
   }
 
   selectFromImagePicker() async {
-    var imageSelect = await ImagePicker().getImage(source: ImageSource.gallery);
+    var imageSelect =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     File image = File(imageSelect!.path);
     if (image == null) return;
     setState(() {
@@ -66,7 +70,7 @@ class TfliteHomeState extends State<TfliteHome> {
   }
 
   predictImage(File image) async {
-    if (image == null) return;
+    //if (image == null) return;
     if (_model == yolo) {
       await yolov2Tiny(image);
     } else {
@@ -74,7 +78,7 @@ class TfliteHomeState extends State<TfliteHome> {
     }
 
     FileImage(image)
-        .resolve(ImageConfiguration())
+        .resolve(const ImageConfiguration())
         .addListener(ImageStreamListener((ImageInfo info, bool _) {
       setState(() {
         _imageWidth = info.image.width.toDouble();
@@ -148,21 +152,23 @@ class TfliteHomeState extends State<TfliteHome> {
       top: 0.0,
       left: 0.0,
       width: size.width,
-      child: _image == null ? Text("No Image Selected") : Image.file(_image!),
+      child: _image == null
+          ? const Text("No Image Selected")
+          : Image.file(_image!),
     ));
 
     stackChildren.addAll(renderBoxes(size));
     if (_busy) {
-      stackChildren.add(Center(
+      stackChildren.add(const Center(
         child: CircularProgressIndicator(),
       ));
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text("TFlite Demo"),
+        title: const Text("TFlite Demo"),
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.image),
+        child: const Icon(Icons.image),
         tooltip: "Pick Image From gallery",
         onPressed: selectFromImagePicker,
       ),
