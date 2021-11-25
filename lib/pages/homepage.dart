@@ -8,6 +8,8 @@ import 'package:non_helmet_mobile/pages/edit_profile.dart';
 import 'package:non_helmet_mobile/pages/video.dart';
 import 'package:non_helmet_mobile/pages/settings.dart';
 import 'package:non_helmet_mobile/pages/upload_Page/upload_home.dart';
+import 'package:non_helmet_mobile/utility/utility.dart';
+import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,6 +20,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    permissionCamera()
+        .then((value) => !value ? settingPermissionDialog(context) : null);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

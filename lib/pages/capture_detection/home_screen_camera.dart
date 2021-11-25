@@ -2,6 +2,9 @@
 // ignore: file_names
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:non_helmet_mobile/pages/homepage.dart';
+import 'package:non_helmet_mobile/utility/utility.dart';
+import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:tflite/tflite.dart';
 import 'dart:math' as math;
 
@@ -58,7 +61,10 @@ class _HomeScreenState extends State<HomeScreen> {
     // ignore: todo
     // TODO: implement initState
     super.initState();
-    onSelectModel(ssd);
+    checkGPS().then((value) => value
+        ? onSelectModel(ssd)
+        : succeedDialog(context, "กรุณาเปิด GPS", HomePage()));
+    //onSelectModel(ssd);
   }
 
   @override
@@ -75,13 +81,13 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.black,
           ),
         ),
-        actions: [
-          IconButton(
-              onPressed: () {
-                print("ไปหน้าตั้งค่ากล้อง");
-              },
-              icon: const Icon(Icons.settings_outlined, color: Colors.black))
-        ],
+        // actions: [
+        //   IconButton(
+        //       onPressed: () {
+        //         print("ไปหน้าตั้งค่ากล้อง");
+        //       },
+        //       icon: const Icon(Icons.settings_outlined, color: Colors.black))
+        // ],
       ),
       body: _model == ""
           ? Container()

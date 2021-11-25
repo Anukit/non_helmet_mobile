@@ -1,3 +1,0 @@
-class Utility {
-  Utility();
-}
