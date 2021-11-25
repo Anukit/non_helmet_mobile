@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:non_helmet_mobile/utility/convert_image.dart';
 import 'package:tflite/tflite.dart';
 import 'dart:math' as math;
 
@@ -18,11 +19,16 @@ class Camera extends StatefulWidget {
 class _CameraState extends State<Camera> {
   CameraController? controller;
   bool isDetecting = false;
+  int i = 0; //สำหรับเทสแคปภาพ
+  List listimg = [];
 
   @override
   void initState() {
     super.initState();
+    imageDetect();
+  }
 
+  imageDetect() {
     if (widget.cameras.isEmpty) {
       print('No camera is found');
     } else {
@@ -54,9 +60,14 @@ class _CameraState extends State<Camera> {
               numResultsPerClass: 4,
               threshold: 0.4,
             ).then((recognitions) {
+              i += 1;
+              listimg.add(img);
+              // if (i == 10 || i == 20) {
+              //   convertImage(img, "Image");
+              // }
               int endTime = DateTime.now().millisecondsSinceEpoch;
               print("Detection took ${endTime - startTime}");
-              //print("recognitions : $recognitions");
+              print("recognitions : $recognitions");
               widget.setRecognitions(recognitions!, img.height, img.width);
 
               isDetecting = false;
@@ -69,6 +80,7 @@ class _CameraState extends State<Camera> {
 
   @override
   void dispose() {
+    //convertImage(listimg, "Video");
     controller?.dispose();
     super.dispose();
   }
