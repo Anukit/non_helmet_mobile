@@ -5,9 +5,9 @@ import 'package:non_helmet_mobile/modules/constant.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/capture_detection/home_screen_camera.dart';
 import 'package:non_helmet_mobile/pages/edit_profile.dart';
-import 'package:non_helmet_mobile/pages/video.dart';
 import 'package:non_helmet_mobile/pages/settings.dart';
 import 'package:non_helmet_mobile/pages/upload_Page/upload_home.dart';
+import 'package:non_helmet_mobile/pages/video_page/video_main.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -207,7 +207,7 @@ class _HomePageState extends State<HomePage> {
               context,
               MaterialPageRoute(
                   builder: (context) => onPressed == 2
-                      ? VideoPage()
+                      ? VideoMain()
                       : onPressed == 3
                           ? Upload()
                           : onPressed == 4

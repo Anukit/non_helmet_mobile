@@ -1,10 +1,10 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
-import 'package:non_helmet_mobile/models/profile.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/changepassword.dart';
 import 'package:non_helmet_mobile/pages/edit_profile.dart';
+import 'package:non_helmet_mobile/pages/setting_camera.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -74,6 +74,8 @@ class _SettingPageState extends State<SettingPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               const SizedBox(height: 10.0),
+              buildSettingCamera(),
+              const SizedBox(height: 10.0),
               buildEditProfile(),
               const SizedBox(height: 10.0),
               buildChangePw(),
@@ -94,9 +96,45 @@ class _SettingPageState extends State<SettingPage> {
     );
   }
 
+  //หน้าตั้งค่ากล้อง
+  Widget buildSettingCamera() {
+    print("1");
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SettingCamera()),
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        primary: Colors.grey[300],
+      ),
+      child: Container(
+        padding: const EdgeInsets.only(top: 10.0, bottom: 10),
+        child: Row(
+          children: [
+            const Align(
+                alignment: Alignment.centerLeft,
+                child: Icon(
+                  Icons.camera,
+                  color: Colors.black,
+                )),
+            Container(
+              margin: const EdgeInsets.only(left: 10.0),
+              child: const Text(
+                "ตั้งค่ากล้อง",
+                style: TextStyle(fontSize: 16.0, color: Colors.black),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   //แก้ไขข้อมูลส่วนตัว
   Widget buildEditProfile() {
-    print("1");
+    print("2");
     return ElevatedButton(
       onPressed: () {
         Navigator.push(
@@ -132,7 +170,7 @@ class _SettingPageState extends State<SettingPage> {
 
   //เปลี่ยนรหัสผ่าน
   Widget buildChangePw() {
-    print("2");
+    print("3");
     return ElevatedButton(
       onPressed: () {
         Navigator.push(

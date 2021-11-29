@@ -45,7 +45,7 @@ Future<void> saveVideo(giffile) async {
     File(filePath).writeAsBytes(giffile!).then((gifData) async => {
           //แปลงไฟล์ gif => mp4
           result =
-              await _flutterFFmpeg.execute("-f gif -i $inputFile $outputFile"),
+              await _flutterFFmpeg.execute("-f gif -i $inputFile -pix_fmt yuv420p $outputFile"),
           if (result == 0) {await gifData.delete(), print("Succeed")}
         });
   } else {}
