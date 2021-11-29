@@ -67,8 +67,10 @@ Future<void> settingPermissionDialog(BuildContext context) async {
     context: context,
     barrierDismissible: false,
     builder: (context) => SimpleDialog(
-      title: const Text("กรุณาอนุญาตตั้งค่าแอปทั้งหมดก่อน",
-        style: TextStyle(fontSize: 17),),
+      title: const Text(
+        "กรุณาอนุญาตตั้งค่าแอปทั้งหมดก่อน",
+        style: TextStyle(fontSize: 17),
+      ),
       children: <Widget>[
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -83,7 +85,7 @@ Future<void> settingPermissionDialog(BuildContext context) async {
               },
             ),
             TextButton(
-              child:  Text(
+              child: Text(
                 "เริ่มแอปใหม่",
                 style: TextStyle(fontSize: 15, color: Colors.amber.shade700),
               ),
@@ -98,5 +100,44 @@ Future<void> settingPermissionDialog(BuildContext context) async {
         )
       ],
     ),
+  );
+}
+
+Future<void> zoomPictureDialog(BuildContext context, file) async {
+  showGeneralDialog(
+    context: context,
+    barrierColor: Colors.black12.withOpacity(0.6), // Background color
+    barrierDismissible: false,
+    barrierLabel: 'Dialog',
+    // transitionDuration: const Duration(
+    //     milliseconds:
+    //         400), // How long it takes to popup dialog after button click
+    pageBuilder: (_, __, ___) {
+      // Makes widget fullscreen
+      return SizedBox.expand(
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              flex: 5,
+              child: SizedBox.expand(
+                  child: Center(
+                child: InteractiveViewer(
+                  panEnabled: true, // Set it to false
+                  boundaryMargin: const EdgeInsets.all(100),
+                  minScale: 0.5,
+                  maxScale: 2,
+                  child: Image.file(
+                    file,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )),
+            ),
+          ],
+        ),
+      );
+    },
   );
 }

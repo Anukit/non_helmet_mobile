@@ -1,13 +1,10 @@
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:exif/exif.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:non_helmet_mobile/models/data_image.dart';
-import 'package:non_helmet_mobile/utility/saveimage_video.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:non_helmet_mobile/widgets/showdialog.dart';
 
 class NotUpload extends StatelessWidget {
   NotUpload();
@@ -133,7 +130,9 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
 
   Widget buildDataImage(index) {
     return GestureDetector(
-        onTap: () => print('${_photoList[index]}'),
+        onTap: () {
+          zoomPictureDialog(context, _photoList[index]);
+        },
         child: Container(
             margin: const EdgeInsets.all(8.0),
             child: Card(
@@ -205,56 +204,17 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         IconButton(
-                            onPressed: () => showDialog<String>(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      AlertDialog(
-                                    title: const Text('You confirm to upload?'),
-                                    //content: const Text('AlertDialog description'),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, 'Cancel'),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, 'OK'),
-                                        child: const Text('OK'),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                            onPressed: () {
+                              comfirmDialog("ต้องการอัปโหลดหรือไม่", index, 1);
+                            },
                             icon: const Icon(Icons.file_upload)),
                         const SizedBox(
                           height: 100,
                         ),
                         IconButton(
-                            onPressed: () => showDialog<String>(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      AlertDialog(
-                                    title: const Text('You confirm to delete?'),
-                                    //content: const Text('AlertDialog description'),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, 'Cancel'),
-                                        child: const Text(
-                                          'Cancel',
-                                          style: TextStyle(color: Colors.red),
-                                        ),
-                                      ),
-                                      TextButton(
-                                        onPressed: () => deleteFile(index),
-                                        child: const Text(
-                                          'OK',
-                                          style: TextStyle(color: Colors.red),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                            onPressed: () {
+                              comfirmDialog("ต้องการลบหรือไม่", index, 2);
+                            },
                             icon: const Icon(
                               Icons.restore_from_trash,
                               color: Colors.red,
@@ -265,5 +225,56 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                 ],
               ),
             )));
+  }
+
+  comfirmDialog(String message, index, type) {
+    //type 1 = อัปโหลก type 2 = ลบไฟล์
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => SimpleDialog(
+        title: Text(
+          message,
+          style: const TextStyle(
+            fontSize: 17,
+          ),
+        ),
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              TextButton(
+                child: Text(
+                  'ใช่',
+                  style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.amber.shade900,
+                      fontWeight: FontWeight.bold),
+                ),
+                onPressed: () {
+                  if (type == 1) {
+                    Navigator.of(context).pop();
+                  } else {
+                    deleteFile(index);
+                  }
+                },
+              ),
+              TextButton(
+                child: Text(
+                  'ไม่',
+                  style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.amber.shade900,
+                      fontWeight: FontWeight.bold),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          )
+        ],
+      ),
+    );
   }
 }
