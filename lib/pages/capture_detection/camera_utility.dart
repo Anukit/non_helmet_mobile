@@ -52,13 +52,13 @@ class _CameraState extends State<Camera> {
               bytesList: img.planes.map((plane) {
                 return plane.bytes;
               }).toList(),
-              model: "SSDMobileNet",
+              model: "YOLO",
               imageHeight: img.height,
               imageWidth: img.width,
-              imageMean: 127.5,
-              imageStd: 127.5,
-              numResultsPerClass: 4,
-              threshold: 0.4,
+              imageMean: 0,
+              imageStd: 255.0,
+              numResultsPerClass: 2,
+              threshold: 0.1,
             ).then((recognitions) {
               i += 1;
               listimg.add(img);
