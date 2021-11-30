@@ -14,6 +14,7 @@ class SettingCamera extends StatefulWidget {
 class _SettingCameraState extends State<SettingCamera> {
   bool autoUpload = false;
   bool recordVideo = false;
+  bool boundingBox = false;
   List<Resolution> resolution = <Resolution>[
     const Resolution(1, '720p'),
     const Resolution(2, '1080p'),
@@ -59,6 +60,8 @@ class _SettingCameraState extends State<SettingCamera> {
                 swAutoUpload(),
                 const SizedBox(height: 15.0),
                 swRecordVideo(),
+                const SizedBox(height: 15.0),
+                swBoundingBox(),
               ],
             ),
           ),
@@ -67,7 +70,7 @@ class _SettingCameraState extends State<SettingCamera> {
 
   Widget dnResolution() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text(
           "ความละเอียดกล้อง",
@@ -113,7 +116,7 @@ class _SettingCameraState extends State<SettingCamera> {
 
   Widget swAutoUpload() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text(
           "อัปโหลดรูปภาพอัติโนมัติ",
@@ -141,7 +144,7 @@ class _SettingCameraState extends State<SettingCamera> {
 
   Widget swRecordVideo() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text(
           "บันทึกวิดีโอขณะตรวจจับ",
@@ -161,6 +164,34 @@ class _SettingCameraState extends State<SettingCamera> {
               recordVideo = value;
             });
             print("recordVideo = ${recordVideo}");
+          },
+        )
+      ],
+    );
+  }
+
+  Widget swBoundingBox() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          "แสดง BoundingBox",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        const SizedBox(width: 10.0),
+        FlutterSwitch(
+          height: 30.0,
+          width: 60.0,
+          padding: 4.0,
+          toggleSize: 20.0,
+          //borderRadius: 10.0,
+          activeColor: Colors.black,
+          value: boundingBox,
+          onToggle: (value) {
+            setState(() {
+              boundingBox = value;
+            });
+            print("boundingBox = ${boundingBox}");
           },
         )
       ],

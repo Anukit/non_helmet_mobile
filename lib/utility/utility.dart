@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart' as lo;
@@ -65,5 +67,19 @@ Future<Directory> checkDirectory(String folderName) async {
   } else {
     dir.create();
     return dir;
+  }
+}
+
+checkInternet(context) async {
+  var connectivityResult = await (Connectivity().checkConnectivity());
+  if (connectivityResult == ConnectivityResult.mobile) {
+    print("I am connected to a mobile network.");
+    // I am connected to a mobile network.
+  } else if (connectivityResult == ConnectivityResult.wifi) {
+    // I am connected to a wifi network.
+    print("I am connected to a wifi network.");
+  } else {
+    print("No net");
+    normalDialog(context, "กรุณาตรวจสอบอินเทอร์เน็ต");
   }
 }
