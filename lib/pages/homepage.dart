@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/modules/constant.dart';
@@ -23,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    checkInternet(context);
     permissionCamera()
         .then((value) => !value ? settingPermissionDialog(context) : null);
   }
