@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:exif/exif.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:non_helmet_mobile/pages/upload_Page/google_map.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
 
@@ -95,7 +96,8 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  Future<Widget> coordinates(index) async {
+  Future<List<double>> coordinates(index) async {
+    List<double> latlong = [];
     final tags = await readExifFromFile(_photoList[index]);
     /////////////////////////////////// พิกัด////////////////////////////////////
     final latitudeValue = tags['GPS GPSLatitude']!
@@ -122,10 +124,10 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
 
     if (latitudeSignal == 'S') latitude = -latitude;
     if (longitudeSignal == 'W') longitude = -longitude;
-    String Lat = latitude.toStringAsFixed(3);
-    String Long = longitude.toStringAsFixed(3);
+    latlong.add(latitude);
+    latlong.add(longitude);
     //////////////////////////////////////////////////////////////////////////
-    return Text("$Lat, $Long", style: TextStyle(color: Colors.blue[900]));
+    return latlong;
   }
 
   Widget buildDataImage(index) {
@@ -183,15 +185,23 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                               //margin: const EdgeInsets.symmetric(vertical: 10),
                               child: TextButton(
                             onPressed: () {
-                              setState(() {});
-                              print('ลิงก์ไปยังแผนที่');
+                              coordinates(index).then((value) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ShowMap(value)),
+                                );
+                              });
                             },
                             child: FutureBuilder(
                                 future: coordinates(index),
                                 builder: (BuildContext context,
                                     AsyncSnapshot snapshot) {
                                   if (snapshot.data != null) {
-                                    return snapshot.data;
+                                    return Text(
+                                        "${snapshot.data[0].toStringAsFixed(3)}, ${snapshot.data[1].toStringAsFixed(3)}",
+                                        style:
+                                            TextStyle(color: Colors.blue[900]));
                                   } else {
                                     return const CircularProgressIndicator();
                                   }

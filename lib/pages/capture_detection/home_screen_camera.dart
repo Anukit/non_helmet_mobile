@@ -1,5 +1,6 @@
 // ignore: file_names
 // ignore: file_names
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/pages/homepage.dart';
@@ -27,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _imageHeight = 0;
   int _imageWidth = 0;
   String _model = "";
+  String? boundingBox;
 
   loadModel() async {
     String? result;
@@ -61,10 +63,28 @@ class _HomeScreenState extends State<HomeScreen> {
     // ignore: todo
     // TODO: implement initState
     super.initState();
-    checkGPS().then((value) => value
-        ? onSelectModel(ssd)
-        : succeedDialog(context, "กรุณาเปิด GPS", HomePage()));
+
+    // checkGPS().then((value) => value
+    //     ? onSelectModel(ssd)
+    //     : succeedDialog(context, "กรุณาเปิด GPS", HomePage()));
+
     //onSelectModel(ssd);
+    getData();
+  }
+
+  getData() async {
+    bool rusult = await checkGPS();
+    if (rusult) {
+      var listdata = await getDataSetting();
+      if (listdata != "Error") {
+        boundingBox = listdata["boundingBox"];
+      } else {
+        boundingBox = "true";
+      }
+      onSelectModel(ssd);
+    } else {
+      succeedDialog(context, "กรุณาเปิด GPS", HomePage());
+    }
   }
 
   @override
@@ -81,34 +101,23 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.black,
           ),
         ),
-        // actions: [
-        //   IconButton(
-        //       onPressed: () {
-        //         print("ไปหน้าตั้งค่ากล้อง");
-        //       },
-        //       icon: const Icon(Icons.settings_outlined, color: Colors.black))
-        // ],
       ),
       body: _model == ""
           ? Container()
           : Stack(
               children: [
                 Camera(widget.cameras, _model, setRecognitions),
-                BoundingBox(
-                    _recognitions ?? [],
-                    math.max(_imageHeight, _imageWidth),
-                    math.min(_imageHeight, _imageWidth),
-                    screen.width,
-                    screen.height,
-                    _model)
+                boundingBox == "true" && boundingBox != null
+                    ? BoundingBox(
+                        _recognitions ?? [],
+                        math.max(_imageHeight, _imageWidth),
+                        math.min(_imageHeight, _imageWidth),
+                        screen.width,
+                        screen.height,
+                        _model)
+                    : Container()
               ],
             ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     onSelectModel(ssd);
-      //   },
-      //   child: const Icon(Icons.photo_camera),
-      // ),
     );
   }
 }

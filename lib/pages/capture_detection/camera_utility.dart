@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:non_helmet_mobile/utility/convert_image.dart';
+import 'package:non_helmet_mobile/utility/utility.dart';
 import 'package:tflite/tflite.dart';
 import 'dart:math' as math;
 
@@ -21,10 +22,28 @@ class _CameraState extends State<Camera> {
   bool isDetecting = false;
   int i = 0; //สำหรับเทสแคปภาพ
   List listimg = [];
+  String? recordVideo;
+  String? autoUpload;
+  String? resolution;
 
   @override
   void initState() {
     super.initState();
+    //imageDetect();
+    getData();
+  }
+
+  getData() async {
+    var listdata = await getDataSetting();
+    if (listdata != "Error") {
+      resolution = listdata["resolution"];
+      autoUpload = listdata["autoUpload"];
+      recordVideo = listdata["recordVideo"];
+    } else {
+      resolution = "1";
+      autoUpload = "true";
+      recordVideo = "false";
+    }
     imageDetect();
   }
 
@@ -33,9 +52,10 @@ class _CameraState extends State<Camera> {
       print('No camera is found');
     } else {
       controller = CameraController(
-        widget.cameras[0],
-        ResolutionPreset.high,
-      );
+          widget.cameras[0],
+          resolution == "1"
+              ? ResolutionPreset.high
+              : ResolutionPreset.veryHigh);
       controller!.initialize().then((_) {
         if (!mounted) {
           return;
@@ -60,11 +80,12 @@ class _CameraState extends State<Camera> {
               numResultsPerClass: 2,
               threshold: 0.1,
             ).then((recognitions) {
+              listimg.add(img); //สำหรับวิดีโอ
+
               i += 1;
-              listimg.add(img);
-              // if (i == 10 || i == 20) {
-              //   convertImage(img, "Image");
-              // }
+              if (i == 10 || i == 20) {
+                convertImage(img, "Image");
+              }
               int endTime = DateTime.now().millisecondsSinceEpoch;
               print("Detection took ${endTime - startTime}");
               print("recognitions : $recognitions");
@@ -80,7 +101,9 @@ class _CameraState extends State<Camera> {
 
   @override
   void dispose() {
-    //convertImage(listimg, "Video");
+    if (recordVideo == "true") {
+      convertImage(listimg, "Video");
+    } else {}
     controller?.dispose();
     super.dispose();
   }
