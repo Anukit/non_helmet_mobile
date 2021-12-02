@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -6,10 +7,11 @@ import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart' as lo;
+import 'package:shared_preferences/shared_preferences.dart';
 
 String formatDate(dateTime) {
-  var date = DateTime.parse(dateTime);
-  String formattedDate = DateFormat('dd-MM-yyyy เวลา kk:mm').format(date);
+  DateTime date = DateTime.parse(dateTime);
+  String formattedDate = DateFormat('dd-MM-yyyy เวลา HH:mm').format(date);
   return formattedDate;
 }
 
@@ -81,5 +83,16 @@ checkInternet(context) async {
   } else {
     print("No net");
     normalDialog(context, "กรุณาตรวจสอบอินเทอร์เน็ต");
+  }
+}
+
+Future<dynamic> getDataSetting() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final rawJson = prefs.getString('listSetting') ?? '';
+    return jsonDecode(rawJson);
+  } catch (e) {
+    //print("Error = $e");
+    return "Error";
   }
 }

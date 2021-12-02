@@ -1,8 +1,13 @@
 // ignore_for_file: unnecessary_new
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
-import 'package:non_helmet_mobile/modules/resolution.dart';
+import 'package:non_helmet_mobile/models/resolution.dart';
+import 'package:non_helmet_mobile/models/setting_camera_modetl.dart';
+import 'package:non_helmet_mobile/utility/utility.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingCamera extends StatefulWidget {
   SettingCamera({Key? key}) : super(key: key);
@@ -20,7 +25,46 @@ class _SettingCameraState extends State<SettingCamera> {
     const Resolution(2, '1080p'),
   ];
 
-  Resolution valueRes = const Resolution(1, '720p');
+  Resolution? valueRes;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData();
+  }
+
+  getData() async {
+    var listdata = await getDataSetting();
+    print("listdata = $listdata");
+    if (listdata != "Error") {
+      setState(() {
+        valueRes = resolution[int.parse(listdata["resolution"]) - 1];
+        if (listdata["autoUpload"] == "true") {
+          autoUpload = true;
+        } else {
+          autoUpload = false;
+        }
+        if (listdata["recordVideo"] == "true") {
+          recordVideo = true;
+        } else {
+          recordVideo = false;
+        }
+        if (listdata["boundingBox"] == "true") {
+          boundingBox = true;
+        } else {
+          boundingBox = false;
+        }
+      });
+    } else {
+      setState(() {
+        valueRes = resolution[0];
+        autoUpload = true;
+        recordVideo = false;
+        boundingBox = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +72,7 @@ class _SettingCameraState extends State<SettingCamera> {
         appBar: AppBar(
           leading: IconButton(
             onPressed: () {
+              settingList();
               Navigator.pop(context);
             },
             icon: const Icon(
@@ -96,7 +141,7 @@ class _SettingCameraState extends State<SettingCamera> {
                 setState(() {
                   valueRes = value!;
                 });
-                print("valueRes = ${valueRes.id}");
+                print("valueRes = ${valueRes!.id}");
               },
               items: resolution.map((Resolution persontypes) {
                 return new DropdownMenuItem<Resolution>(
@@ -196,5 +241,17 @@ class _SettingCameraState extends State<SettingCamera> {
         )
       ],
     );
+  }
+
+  Future<void> settingList() async {
+    final prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> maps = SettingCam(
+            valueRes!.id.toString(),
+            autoUpload.toString(),
+            recordVideo.toString(),
+            boundingBox.toString())
+        .toJson();
+    String json = jsonEncode(maps);
+    prefs.setString("listSetting", json);
   }
 }
