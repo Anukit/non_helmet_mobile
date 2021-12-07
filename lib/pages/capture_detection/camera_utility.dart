@@ -65,19 +65,17 @@ class _CameraState extends State<Camera> {
         controller!.startImageStream((CameraImage img) {
           if (!isDetecting) {
             isDetecting = true;
-
             int startTime = DateTime.now().millisecondsSinceEpoch;
-
             Tflite.detectObjectOnFrame(
               bytesList: img.planes.map((plane) {
                 return plane.bytes;
               }).toList(),
-              model: "YOLO",
+              model: "SSDMobileNet",
               imageHeight: img.height,
               imageWidth: img.width,
-              imageMean: 0,
-              imageStd: 255.0,
-              numResultsPerClass: 2,
+              imageMean: 127.5,
+              imageStd: 127.5,
+              numResultsPerClass: 4,
               threshold: 0.1,
             ).then((recognitions) {
               listimg.add(img); //สำหรับวิดีโอ
@@ -90,7 +88,6 @@ class _CameraState extends State<Camera> {
               print("Detection took ${endTime - startTime}");
               print("recognitions : $recognitions");
               widget.setRecognitions(recognitions!, img.height, img.width);
-
               isDetecting = false;
             });
           }

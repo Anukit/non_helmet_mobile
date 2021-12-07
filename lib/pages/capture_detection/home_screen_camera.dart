@@ -35,8 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (_model) {
       case ssd:
         result = await Tflite.loadModel(
-            labels: "assets/tflite/yolov2_tiny.txt",
-            model: "assets/tflite/yolov2_tiny.tflite",
+            labels: "assets/tflite/label_map.txt",
+            model: "assets/tflite/detect.tflite",
             useGpuDelegate: false);
     }
     print(result);
@@ -46,7 +46,6 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _model = model;
     });
-
     loadModel();
   }
 
