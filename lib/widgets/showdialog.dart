@@ -130,7 +130,7 @@ Future<void> zoomPictureDialog(BuildContext context, file) async {
                     file,
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain,
                   ),
                 ),
               )),
