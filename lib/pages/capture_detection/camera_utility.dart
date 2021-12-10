@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:non_helmet_mobile/utility/convert_image.dart';
+import 'package:non_helmet_mobile/utility/saveimage_video.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
 import 'package:tflite/tflite.dart';
 import 'dart:math' as math;
@@ -25,6 +27,8 @@ class _CameraState extends State<Camera> {
   String? recordVideo;
   String? autoUpload;
   String? resolution;
+  Size? screen; //สำหรับ Crop
+  List<int> listAvaColors = [];
 
   @override
   void initState() {
@@ -65,7 +69,6 @@ class _CameraState extends State<Camera> {
         controller!.startImageStream((CameraImage img) {
           if (!isDetecting) {
             isDetecting = true;
-            int startTime = DateTime.now().millisecondsSinceEpoch;
             Tflite.detectObjectOnFrame(
               bytesList: img.planes.map((plane) {
                 return plane.bytes;
@@ -75,18 +78,31 @@ class _CameraState extends State<Camera> {
               imageWidth: img.width,
               imageMean: 127.5,
               imageStd: 127.5,
+              // numResultsPerClass: 4,
+              // threshold: 0.1,
               numResultsPerClass: 4,
-              threshold: 0.1,
+              threshold: 0.4,
             ).then((recognitions) {
-              listimg.add(img); //สำหรับวิดีโอ
+              //listimg.add(img); //สำหรับวิดีโอ
 
-              i += 1;
-              if (i == 10 || i == 20) {
-                convertImage(img, "Image");
-              }
-              int endTime = DateTime.now().millisecondsSinceEpoch;
-              print("Detection took ${endTime - startTime}");
-              print("recognitions : $recognitions");
+              List listdata = [];
+              listdata.add(img);
+              listdata.add(recognitions);
+              listdata.add(screen);
+              listdata.add(listAvaColors);
+              print("listAvaColors = $listAvaColors");
+              compute(convertImage, listdata).then((value) {
+                if (value.isNotEmpty) {
+                  print("value = ${value.length}");
+                  listAvaColors = value[0].averageColor;
+                  for (var i = 0; i < value[0].fileImage.length; i++) {
+                    saveImageDetect(value[0].fileImage[i]);
+                  }
+                  //saveImageDetect(value[0]);
+                }
+              });
+              // print("Detection took ${endTime - startTime}");
+              // print("recognitions : $recognitions");
               widget.setRecognitions(recognitions!, img.height, img.width);
               isDetecting = false;
             });
@@ -98,9 +114,9 @@ class _CameraState extends State<Camera> {
 
   @override
   void dispose() {
-    if (recordVideo == "true") {
-      convertImage(listimg, "Video");
-    } else {}
+    // if (recordVideo == "true") {
+    //   convertImage(listimg, "Video");
+    // } else {}
     controller?.dispose();
     super.dispose();
   }
@@ -111,6 +127,7 @@ class _CameraState extends State<Camera> {
       return Container();
     }
 
+    screen = MediaQuery.of(context).size; //สำหรับ Crop
     var tmp = MediaQuery.of(context).size;
     var screenH = math.max(tmp.height, tmp.width);
     var screenW = math.min(tmp.height, tmp.width);

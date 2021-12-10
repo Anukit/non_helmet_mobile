@@ -1,20 +1,33 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
+import 'dart:typed_data';
 
+import 'package:camera/camera.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:non_helmet_mobile/models/position_image.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart' as lo;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math' as math;
+import 'package:image/image.dart' as imglib;
 
+//แปลงรูปแบบวันที่
 String formatDate(dateTime) {
-  DateTime date = DateTime.parse(dateTime);
-  String formattedDate = DateFormat('dd-MM-yyyy เวลา HH:mm').format(date);
-  return formattedDate;
+  try {
+    DateTime date = DateTime.parse(dateTime);
+    String formattedDate = DateFormat('dd-MM-yyyy เวลา HH:mm').format(date);
+    return formattedDate;
+  } catch (e) {
+    return "ไม่สามารถแสดงวันที่ได้";
+  }
 }
 
+//การขออนุญาตแอป
 Future<bool> permissionCamera() async {
   if (await Permission.contacts.request().isGranted) {
     // Either the permission was already granted before or the user just granted it.
@@ -42,6 +55,7 @@ Future<bool> permissionCamera() async {
   }
 }
 
+//เช็คพิกัด
 Future<bool> checkGPS() async {
   lo.Location location = lo.Location();
 
@@ -60,6 +74,7 @@ Future<bool> checkGPS() async {
   }
 }
 
+//เช็คโฟลเดอร์
 Future<Directory> checkDirectory(String folderName) async {
   final dir =
       Directory((await getExternalStorageDirectory())!.path + '/$folderName');
@@ -72,6 +87,7 @@ Future<Directory> checkDirectory(String folderName) async {
   }
 }
 
+//เช็คเน็ต
 checkInternet(context) async {
   var connectivityResult = await (Connectivity().checkConnectivity());
   if (connectivityResult == ConnectivityResult.mobile) {
@@ -86,6 +102,7 @@ checkInternet(context) async {
   }
 }
 
+//ดึงข้อมูลการตั้งค่า
 Future<dynamic> getDataSetting() async {
   try {
     final prefs = await SharedPreferences.getInstance();
@@ -95,4 +112,128 @@ Future<dynamic> getDataSetting() async {
     //print("Error = $e");
     return "Error";
   }
+}
+
+//รับตำแหน่งภาพ สำหรับ Crop รูปภาพ
+List<PositionImage> imagePosition(listdata) {
+  print("imagePosition");
+  CameraImage image = listdata[0]; //ไฟล์รูปจาก CameraImage
+  List<dynamic>? recognitions = listdata[1]; //ข้อมูลที่ได้จากการตรวจจับ
+  Size? screen = listdata[2]; //ขนาดจอ
+  int? previewH = math.max(image.height, image.width);
+  int? previewW = math.min(image.height, image.width);
+  double? screenH = screen!.height;
+  double? screenW = screen.width;
+  //print("screen = ${screen}");
+  List recogNew = [];
+  List<PositionImage> result = []; //ค่า x y w h สำหรับส่งกลับ
+  var scaleW, scaleH, x, y, w, h;
+
+  //print(recognitions);
+  // final index_classRider = recognitions.indexWhere(
+  //     (element) => element["detectedClass"] == "rider"); //ดึงแค่ Class Rider
+
+  //รูปกรณีมีมากกว่า 1 คันใน 1 ภาพ
+  for (var i = 0; i < recognitions!.length; i++) {
+    if (recognitions[i]["detectedClass"] == "rider") {
+      recogNew.add(recognitions[i]);
+    } else {
+      continue;
+    }
+  }
+  print("recognitions : $recognitions");
+  print("recogNew : $recogNew");
+  if (recogNew.isNotEmpty) {
+    for (var i = 0; i < recogNew.length; i++) {
+      var _x = recogNew[i]["rect"]["x"];
+      var _w = recogNew[i]["rect"]["w"];
+      var _y = recogNew[i]["rect"]["y"];
+      var _h = recogNew[i]["rect"]["h"];
+
+      if (screenH / screenW > previewH / previewW) {
+        scaleW = screenH / previewH * previewW;
+        scaleH = screenH;
+        var difW = (scaleW - screenW) / scaleW;
+        x = (_x - difW / 2) * scaleW;
+        w = _w * scaleW;
+        if (_x < difW / 2) w -= (difW / 2 - _x) * scaleW;
+        y = _y * scaleH;
+        h = _h * scaleH;
+      } else {
+        scaleH = screenW / previewW * previewH;
+        scaleW = screenW;
+        var difH = (scaleH - screenH) / scaleH;
+        x = _x * scaleW;
+        w = _w * scaleW;
+        y = (_y - difH / 2) * scaleH;
+        h = _h * scaleH;
+        if (_y < difH / 2) h -= (difH / 2 - _y) * scaleH;
+      }
+      result.add(PositionImage(x, y, w, h));
+    }
+  } else {
+    result = [];
+  }
+  // if (index_classRider != -1) {
+  //   var _x = recognitions[index_classRider]["rect"]["x"];
+  //   var _w = recognitions[index_classRider]["rect"]["w"];
+  //   var _y = recognitions[index_classRider]["rect"]["y"];
+  //   var _h = recognitions[index_classRider]["rect"]["h"];
+
+  //   if (screenH / screenW > previewH / previewW) {
+  //     scaleW = screenH / previewH * previewW;
+  //     scaleH = screenH;
+  //     var difW = (scaleW - screenW) / scaleW;
+  //     x = (_x - difW / 2) * scaleW;
+  //     w = _w * scaleW;
+  //     if (_x < difW / 2) w -= (difW / 2 - _x) * scaleW;
+  //     y = _y * scaleH;
+  //     h = _h * scaleH;
+  //   } else {
+  //     scaleH = screenW / previewW * previewH;
+  //     scaleW = screenW;
+  //     var difH = (scaleH - screenH) / scaleH;
+  //     x = _x * scaleW;
+  //     w = _w * scaleW;
+  //     y = (_y - difH / 2) * scaleH;
+  //     h = _h * scaleH;
+  //     if (_y < difH / 2) h -= (difH / 2 - _y) * scaleH;
+  //   }
+  // }
+  // print("x = $x");
+  // print("y = $y");
+  // print("w = $w");
+  // print("h = $h");
+  // result.add(x);
+  // result.add(y);
+  // result.add(w);
+  // result.add(h);
+
+  return result;
+}
+
+//รับค่าเฉลี่ยสี
+Color getAverageColor(Uint8List fileImage) {
+  print("getAverageColor");
+  imglib.Image? bitmap = imglib.decodeImage(fileImage);
+
+  int redBucket = 0;
+  int greenBucket = 0;
+  int blueBucket = 0;
+  int pixelCount = 0;
+
+  for (int y = 0; y < bitmap!.height; y++) {
+    for (int x = 0; x < bitmap.width; x++) {
+      int c = bitmap.getPixel(x, y);
+
+      pixelCount++;
+      redBucket += imglib.getRed(c);
+      greenBucket += imglib.getGreen(c);
+      blueBucket += imglib.getBlue(c);
+    }
+  }
+
+  Color averageColor = Color.fromRGBO(redBucket ~/ pixelCount,
+      greenBucket ~/ pixelCount, blueBucket ~/ pixelCount, 1);
+  return averageColor;
 }

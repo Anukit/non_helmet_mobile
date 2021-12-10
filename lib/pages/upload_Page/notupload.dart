@@ -98,34 +98,40 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
 
   Future<List<double>> coordinates(index) async {
     List<double> latlong = [];
-    final tags = await readExifFromFile(_photoList[index]);
     /////////////////////////////////// พิกัด////////////////////////////////////
-    final latitudeValue = tags['GPS GPSLatitude']!
-        .values
-        .toList()
-        .map<double>(
-            (item) => (item.numerator.toDouble() / item.denominator.toDouble()))
-        .toList();
-    final latitudeSignal = tags['GPS GPSLatitudeRef']!.printable;
-    final longitudeValue = tags['GPS GPSLongitude']!
-        .values
-        .toList()
-        .map<double>(
-            (item) => (item.numerator.toDouble() / item.denominator.toDouble()))
-        .toList();
-    final longitudeSignal = tags['GPS GPSLongitudeRef']!.printable;
+    try {
+      final tags = await readExifFromFile(_photoList[index]);
+      final latitudeValue = tags['GPS GPSLatitude']!
+          .values
+          .toList()
+          .map<double>((item) =>
+              (item.numerator.toDouble() / item.denominator.toDouble()))
+          .toList();
+      final latitudeSignal = tags['GPS GPSLatitudeRef']!.printable;
+      final longitudeValue = tags['GPS GPSLongitude']!
+          .values
+          .toList()
+          .map<double>((item) =>
+              (item.numerator.toDouble() / item.denominator.toDouble()))
+          .toList();
+      final longitudeSignal = tags['GPS GPSLongitudeRef']!.printable;
 
-    double latitude =
-        latitudeValue[0] + (latitudeValue[1] / 60) + (latitudeValue[2] / 3600);
+      double latitude = latitudeValue[0] +
+          (latitudeValue[1] / 60) +
+          (latitudeValue[2] / 3600);
 
-    double longitude = longitudeValue[0] +
-        (longitudeValue[1] / 60) +
-        (longitudeValue[2] / 3600);
+      double longitude = longitudeValue[0] +
+          (longitudeValue[1] / 60) +
+          (longitudeValue[2] / 3600);
 
-    if (latitudeSignal == 'S') latitude = -latitude;
-    if (longitudeSignal == 'W') longitude = -longitude;
-    latlong.add(latitude);
-    latlong.add(longitude);
+      if (latitudeSignal == 'S') latitude = -latitude;
+      if (longitudeSignal == 'W') longitude = -longitude;
+      latlong.add(latitude);
+      latlong.add(longitude);
+    } catch (e) {
+      // _photoList[index].deleteSync();
+      // _photoList.removeAt(index);
+    }
     //////////////////////////////////////////////////////////////////////////
     return latlong;
   }

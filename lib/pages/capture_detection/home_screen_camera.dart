@@ -111,8 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         _recognitions ?? [],
                         math.max(_imageHeight, _imageWidth),
                         math.min(_imageHeight, _imageWidth),
-                        screen.width,
                         screen.height,
+                        screen.width,
                         _model)
                     : Container()
               ],
