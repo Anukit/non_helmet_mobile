@@ -96,7 +96,7 @@ class _CameraState extends State<Camera> {
                   print("value = ${value.length}");
                   listAvaColors = value[0].averageColor;
                   for (var i = 0; i < value[0].fileImage.length; i++) {
-                    saveImageDetect(value[0].fileImage[i]);
+                    //saveImageDetect(value[0].fileImage[i]);
                   }
                   //saveImageDetect(value[0]);
                 }
