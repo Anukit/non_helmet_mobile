@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui';
 
 //ข้อมูลของรูปภาพ
 class DataImage {
@@ -13,7 +14,7 @@ class DataImage {
 //ลิสไฟล์รูปภาพ และค่าเฉลี่ยสีที่ได้จากการตรวจจับแล้ว
 class ListResultImage {
   List<Uint8List> fileImage; //ลิสรูปภาพที่ได้จากการตรวจจับ
-  List<int> averageColor; //ลิสค่าเฉลี่ยสีของรูปภาพ
+  List<Color> averageColor; //ลิสค่าเฉลี่ยสีของรูปภาพ
 
   ListResultImage(this.fileImage, this.averageColor);
 }
