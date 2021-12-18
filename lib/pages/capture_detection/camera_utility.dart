@@ -22,13 +22,21 @@ class Camera extends StatefulWidget {
 class _CameraState extends State<Camera> {
   CameraController? controller;
   bool isDetecting = false;
-  int i = 0; //สำหรับเทสแคปภาพ
+  int i = 0; //สำหรับแก้บัคข้อมูลซ้ำ
+  List checkValue = []; //สำหรับแก้บัคข้อมูลซ้ำ
   List listimg = [];
   String? recordVideo;
   String? autoUpload;
   String? resolution;
   Size? screen; //สำหรับ Crop
-  List<int> listAvaColors = [];
+  List<Color> listAvaColors = [];
+
+  ///////////////////////////////////
+  int indexFrame = 0;
+  int frame = 5;
+  int startTime = 0;
+  int endTime = 0;
+  ///////////////////////////////////
 
   @override
   void initState() {
@@ -69,6 +77,12 @@ class _CameraState extends State<Camera> {
         controller!.startImageStream((CameraImage img) {
           if (!isDetecting) {
             isDetecting = true;
+            ///////////////////////////////////////////////////////////////////
+            if (indexFrame == 0) {
+              startTime = DateTime.now().millisecondsSinceEpoch;
+            }
+            indexFrame++;
+            ///////////////////////ส่วนตรวจจับ////////////////////////////////////
             Tflite.detectObjectOnFrame(
               bytesList: img.planes.map((plane) {
                 return plane.bytes;
@@ -81,26 +95,50 @@ class _CameraState extends State<Camera> {
               // numResultsPerClass: 4,
               // threshold: 0.1,
               numResultsPerClass: 4,
+              //numBoxesPerBlock: 12,
               threshold: 0.4,
             ).then((recognitions) {
-              //listimg.add(img); //สำหรับวิดีโอ
+              /////////////////////ส่วนเงื่อนไข////////////////////////////////////
+              //print("indexFrame = ${indexFrame}");
 
-              List listdata = [];
-              listdata.add(img);
-              listdata.add(recognitions);
-              listdata.add(screen);
-              listdata.add(listAvaColors);
-              print("listAvaColors = $listAvaColors");
-              compute(convertImage, listdata).then((value) {
-                if (value.isNotEmpty) {
-                  print("value = ${value.length}");
-                  listAvaColors = value[0].averageColor;
-                  for (var i = 0; i < value[0].fileImage.length; i++) {
-                    //saveImageDetect(value[0].fileImage[i]);
+              //เริ่มทำตามเฟรมที่กำหนด
+              if (indexFrame == frame) {
+                endTime = DateTime.now().millisecondsSinceEpoch;
+                //print("In every $frame frame took ${endTime - startTime}ms");
+                //listimg.add(img); //สำหรับวิดีโอ
+
+                //เงื่อนไขเพื่อแก้บัคข้อมูลซ้ำ
+                if (i == 0) {
+                  checkValue.add("value");
+                  if (checkValue.length > 1) {
+                    recognitions = [];
                   }
-                  //saveImageDetect(value[0]);
                 }
-              });
+
+                if (recognitions!.isNotEmpty) {
+                  //print("recognitions = $recognitions");
+                  List listdata = [];
+                  listdata.add(img);
+                  listdata.add(recognitions);
+                  listdata.add(screen);
+                  listdata.add(listAvaColors);
+                  print("listAvaColors = $listAvaColors");
+
+                  compute(convertImage, listdata).then((value) {
+                    i = 1;
+                    print("value = $value");
+                    if (value.isNotEmpty) {
+                      //print("listAvaColors = ${value[0].averageColor} 2");
+                      listAvaColors = value[0].averageColor;
+                      for (var i = 0; i < value[0].fileImage.length; i++) {
+                        saveImageDetect(value[0].fileImage[i]);
+                      }
+                    }
+                  });
+                }
+                indexFrame = 0;
+              }
+              //////////////////////////////////////////////////////////////////
               // print("Detection took ${endTime - startTime}");
               // print("recognitions : $recognitions");
               widget.setRecognitions(recognitions!, img.height, img.width);

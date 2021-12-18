@@ -5,7 +5,6 @@ import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:non_helmet_mobile/models/position_image.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
@@ -16,7 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
 import 'package:image/image.dart' as imglib;
 
-//แปลงรูปแบบวันที่
+///แปลงรูปแบบวันที่
 String formatDate(dateTime) {
   try {
     DateTime date = DateTime.parse(dateTime);
@@ -27,7 +26,7 @@ String formatDate(dateTime) {
   }
 }
 
-//การขออนุญาตแอป
+///การขออนุญาตแอป
 Future<bool> permissionCamera() async {
   if (await Permission.contacts.request().isGranted) {
     // Either the permission was already granted before or the user just granted it.
@@ -55,7 +54,7 @@ Future<bool> permissionCamera() async {
   }
 }
 
-//เช็คพิกัด
+///เช็คพิกัด
 Future<bool> checkGPS() async {
   lo.Location location = lo.Location();
 
@@ -74,7 +73,7 @@ Future<bool> checkGPS() async {
   }
 }
 
-//เช็คโฟลเดอร์
+///เช็คโฟลเดอร์
 Future<Directory> checkDirectory(String folderName) async {
   final dir =
       Directory((await getExternalStorageDirectory())!.path + '/$folderName');
@@ -87,7 +86,7 @@ Future<Directory> checkDirectory(String folderName) async {
   }
 }
 
-//เช็คเน็ต
+///เช็คเน็ต
 checkInternet(context) async {
   var connectivityResult = await (Connectivity().checkConnectivity());
   if (connectivityResult == ConnectivityResult.mobile) {
@@ -102,7 +101,7 @@ checkInternet(context) async {
   }
 }
 
-//ดึงข้อมูลการตั้งค่า
+///ดึงข้อมูลการตั้งค่า
 Future<dynamic> getDataSetting() async {
   try {
     final prefs = await SharedPreferences.getInstance();
@@ -114,7 +113,7 @@ Future<dynamic> getDataSetting() async {
   }
 }
 
-//รับตำแหน่งภาพ สำหรับ Crop รูปภาพ
+/* ///รับตำแหน่งภาพ สำหรับ Crop รูปภาพ
 List<PositionImage> imagePosition(listdata) {
   print("imagePosition");
   CameraImage image = listdata[0]; //ไฟล์รูปจาก CameraImage
@@ -122,97 +121,80 @@ List<PositionImage> imagePosition(listdata) {
   Size? screen = listdata[2]; //ขนาดจอ
   int? previewH = math.max(image.height, image.width);
   int? previewW = math.min(image.height, image.width);
-  double? screenH = screen!.height;
-  double? screenW = screen.width;
   //print("screen = ${screen}");
   List recogNew = [];
   List<PositionImage> result = []; //ค่า x y w h สำหรับส่งกลับ
-  var scaleW, scaleH, x, y, w, h;
-
-  //print(recognitions);
-  // final index_classRider = recognitions.indexWhere(
-  //     (element) => element["detectedClass"] == "rider"); //ดึงแค่ Class Rider
 
   //รูปกรณีมีมากกว่า 1 คันใน 1 ภาพ
   for (var i = 0; i < recognitions!.length; i++) {
-    if (recognitions[i]["detectedClass"] == "rider") {
+    if (recognitions[i]["detectedClass"] == "Rider") {
       recogNew.add(recognitions[i]);
     } else {
       continue;
     }
   }
-  print("recognitions : $recognitions");
-  print("recogNew : $recogNew");
   if (recogNew.isNotEmpty) {
     for (var i = 0; i < recogNew.length; i++) {
-      var _x = recogNew[i]["rect"]["x"];
-      var _w = recogNew[i]["rect"]["w"];
-      var _y = recogNew[i]["rect"]["y"];
-      var _h = recogNew[i]["rect"]["h"];
-
-      if (screenH / screenW > previewH / previewW) {
-        scaleW = screenH / previewH * previewW;
-        scaleH = screenH;
-        var difW = (scaleW - screenW) / scaleW;
-        x = (_x - difW / 2) * scaleW;
-        w = _w * scaleW;
-        if (_x < difW / 2) w -= (difW / 2 - _x) * scaleW;
-        y = _y * scaleH;
-        h = _h * scaleH;
-      } else {
-        scaleH = screenW / previewW * previewH;
-        scaleW = screenW;
-        var difH = (scaleH - screenH) / scaleH;
-        x = _x * scaleW;
-        w = _w * scaleW;
-        y = (_y - difH / 2) * scaleH;
-        h = _h * scaleH;
-        if (_y < difH / 2) h -= (difH / 2 - _y) * scaleH;
-      }
+      final double _x = recogNew[i]['rect']['x'] as double;
+      final double _w = recogNew[i]['rect']['w'] as double;
+      final double _y = recogNew[i]['rect']['y'] as double;
+      final double _h = recogNew[i]['rect']['h'] as double;
+      double x, y, w, h;
+      x = _x * previewW;
+      y = _y * previewH;
+      w = _w * previewW;
+      h = _h * previewH;
       result.add(PositionImage(x, y, w, h));
     }
   } else {
     result = [];
   }
-  // if (index_classRider != -1) {
-  //   var _x = recognitions[index_classRider]["rect"]["x"];
-  //   var _w = recognitions[index_classRider]["rect"]["w"];
-  //   var _y = recognitions[index_classRider]["rect"]["y"];
-  //   var _h = recognitions[index_classRider]["rect"]["h"];
+  return result;
+} */
 
-  //   if (screenH / screenW > previewH / previewW) {
-  //     scaleW = screenH / previewH * previewW;
-  //     scaleH = screenH;
-  //     var difW = (scaleW - screenW) / scaleW;
-  //     x = (_x - difW / 2) * scaleW;
-  //     w = _w * scaleW;
-  //     if (_x < difW / 2) w -= (difW / 2 - _x) * scaleW;
-  //     y = _y * scaleH;
-  //     h = _h * scaleH;
-  //   } else {
-  //     scaleH = screenW / previewW * previewH;
-  //     scaleW = screenW;
-  //     var difH = (scaleH - screenH) / scaleH;
-  //     x = _x * scaleW;
-  //     w = _w * scaleW;
-  //     y = (_y - difH / 2) * scaleH;
-  //     h = _h * scaleH;
-  //     if (_y < difH / 2) h -= (difH / 2 - _y) * scaleH;
-  //   }
-  // }
+///รับตำแหน่งภาพ สำหรับ Crop รูปภาพ
+PositionImage imagePosition(List listdata, listRecogClass) {
+  print("imagePosition");
+  CameraImage image = listdata[0]; //ไฟล์รูปจาก CameraImage
+  List<dynamic>? recognitions = listdata[1]; //ข้อมูลที่ได้จากการตรวจจับ
+  Size? screen = listdata[2]; //ขนาดจอ
+  int? previewH = math.max(image.height, image.width);
+  int? previewW = math.min(image.height, image.width);
+  PositionImage result; //ค่า x y w h สำหรับส่งกลับ
+
+  final double _x = listRecogClass['rect']['x'] as double;
+  final double _w = listRecogClass['rect']['w'] as double;
+  final double _y = listRecogClass['rect']['y'] as double;
+  final double _h = listRecogClass['rect']['h'] as double;
+  double x, y, w, h;
+  x = _x * previewW;
+  y = _y * previewH;
+  w = _w * previewW;
+  h = _h * previewH;
+  // print(listRecogClass['detectedClass']);
   // print("x = $x");
   // print("y = $y");
   // print("w = $w");
   // print("h = $h");
-  // result.add(x);
-  // result.add(y);
-  // result.add(w);
-  // result.add(h);
+  result = PositionImage(x, y, w, h);
 
   return result;
 }
 
-//รับค่าเฉลี่ยสี
+///Crop and return cropped image
+imglib.Image copyCropp(imglib.Image src, int x, int y, int w, int h) {
+  final imglib.Image dst = imglib.Image(w, h,
+      channels: src.channels, exif: src.exif, iccp: src.iccProfile);
+
+  for (var yi = 0, sy = y; yi < h; ++yi, ++sy) {
+    for (var xi = 0, sx = x; xi < w; ++xi, ++sx) {
+      dst.setPixel(xi, yi, src.getPixel(sx, sy));
+    }
+  }
+  return dst;
+}
+
+///รับค่าเฉลี่ยสี
 Color getAverageColor(Uint8List fileImage) {
   print("getAverageColor");
   imglib.Image? bitmap = imglib.decodeImage(fileImage);
@@ -236,4 +218,41 @@ Color getAverageColor(Uint8List fileImage) {
   Color averageColor = Color.fromRGBO(redBucket ~/ pixelCount,
       greenBucket ~/ pixelCount, blueBucket ~/ pixelCount, 1);
   return averageColor;
+}
+
+///เปรียบเทียบค่าสี
+int compareColor(Color col1, Color col2) {
+  print("compareColor");
+  double maxColDist = 764.8339663572415;
+  double rmean = (col1.red + col2.red) / 2;
+  int r = col1.red - col2.red;
+  int g = col1.green - col2.green;
+  int b = col1.blue - col2.blue;
+  double weightR = 2 + rmean / 256;
+  double weightG = 4.0;
+  double weightB = 2 + (255 - rmean) / 256;
+  double result =
+      math.sqrt(weightR * r * r + weightG * g * g + weightB * b * b);
+  return (((maxColDist - result) / maxColDist) * 100).round();
+}
+
+///ตรวจสอบว่าคลาสต่าง ๆ อยู่ในคลาส Rider หรือไม่
+double isObject(box1, box2) {
+  double x1 = box1['rect']['x'];
+  double w1 = box1['rect']['w'];
+  double y1 = box1['rect']['y'];
+  double h1 = box1['rect']['h'];
+
+  double x2 = box2['rect']['x'];
+  double w2 = box2['rect']['w'];
+  double y2 = box2['rect']['y'];
+  double h2 = box2['rect']['h'];
+  var w_intersection = math.min(x1 + w1, x2 + w2) - math.max(x1, x2);
+  var h_intersection = math.min(y1 + h1, y2 + h2) - math.max(y1, y2);
+  if (w_intersection <= 0 || h_intersection <= 0) {
+    return 0;
+  }
+  var I = w_intersection * h_intersection;
+  var U = w1 * h1 + w2 * h2 - I;
+  return I / U;
 }

@@ -37,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
         result = await Tflite.loadModel(
             labels: "assets/tflite/label_map_new.txt",
             model: "assets/tflite/detect_new.tflite",
+            //numThreads: 4,
             useGpuDelegate: false);
     }
     print(result);

@@ -1,134 +1,140 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:camera/camera.dart';
 import 'package:image/image.dart' as imglib;
 import 'package:non_helmet_mobile/models/data_image.dart';
+import 'package:non_helmet_mobile/models/model_tflite.dart';
 import 'package:non_helmet_mobile/models/position_image.dart';
-import 'package:non_helmet_mobile/pages/capture_detection/camera_utility.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
+import 'dart:math' as math;
 
-// Future<void> convertImage(image, type) async {
-//   print("convertImage");
-//   Uint8List? bytes;
-//   try {
-//     if (type == "Video") {
-//       imglib.Image img;
-//       List imageLists = [];
-//       if (image[0].format.group == ImageFormatGroup.yuv420) {
-//         for (var i = 0; i < image.length; i++) {
-//           imageLists.add(await convertYUV420toImageColor(image[i]));
-//         }
-
-//         final imglib.JpegDecoder decoder = imglib.JpegDecoder();
-//         final List<imglib.Image> images = [];
-
-//         for (var imgFile in imageLists) {
-//           images.add(decoder.decodeImage(imgFile));
-//         }
-
-//         generateGIF(images);
-//       } else if (image[0].format.group == ImageFormatGroup.bgra8888) {
-//         img = _convertBGRA8888(image);
-//         imglib.PngEncoder pngEncoder = imglib.PngEncoder();
-//         bytes = pngEncoder.encodeImage(img) as Uint8List?;
-//       }
-//     } else if (type == "Image") {
-//       imglib.Image img;
-
-//       if (image.format.group == ImageFormatGroup.yuv420) {
-//         bytes = await convertYUV420toImageColor(image);
-//         if (bytes!.isNotEmpty) {
-//           await saveImageDetect(bytes);
-//         }
-//       } else if (image.format.group == ImageFormatGroup.bgra8888) {
-//         img = _convertBGRA8888(image);
-//         imglib.PngEncoder pngEncoder = imglib.PngEncoder();
-//         bytes = pngEncoder.encodeImage(img) as Uint8List?;
-//       }
-//     } else {
-//       print("Error!!!: Invalid type");
-//     }
-//   } catch (e) {
-//     print(">>>>>>>>>>>> ERROR:" + e.toString());
-//   }
-// }
-
-// List<int>? generateGIF(Iterable<imglib.Image> images) {
-//   print("generateGIF");
-//   final imglib.Animation animation = imglib.Animation();
-//   for (imglib.Image image in images) {
-//     animation.addFrame(image);
-//   }
-
-//   saveVideo(imglib.encodeGifAnimation(animation));
-
-//   return imglib.encodeGifAnimation(animation);
-// }
-
-// imglib.Image _convertBGRA8888(CameraImage image) {
-//   return imglib.Image.fromBytes(
-//     image.width,
-//     image.height,
-//     image.planes[0].bytes,
-//     format: imglib.Format.bgra,
-//   );
-// }
-
-// Future<Uint8List?> convertYUV420toImageColor(CameraImage image) async {
-//   try {
-//     final int width = image.width;
-//     final int height = image.height;
-//     final int uvRowStride = image.planes[1].bytesPerRow;
-//     final int? uvPixelStride = image.planes[1].bytesPerPixel;
-//     print("uvRowStride: " + uvRowStride.toString());
-//     print("uvPixelStride: " + uvPixelStride.toString());
-//     var img = imglib.Image(width, height); // Create Image buffer
-//     // Fill image buffer with plane[0] from YUV420_888
-//     for (int x = 0; x < width; x++) {
-//       for (int y = 0; y < height; y++) {
-//         final int uvIndex =
-//             uvPixelStride! * (x / 2).floor() + uvRowStride * (y / 2).floor();
-//         final int index = y * width + x;
-//         final yp = image.planes[0].bytes[index];
-//         final up = image.planes[1].bytes[uvIndex];
-//         final vp = image.planes[2].bytes[uvIndex];
-//         int r = (yp + vp * 1436 / 1024 - 179).round().clamp(0, 255);
-//         int g = (yp - up * 46549 / 131072 + 44 - vp * 93604 / 131072 + 91)
-//             .round()
-//             .clamp(0, 255);
-//         int b = (yp + up * 1814 / 1024 - 227).round().clamp(0, 255);
-//         img.data[index] = (0xFF << 24) | (b << 16) | (g << 8) | r;
-//       }
-//     }
-//     imglib.PngEncoder pngEncoder = imglib.PngEncoder(level: 0, filter: 0);
-//     List<int> png = pngEncoder.encodeImage(img);
-//     final originalImage = imglib.decodeImage(png);
-//     final height1 = originalImage!.height;
-//     final width1 = originalImage.width;
-//     late imglib.Image fixedImage;
-//     if (height1 < width1) {
-//       fixedImage = imglib.copyRotate(originalImage, 90);
-//     }
-//     return imglib.encodeJpg(fixedImage) as Uint8List?;
-//   } catch (e) {
-//     print(">>>>>>>>>>>> ERROR:" + e.toString());
-//   }
-//   return null;
-// }
-
-//แปลงรูปภาพพร้อม Crop
+///แปลงรูปภาพพร้อม Crop
 List<ListResultImage> convertImage(listdata) {
   print("convertImage");
+  ////////////////////////ตัวแปร////////////////////////////////////////
   CameraImage image = listdata[0]; //ไฟล์รูปจาก CameraImage
-  List aaa = [];
-  List bbb = [];
-  int width = image.width;
-  int height = image.height;
-  int uvRowStride = image.planes[1].bytesPerRow;
-  int? uvPixelStride = image.planes[1].bytesPerPixel;
-  List<int> listAvaColors = listdata[3]; //ลิสสำหรับเก็บค่าเฉลี่ยสี
+  List<dynamic>? recognitions = listdata[1]; //ข้อมูลที่ได้จากการตรวจจับ
+  List<Color> listAvaColors = listdata[3]; //ลิสสำหรับเก็บค่าเฉลี่ยสี
   List<Uint8List> listFileImage = []; //ลิสเก็บไฟล์รูปภาพ
   List<ListResultImage> listresult = []; //ลิสคำตอบที่จะรีเทิร์นกลับ
+  List<ModelTflite> recogNew = []; //ลิสค่า Recognition ใหม่
+  /////////////////////////////////////////////////////////////////////
+  print("listFileImage = $listAvaColors");
+  //รูปกรณีมีมากกว่า 1 คันใน 1 ภาพ
+  for (var i = 0; i < recognitions!.length; i++) {
+    if (recognitions[i]["detectedClass"] == "Rider") {
+      //recogNew.add(recognitions[i]);
+      recogNew.add(ModelTflite(recognitions[i], null, null));
+    }
+  }
+
+  //ตรวจสอบคลาส
+  if (recogNew.isNotEmpty) {
+    for (var i = 0; i < recogNew.length; i++) {
+      // print("recogNew : ${recogNew[i]}");
+      for (var y = 0; y < recognitions.length; y++) {
+        if (recognitions[y]["detectedClass"] != "Rider") {
+          double resultCheck = isObject(recogNew[i].rider, recognitions[y]);
+          //print("resultCheck = $resultCheck");
+          if (resultCheck > 0.02) {
+            // print("recogNew : ${recogNew[i]}");
+            // print("recognitions : ${recognitions[y]}");
+            if (recognitions[y]["detectedClass"] == "None-helmet") {
+              recogNew[i] = ModelTflite(recogNew[i].rider, recognitions[y],
+                  recogNew[i].license_plate);
+            } else if (recognitions[y]["detectedClass"] == "License-plate") {
+              recogNew[i] = ModelTflite(
+                  recogNew[i].rider, recogNew[i].helmet, recognitions[y]);
+            }
+          }
+        }
+      }
+      // if (recogNew[i].helmet == null || recogNew[i].license_plate == null) {
+      //   recogNew.removeAt(i);
+      // } else {}
+    }
+
+    //ตรวจสอบให้เหลือคลาสที่จะนำไปใช้
+    if (recogNew.isNotEmpty) {
+      for (var i = 0; i < recogNew.length; i++) {
+        if (recogNew[i].helmet == null || recogNew[i].license_plate == null) {
+          recogNew.removeAt(i);
+        } else {}
+      }
+    } else {
+      return [];
+    }
+    // print("recogNew = $recogNew");
+    // print("recogNew = ${recogNew.length}");
+    // print("rider = ${recogNew.first.rider}");
+    // print("helmet = ${recogNew.first.helmet}");
+    // print("license_plate = ${recogNew.first.license_plate}");
+
+    if (recogNew.isNotEmpty) {
+      //แปลง image stream to image
+      imglib.Image fixedImage = yuv420toImageColor(image);
+
+      for (var i = 0; i < recogNew.length; i++) {
+        //รับตำแหน่งภาพที่ได้จากการตรวจจับ
+        PositionImage listCoor = imagePosition(listdata, recogNew[i].rider);
+
+        //ฟังก์ชัน Crop รูป
+        imglib.Image destImage = copyCropp(
+            fixedImage, //ไฟล์รูปที่ได้จากการแปลง
+            listCoor.x.round(), //ค่า x
+            listCoor.y.round(), //ค่า y
+            min(listCoor.w.round(),
+                fixedImage.width - listCoor.x.round()), //ค่า w
+            min(listCoor.h.round(),
+                fixedImage.height - listCoor.y.round())); //ค่า h
+        //ไฟล์ภาพที่ได้ Crop แล้ว
+        var fileImage = imglib.encodeJpg(destImage) as Uint8List?;
+        //รับค่าสี
+        Color averageColor = getAverageColor(fileImage!);
+        //print("averageColor = ${averageColor}");
+        // print("listFileImage = $listAvaColors");
+        if (listAvaColors.isNotEmpty) {
+          //เปรียบเทียบค่าสี
+          for (var i = 0; i < listAvaColors.length; i++) {
+            int checkColorImg = compareColor(averageColor, listAvaColors[i]);
+            print("checkColorImg = $checkColorImg");
+            // 90 = เปอร์เซ็นการ Macth ของสี
+            if (checkColorImg > 90) {
+              fileImage = null;
+            }
+          }
+        }
+        if (fileImage != null) {
+          listFileImage.add(fileImage);
+          listAvaColors.add(averageColor);
+        }
+      }
+      // print("listFileImage = ${listFileImage}");
+      // print("listFileImage = ${listAvaColors}");
+      if (listFileImage.isNotEmpty) {
+        listresult.add(ListResultImage(listFileImage, listAvaColors));
+        return listresult;
+      } else {
+        return [];
+      }
+    } else {
+      return [];
+    }
+  } else {
+    return [];
+  }
+}
+
+///แปลง Image Stream ในรูป yuv420 เป็นรูปภาพ
+imglib.Image yuv420toImageColor(CameraImage image) {
+  print("yuv420toImageColor");
+  List listindex = [];
+  List listuvIndex = [];
+  int uvRowStride = image.planes[1].bytesPerRow;
+  int? uvPixelStride = image.planes[1].bytesPerPixel;
+  int width = image.width;
+  int height = image.height;
 
   var img = imglib.Image(width, height); // Create Image buffer
   for (int x = 0; x < width; x++) {
@@ -136,21 +142,21 @@ List<ListResultImage> convertImage(listdata) {
       int uvIndex =
           uvPixelStride! * (x / 2).floor() + uvRowStride * (y / 2).floor();
       int index = y * width + x;
-      aaa.add(index);
-      bbb.add(uvIndex);
+      listindex.add(index);
+      listuvIndex.add(uvIndex);
     }
   }
   /* for (var i = 0; i < a.length; i++) { */
-  for (var i = 0; i < bbb.length; i++) {
-    var yp = image.planes[0].bytes[aaa[i]];
-    var up = image.planes[1].bytes[bbb[i]];
-    var vp = image.planes[2].bytes[bbb[i]];
+  for (var i = 0; i < listuvIndex.length; i++) {
+    var yp = image.planes[0].bytes[listindex[i]];
+    var up = image.planes[1].bytes[listuvIndex[i]];
+    var vp = image.planes[2].bytes[listuvIndex[i]];
     int r = (yp + vp * 1436 / 1024 - 179).round().clamp(0, 255);
     int g = (yp - up * 46549 / 131072 + 44 - vp * 93604 / 131072 + 91)
         .round()
         .clamp(0, 255);
     int b = (yp + up * 1814 / 1024 - 227).round().clamp(0, 255);
-    img.data[aaa[i]] = (0xFF << 24) | (b << 16) | (g << 8) | r;
+    img.data[listindex[i]] = (0xFF << 24) | (b << 16) | (g << 8) | r;
   }
   /*  } */
 
@@ -163,47 +169,5 @@ List<ListResultImage> convertImage(listdata) {
   if (height1 < width1) {
     fixedImage = imglib.copyRotate(originalImage, 90);
   }
-  /////////////////////////////////////////////////////////////////////
-  List<PositionImage> listCoor =
-      imagePosition(listdata); //รับตำแหน่งภาพที่ได้จากการตรวจจับ
-  if (listCoor.isNotEmpty) {
-    for (var i = 0; i < listCoor.length; i++) {
-      //ฟังก์ชัน Crop รูป
-      imglib.Image destImage = imglib.copyCrop(
-          //รูปที่ผ่านการ Crop แล้ว
-          fixedImage, //ไฟล์รูปที่ได้จากการแปลง
-          listCoor[i].x.round() + 100, //ค่า x
-          listCoor[i].y.round(), //ค่า y
-          listCoor[i].w.round() + 200, //ค่า w
-          height); //ค่า h
-      var fileImage =
-          imglib.encodeJpg(destImage) as Uint8List?; //ไฟล์ภาพที่ได้ Crop แล้ว
-      Color averageColor = getAverageColor(fileImage!); //รับค่าสี
-      listAvaColors.add(averageColor.value);
-      listFileImage.add(fileImage);
-    }
-    listresult.add(ListResultImage(listFileImage, listAvaColors));
-    return listresult;
-  } else {
-    return [];
-  }
-  // if (listCoor.isNotEmpty && listCoor[0] != null) {
-  //   //ฟังก์ชัน Crop รูป
-  //   imglib.Image destImage = imglib.copyCrop(
-  //       //รูปที่ผ่านการ Crop แล้ว
-  //       fixedImage, //ไฟล์รูปที่ได้จากการแปลง
-  //       listCoor[0].round() + 200, //ค่า x
-  //       listCoor[1].round(), //ค่า y
-  //       listCoor[2].round(), //ค่า w
-  //       height); //ค่า h
-  //   var result = imglib.encodeJpg(destImage) as Uint8List?;
-  //   Color averageColor = getAverageColor(result!); //รับค่าสี
-  //   listAvaColors.add(averageColor.value);
-  //   listresult.add(result);
-  //   listresult.add(listAvaColors);
-  //   return listresult;
-  // } else {
-  //   return [];
-  // }
-  /////////////////////////////////////////////////////////////////////
+  return fixedImage;
 }

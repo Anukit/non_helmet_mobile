@@ -1,5 +1,0 @@
-???
-license_plate
-rider
-helmet
-non_helmet
