@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:non_helmet_mobile/models/model_tflite.dart';
+
 //ข้อมูลของรูปภาพ
 class DataImage {
   var fileImage;
@@ -13,8 +15,14 @@ class DataImage {
 
 //ลิสไฟล์รูปภาพ และค่าเฉลี่ยสีที่ได้จากการตรวจจับแล้ว
 class ListResultImage {
-  List<Uint8List> fileImage; //ลิสรูปภาพที่ได้จากการตรวจจับ
+  List<DataDetectedImage> dataImage; //ลิสรูปภาพที่ได้จากการตรวจจับ
   List<Color> averageColor; //ลิสค่าเฉลี่ยสีของรูปภาพ
 
-  ListResultImage(this.fileImage, this.averageColor);
+  ListResultImage(this.dataImage, this.averageColor);
+}
+
+class DataDetectedImage {
+  Uint8List riderImg;
+  Uint8List license_plateImg;
+  DataDetectedImage(this.riderImg, this.license_plateImg);
 }

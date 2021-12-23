@@ -7,7 +7,6 @@ import 'package:non_helmet_mobile/models/data_image.dart';
 import 'package:non_helmet_mobile/models/model_tflite.dart';
 import 'package:non_helmet_mobile/models/position_image.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
-import 'dart:math' as math;
 
 ///แปลงรูปภาพพร้อม Crop
 List<ListResultImage> convertImage(listdata) {
@@ -16,7 +15,7 @@ List<ListResultImage> convertImage(listdata) {
   CameraImage image = listdata[0]; //ไฟล์รูปจาก CameraImage
   List<dynamic>? recognitions = listdata[1]; //ข้อมูลที่ได้จากการตรวจจับ
   List<Color> listAvaColors = listdata[3]; //ลิสสำหรับเก็บค่าเฉลี่ยสี
-  List<Uint8List> listFileImage = []; //ลิสเก็บไฟล์รูปภาพ
+  List<DataDetectedImage> listDataImage = []; //ลิสเก็บข้อมูลรูปภาพ
   List<ListResultImage> listresult = []; //ลิสคำตอบที่จะรีเทิร์นกลับ
   List<ModelTflite> recogNew = []; //ลิสค่า Recognition ใหม่
   /////////////////////////////////////////////////////////////////////
@@ -76,24 +75,24 @@ List<ListResultImage> convertImage(listdata) {
       imglib.Image fixedImage = yuv420toImageColor(image);
 
       for (var i = 0; i < recogNew.length; i++) {
-        //รับตำแหน่งภาพที่ได้จากการตรวจจับ
-        PositionImage listCoor = imagePosition(listdata, recogNew[i].rider);
+        //รับตำแหน่งภาพที่ได้จากการตรวจจับ Class Rider
+        PositionImage coorRider = imagePosition(listdata, recogNew[i].rider);
 
-        //ฟังก์ชัน Crop รูป
+        //ฟังก์ชัน Crop รูป Class Rider
         imglib.Image destImage = copyCropp(
             fixedImage, //ไฟล์รูปที่ได้จากการแปลง
-            listCoor.x.round(), //ค่า x
-            listCoor.y.round(), //ค่า y
-            min(listCoor.w.round(),
-                fixedImage.width - listCoor.x.round()), //ค่า w
-            min(listCoor.h.round(),
-                fixedImage.height - listCoor.y.round())); //ค่า h
+            coorRider.x.round(), //ค่า x
+            coorRider.y.round(), //ค่า y
+            min(coorRider.w.round(),
+                fixedImage.width - coorRider.x.round()), //ค่า w
+            min(coorRider.h.round(),
+                fixedImage.height - coorRider.y.round())); //ค่า h
         //ไฟล์ภาพที่ได้ Crop แล้ว
-        var fileImage = imglib.encodeJpg(destImage) as Uint8List?;
+        var riderImage = imglib.encodeJpg(destImage) as Uint8List?;
         //รับค่าสี
-        Color averageColor = getAverageColor(fileImage!);
+        Color averageColor = getAverageColor(riderImage!);
         //print("averageColor = ${averageColor}");
-        // print("listFileImage = $listAvaColors");
+        print("listFileImage = $listAvaColors");
         if (listAvaColors.isNotEmpty) {
           //เปรียบเทียบค่าสี
           for (var i = 0; i < listAvaColors.length; i++) {
@@ -101,19 +100,35 @@ List<ListResultImage> convertImage(listdata) {
             print("checkColorImg = $checkColorImg");
             // 90 = เปอร์เซ็นการ Macth ของสี
             if (checkColorImg > 90) {
-              fileImage = null;
+              riderImage = null;
             }
           }
         }
-        if (fileImage != null) {
-          listFileImage.add(fileImage);
+        if (riderImage != null) {
+          //รับตำแหน่งภาพที่ได้จากการตรวจจับ Class License
+          PositionImage coorlicenseP =
+              imagePosition(listdata, recogNew[i].license_plate);
+
+          //ฟังก์ชัน Crop รูป Class license plate
+          imglib.Image destImages = copyCropp(
+              fixedImage, //ไฟล์รูปที่ได้จากการแปลง
+              coorlicenseP.x.round(), //ค่า x
+              coorlicenseP.y.round(), //ค่า y
+              min(coorlicenseP.w.round(),
+                  fixedImage.width - coorlicenseP.x.round()), //ค่า w
+              min(coorlicenseP.h.round(),
+                  fixedImage.height - coorlicenseP.y.round())); //ค่า h
+
+          var licensePlateImg = imglib.encodeJpg(destImages) as Uint8List?;
+
+          listDataImage.add(DataDetectedImage(riderImage, licensePlateImg!));
           listAvaColors.add(averageColor);
         }
       }
       // print("listFileImage = ${listFileImage}");
       // print("listFileImage = ${listAvaColors}");
-      if (listFileImage.isNotEmpty) {
-        listresult.add(ListResultImage(listFileImage, listAvaColors));
+      if (listDataImage.isNotEmpty) {
+        listresult.add(ListResultImage(listDataImage, listAvaColors));
         return listresult;
       } else {
         return [];

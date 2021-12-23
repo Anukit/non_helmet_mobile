@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:non_helmet_mobile/utility/convert_image.dart';
 import 'package:non_helmet_mobile/utility/saveimage_video.dart';
+import 'package:non_helmet_mobile/utility/upload_detect_image.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite/tflite.dart';
 import 'dart:math' as math;
 
@@ -30,6 +32,7 @@ class _CameraState extends State<Camera> {
   String? resolution;
   Size? screen; //สำหรับ Crop
   List<Color> listAvaColors = [];
+  late int user_id;
 
   ///////////////////////////////////
   int indexFrame = 0;
@@ -46,6 +49,9 @@ class _CameraState extends State<Camera> {
   }
 
   getData() async {
+    final prefs = await SharedPreferences.getInstance();
+    user_id = prefs.getInt('user_id') ?? 0;
+
     var listdata = await getDataSetting();
     if (listdata != "Error") {
       resolution = listdata["resolution"];
@@ -94,9 +100,9 @@ class _CameraState extends State<Camera> {
               imageStd: 127.5,
               // numResultsPerClass: 4,
               // threshold: 0.1,
-              numResultsPerClass: 4,
-              //numBoxesPerBlock: 12,
-              threshold: 0.4,
+              numResultsPerClass: 8,
+              numBoxesPerBlock: 8,
+              threshold: 0.5,
             ).then((recognitions) {
               /////////////////////ส่วนเงื่อนไข////////////////////////////////////
               //print("indexFrame = ${indexFrame}");
@@ -109,6 +115,7 @@ class _CameraState extends State<Camera> {
 
                 //เงื่อนไขเพื่อแก้บัคข้อมูลซ้ำ
                 if (i == 0) {
+                  print("ASASASASAS");
                   checkValue.add("value");
                   if (checkValue.length > 1) {
                     recognitions = [];
@@ -130,8 +137,16 @@ class _CameraState extends State<Camera> {
                     if (value.isNotEmpty) {
                       //print("listAvaColors = ${value[0].averageColor} 2");
                       listAvaColors = value[0].averageColor;
-                      for (var i = 0; i < value[0].fileImage.length; i++) {
-                        saveImageDetect(value[0].fileImage[i]);
+                      for (var i = 0; i < value[0].dataImage.length; i++) {
+                        if (autoUpload == "true") {
+                          uploadDatectedImage(
+                              user_id,
+                              value[0].dataImage[i].riderImg,
+                              value[0].dataImage[i].license_plateImg);
+                        } else {
+                          saveImageDetect(value[0].dataImage[i].riderImg,
+                              value[0].dataImage[i].license_plateImg);
+                        }
                       }
                     }
                   });

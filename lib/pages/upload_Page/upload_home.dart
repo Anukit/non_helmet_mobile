@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:non_helmet_mobile/pages/homepage.dart';
 import 'package:non_helmet_mobile/pages/upload_Page/notupload.dart';
 import 'package:non_helmet_mobile/pages/upload_Page/uploaded.dart';
 
@@ -31,7 +32,12 @@ class _UploadState extends State<Upload> with SingleTickerProviderStateMixin {
         ),
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            //Navigator.pop(context);
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => HomePage()),
+                (Route<dynamic> route) => false);
           },
           icon: const Icon(
             Icons.arrow_back_ios,

@@ -103,7 +103,8 @@ Future<void> settingPermissionDialog(BuildContext context) async {
   );
 }
 
-Future<void> zoomPictureDialog(BuildContext context, file) async {
+///ซูมรูปภาพ file คือ ไฟล์รูปภาพจากเครื่องหรือเป็น Url จาก Service และ type 1 = หน้า notupload type 2 = หน้า uploaded
+Future<void> zoomPictureDialog(BuildContext context, file, int type) async {
   showGeneralDialog(
     context: context,
     barrierColor: Colors.black12.withOpacity(0.6), // Background color
@@ -122,17 +123,23 @@ Future<void> zoomPictureDialog(BuildContext context, file) async {
               child: SizedBox.expand(
                   child: Center(
                 child: InteractiveViewer(
-                  panEnabled: true, // Set it to false
-                  boundaryMargin: const EdgeInsets.all(100),
-                  minScale: 0.5,
-                  maxScale: 2,
-                  child: Image.file(
-                    file,
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    fit: BoxFit.contain,
-                  ),
-                ),
+                    panEnabled: true, // Set it to false
+                    boundaryMargin: const EdgeInsets.all(100),
+                    minScale: 0.5,
+                    maxScale: 2,
+                    child: type == 1
+                        ? Image.file(
+                            file,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
+                            fit: BoxFit.contain,
+                          )
+                        : Image.network(
+                            file,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
+                            fit: BoxFit.contain,
+                          )),
               )),
             ),
           ],

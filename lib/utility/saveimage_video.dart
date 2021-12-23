@@ -6,23 +6,29 @@ import 'package:geolocator/geolocator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-Future<void> saveImageDetect(Uint8List bytes) async {
+Future<void> saveImageDetect(Uint8List riderImg, Uint8List licenseImg) async {
   print("saveImageDetect");
   //รับพิกัด
   var position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high);
-  final exif = dd.FlutterExif.fromBytes(bytes);
+  final exif = dd.FlutterExif.fromBytes(riderImg);
   await exif.setLatLong(position.latitude, position.longitude);
   await exif.setAttribute("DateTimeOriginal", DateTime.now().toString());
   await exif.saveAttributes();
 
   final modifiedImage = await exif.imageData;
   /////////////////////////////////////////////////////////////////////
-  String tempPath = await createFolder("Pictures");
-  if (tempPath.isNotEmpty) {
+  String tempPathPic = await createFolder("Pictures");
+  String tempPathLic = await createFolder("License_plate");
+
+  if (tempPathPic.isNotEmpty && tempPathLic.isNotEmpty) {
     String filename = DateTime.now().millisecondsSinceEpoch.toString();
-    var filePath = tempPath + '/file_$filename.jpg';
-    File(filePath).writeAsBytes(modifiedImage!);
+
+    var filePathRider = tempPathPic + '/file_$filename.jpg';
+    var filePathLicense = tempPathLic + '/file_$filename.jpg';
+
+    File(filePathRider).writeAsBytes(modifiedImage!);
+    File(filePathLicense).writeAsBytes(licenseImg);
   } else {}
   /////////////////////////////////////////////////////////////////////
 }
@@ -44,8 +50,8 @@ Future<void> saveVideo(giffile) async {
     final String outputFile = filePathMP4; //path to export the mp4 file.
     File(filePath).writeAsBytes(giffile!).then((gifData) async => {
           //แปลงไฟล์ gif => mp4
-          result =
-              await _flutterFFmpeg.execute("-f gif -i $inputFile -pix_fmt yuv420p $outputFile"),
+          result = await _flutterFFmpeg
+              .execute("-f gif -i $inputFile -pix_fmt yuv420p $outputFile"),
           if (result == 0) {await gifData.delete(), print("Succeed")}
         });
   } else {}
