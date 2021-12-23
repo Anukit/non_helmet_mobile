@@ -26,6 +26,28 @@ String formatDate(dateTime) {
   }
 }
 
+///แปลงรูปแบบวันที่จากฐานข้อมูล
+String formatDateDatabase(dateTime) {
+  try {
+    DateTime dateNew =
+        DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(dateTime).toLocal();
+
+    return dateNew.day.toString() +
+        '-' +
+        dateNew.month.toString() +
+        '-' +
+        dateNew.year.toString() +
+        ' ' +
+        'เวลา' +
+        ' ' +
+        dateNew.hour.toString() +
+        ':' +
+        dateNew.minute.toString();
+  } catch (e) {
+    return "ไม่สามารถแสดงวันที่ได้";
+  }
+}
+
 ///การขออนุญาตแอป
 Future<bool> permissionCamera() async {
   if (await Permission.contacts.request().isGranted) {

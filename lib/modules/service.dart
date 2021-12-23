@@ -121,3 +121,27 @@ Future<RequestResult> check_OTP([dynamic data]) async {
     return RequestResult(true, "");
   }
 }
+
+Future<RequestResult> getAmountRider(user_id) async {
+  try {
+    var url = "${Constant().domain}/DetectedImage/getAmountRider/$user_id";
+    var result = await http.get(Uri.parse(url));
+    //print(result.body);
+    return RequestResult(true, jsonDecode(result.body));
+  } catch (e) {
+    print(e);
+    return RequestResult(true, "");
+  }
+}
+
+Future<RequestResult> getDataDetectedImage(user_id) async {
+  try {
+    var url = "${Constant().domain}/DetectedImage/getDataDetectedImage/$user_id";
+    var result = await http.get(Uri.parse(url));
+    //print(result.body);
+    return RequestResult(true, jsonDecode(result.body));
+  } catch (e) {
+    print(e);
+    return RequestResult(true, "");
+  }
+}

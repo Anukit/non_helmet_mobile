@@ -21,12 +21,35 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int? countAllRider;
+  int? countMeRider;
+
   @override
   void initState() {
     super.initState();
     checkInternet(context);
     permissionCamera()
         .then((value) => !value ? settingPermissionDialog(context) : null);
+    getData();
+  }
+
+  Future<void> getData() async {
+    print("AAAAAAAAAAAAAAAAA");
+    final prefs = await SharedPreferences.getInstance();
+    int user_id = prefs.getInt('user_id') ?? 0;
+
+    try {
+      var result = await getAmountRider(user_id);
+      if (result.pass) {
+        if (result.data["status"] == "Succeed") {
+          setState(() {
+            //var listdata = result.data["data"][0];
+            countMeRider = result.data["data"]["countMeRider"];
+            countAllRider = result.data["data"]["countAllRider"];
+          });
+        }
+      }
+    } catch (e) {}
   }
 
   @override
@@ -52,7 +75,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 0.0),
+                padding: const EdgeInsets.symmetric(vertical: 0.0),
                 child: Row(
                   children: <Widget>[
                     buildimageAc(EditProfile()),
@@ -81,21 +104,25 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(width: 20),
                   Container(
-                    margin: const EdgeInsets.all(20.0),
-                    height: 25.0,
-                    width: 80.0,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      color: Colors.grey[200],
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                    ),
-                  ),
+                      margin: const EdgeInsets.all(20.0),
+                      height: 25.0,
+                      width: 80.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        color: Colors.grey[200],
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 2),
+                            blurRadius: 6.0,
+                          ),
+                        ],
+                      ),
+                      child: Align(
+                          alignment: Alignment.center,
+                          child: countMeRider != null
+                              ? Text(countMeRider.toString())
+                              : const Text("กำลังโหลด"))),
                 ],
               ),
               Row(
@@ -111,21 +138,25 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   Container(
-                    margin: const EdgeInsets.all(20.0),
-                    height: 25.0,
-                    width: 80.0,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      color: Colors.grey[200],
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                    ),
-                  ),
+                      margin: const EdgeInsets.all(20.0),
+                      height: 25.0,
+                      width: 80.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        color: Colors.grey[200],
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 2),
+                            blurRadius: 6.0,
+                          ),
+                        ],
+                      ),
+                      child: Align(
+                          alignment: Alignment.center,
+                          child: countAllRider != null
+                              ? Text(countAllRider.toString())
+                              : const Text("กำลังโหลด")))
                 ],
               ),
               Padding(
