@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:non_helmet_mobile/models/data_image.dart';
 import 'package:non_helmet_mobile/utility/convert_image.dart';
 import 'package:non_helmet_mobile/utility/saveimage_video.dart';
 import 'package:non_helmet_mobile/utility/upload_detect_image.dart';
@@ -9,7 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite/tflite.dart';
 import 'dart:math' as math;
 
-typedef Callback = void Function(List<dynamic> list, int h, int w);
+typedef Callback = void Function(
+    List<dynamic> list, int h, int w, List<dynamic> lists);
 
 class Camera extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -26,12 +28,13 @@ class _CameraState extends State<Camera> {
   bool isDetecting = false;
   int i = 0; //สำหรับแก้บัคข้อมูลซ้ำ
   List checkValue = []; //สำหรับแก้บัคข้อมูลซ้ำ
-  List listimg = [];
+  List listCameraimg = [];
   String? recordVideo;
   String? autoUpload;
   String? resolution;
   Size? screen; //สำหรับ Crop
-  List<Color> listAvaColors = [];
+  List<DataAveColor> listAvgColors = [];
+  List<dynamic> listDataForTrack = [];
   late int user_id;
 
   ///////////////////////////////////
@@ -84,10 +87,7 @@ class _CameraState extends State<Camera> {
           if (!isDetecting) {
             isDetecting = true;
             ///////////////////////////////////////////////////////////////////
-            if (indexFrame == 0) {
-              startTime = DateTime.now().millisecondsSinceEpoch;
-            }
-            indexFrame++;
+            startTime = DateTime.now().millisecondsSinceEpoch;
             ///////////////////////ส่วนตรวจจับ////////////////////////////////////
             Tflite.detectObjectOnFrame(
               bytesList: img.planes.map((plane) {
@@ -105,38 +105,47 @@ class _CameraState extends State<Camera> {
               threshold: 0.5,
             ).then((recognitions) {
               /////////////////////ส่วนเงื่อนไข////////////////////////////////////
-              //print("indexFrame = ${indexFrame}");
+              //listimg.add(img); //สำหรับวิดีโอ
+              //listDataForTrack = [];
 
-              //เริ่มทำตามเฟรมที่กำหนด
-              if (indexFrame == frame) {
-                endTime = DateTime.now().millisecondsSinceEpoch;
-                //print("In every $frame frame took ${endTime - startTime}ms");
-                //listimg.add(img); //สำหรับวิดีโอ
-
-                //เงื่อนไขเพื่อแก้บัคข้อมูลซ้ำ
-                if (i == 0) {
-                  print("ASASASASAS");
-                  checkValue.add("value");
-                  if (checkValue.length > 1) {
-                    recognitions = [];
-                  }
+              //เงื่อนไขเพื่อแก้บัคข้อมูลซ้ำ
+              if (i == 0) {
+                print("ASASASASAS");
+                checkValue.add("value");
+                if (checkValue.length > 1) {
+                  recognitions = [];
                 }
+              }
+              print("iiiiiii 1 = $i");
+              if (i == 1) {
+                if (listAvgColors.isEmpty) {
+                  recognitions = [];
+                }
+              }
 
-                if (recognitions!.isNotEmpty) {
-                  //print("recognitions = $recognitions");
-                  List listdata = [];
-                  listdata.add(img);
-                  listdata.add(recognitions);
-                  listdata.add(screen);
-                  listdata.add(listAvaColors);
-                  print("listAvaColors = $listAvaColors");
+              if (recognitions!.isNotEmpty) {
+                //print("recognitions = $recognitions");
+                List listdata = [];
+                listdata.add(img);
+                listdata.add(recognitions);
+                listdata.add(screen);
+                listdata.add(listAvgColors);
+                print("listAvgColors 1 = ${listdata[3]}");
+                print("iiiiiii 2 = $i");
 
-                  compute(convertImage, listdata).then((value) {
-                    i = 1;
-                    print("value = $value");
-                    if (value.isNotEmpty) {
-                      //print("listAvaColors = ${value[0].averageColor} 2");
-                      listAvaColors = value[0].averageColor;
+                compute(convertImage, listdata).then((value) {
+                  i = 1;
+                  print("value = $value");
+                  if (value.isNotEmpty) {
+                    //print("listAvgColors = ${value[0].averageColor} 2");
+                    print("data track = ${value[0].dataforTrack}");
+                    listDataForTrack = value[0].dataforTrack;
+
+                    if (value[0].dataImage.isNotEmpty &&
+                        value[0].listAvgColor.isNotEmpty) {
+                      listAvgColors = value[0].listAvgColor;
+                      print("ListColorss = ${value[0].listAvgColor}");
+                      print("Listimage = ${value[0].dataImage}");
                       for (var i = 0; i < value[0].dataImage.length; i++) {
                         if (autoUpload == "true") {
                           uploadDatectedImage(
@@ -149,14 +158,21 @@ class _CameraState extends State<Camera> {
                         }
                       }
                     }
-                  });
-                }
-                indexFrame = 0;
+                  } else {
+                    listDataForTrack = [];
+                  }
+                });
+
+                print("listDataForTrack = $listDataForTrack 1");
+              } else {
+                listDataForTrack = [];
               }
               //////////////////////////////////////////////////////////////////
-              // print("Detection took ${endTime - startTime}");
-              // print("recognitions : $recognitions");
-              widget.setRecognitions(recognitions!, img.height, img.width);
+              endTime = DateTime.now().millisecondsSinceEpoch;
+              print("Detection took ${endTime - startTime}ms");
+              print("listDataForTrack = $listDataForTrack 2");
+              widget.setRecognitions(
+                  recognitions, img.height, img.width, listDataForTrack);
               isDetecting = false;
             });
           }

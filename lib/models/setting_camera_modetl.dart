@@ -3,9 +3,10 @@ class SettingCam {
   String autoUpload;
   String recordVideo;
   String boundingBox;
+  String tracking;
 
-  SettingCam(
-      this.resolution, this.autoUpload, this.recordVideo, this.boundingBox);
+  SettingCam(this.resolution, this.autoUpload, this.recordVideo,
+      this.boundingBox, this.tracking);
 
   Map<String, dynamic> toJson() {
     return {
@@ -13,6 +14,7 @@ class SettingCam {
       'autoUpload': autoUpload,
       'recordVideo': recordVideo,
       'boundingBox': boundingBox,
+      'tracking': tracking
     };
   }
 }
