@@ -8,7 +8,7 @@ import 'package:non_helmet_mobile/modules/constant.dart';
 Future<void> uploadDatectedImage(
     int userID, Uint8List fileImage, Uint8List fileImages) async {
   print("uploadDatectedImage");
-  String uploadurl = "${Constant().domain}/UploadDetectedImage/postImageData";
+  String uploadurl = "${Constant().domain}/DetectedImage/uploadImage";
 
   int genName = DateTime.now().millisecondsSinceEpoch;
   DateTime datenow = DateTime.now();

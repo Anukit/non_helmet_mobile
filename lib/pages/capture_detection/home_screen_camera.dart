@@ -3,6 +3,7 @@
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:non_helmet_mobile/pages/capture_detection/tracking.dart';
 import 'package:non_helmet_mobile/pages/homepage.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
@@ -25,10 +26,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<dynamic>? _recognitions;
+  List<dynamic>? _dataForTrack;
   int _imageHeight = 0;
   int _imageWidth = 0;
   String _model = "";
   String? boundingBox;
+  String? tracking;
 
   loadModel() async {
     String? result;
@@ -50,11 +53,13 @@ class _HomeScreenState extends State<HomeScreen> {
     loadModel();
   }
 
-  setRecognitions(recognitions, imageHeight, imageWidth) {
+  setRecognitions(recognitions, imageHeight, imageWidth, dataForTrack) {
     setState(() {
       _recognitions = recognitions;
       _imageHeight = imageHeight;
       _imageWidth = imageWidth;
+      _dataForTrack = dataForTrack;
+      print("test = $dataForTrack");
     });
   }
 
@@ -77,9 +82,12 @@ class _HomeScreenState extends State<HomeScreen> {
     if (rusult) {
       var listdata = await getDataSetting();
       if (listdata != "Error") {
+        print("listdata = $listdata");
         boundingBox = listdata["boundingBox"];
+        tracking = listdata["tracking"];
       } else {
         boundingBox = "true";
+        tracking = "true";
       }
       onSelectModel(ssd);
     } else {
@@ -115,7 +123,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         screen.height,
                         screen.width,
                         _model)
-                    : Container()
+                    : Container(),
+                tracking == "true" && tracking != null
+                    ? Tracking(
+                        _dataForTrack ?? [],
+                        math.max(_imageHeight, _imageWidth),
+                        math.min(_imageHeight, _imageWidth),
+                        screen.height,
+                        screen.width,
+                      )
+                    : Container(),
               ],
             ),
     );

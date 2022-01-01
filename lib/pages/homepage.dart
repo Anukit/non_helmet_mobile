@@ -54,6 +54,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print("countAllRider = $countAllRider");
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,

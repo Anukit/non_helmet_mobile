@@ -16,13 +16,20 @@ class DataImage {
 //ลิสไฟล์รูปภาพ และค่าเฉลี่ยสีที่ได้จากการตรวจจับแล้ว
 class ListResultImage {
   List<DataDetectedImage> dataImage; //ลิสรูปภาพที่ได้จากการตรวจจับ
-  List<Color> averageColor; //ลิสค่าเฉลี่ยสีของรูปภาพ
+  List<DataAveColor> listAvgColor; //ลิสค่าเฉลี่ยสีของรูปภาพ
+  List<dynamic> dataforTrack;
 
-  ListResultImage(this.dataImage, this.averageColor);
+  ListResultImage(this.dataImage, this.listAvgColor, this.dataforTrack);
 }
 
 class DataDetectedImage {
   Uint8List riderImg;
   Uint8List license_plateImg;
   DataDetectedImage(this.riderImg, this.license_plateImg);
+}
+
+class DataAveColor {
+  int id;
+  Color avgColor;
+  DataAveColor(this.id, this.avgColor);
 }

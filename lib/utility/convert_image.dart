@@ -14,12 +14,16 @@ List<ListResultImage> convertImage(listdata) {
   ////////////////////////ตัวแปร////////////////////////////////////////
   CameraImage image = listdata[0]; //ไฟล์รูปจาก CameraImage
   List<dynamic>? recognitions = listdata[1]; //ข้อมูลที่ได้จากการตรวจจับ
-  List<Color> listAvaColors = listdata[3]; //ลิสสำหรับเก็บค่าเฉลี่ยสี
+  List<DataAveColor> listAvgColors = listdata[3]; //ลิสสำหรับเก็บค่าเฉลี่ยสี
   List<DataDetectedImage> listDataImage = []; //ลิสเก็บข้อมูลรูปภาพ
   List<ListResultImage> listresult = []; //ลิสคำตอบที่จะรีเทิร์นกลับ
   List<ModelTflite> recogNew = []; //ลิสค่า Recognition ใหม่
+  List<dynamic> dataforTrack = [];
+  int? checkColorImg;
+  int? avgColorID;
   /////////////////////////////////////////////////////////////////////
-  print("listFileImage = $listAvaColors");
+  print("2222 2 = $listAvgColors");
+  int countlistAvg = listAvgColors.length;
   //รูปกรณีมีมากกว่า 1 คันใน 1 ภาพ
   for (var i = 0; i < recognitions!.length; i++) {
     if (recognitions[i]["detectedClass"] == "Rider") {
@@ -64,8 +68,8 @@ List<ListResultImage> convertImage(listdata) {
     } else {
       return [];
     }
-    // print("recogNew = $recogNew");
-    // print("recogNew = ${recogNew.length}");
+    print("recogNew = $recogNew");
+    print("recogNew = ${recogNew.length}");
     // print("rider = ${recogNew.first.rider}");
     // print("helmet = ${recogNew.first.helmet}");
     // print("license_plate = ${recogNew.first.license_plate}");
@@ -79,7 +83,7 @@ List<ListResultImage> convertImage(listdata) {
         PositionImage coorRider = imagePosition(listdata, recogNew[i].rider);
 
         //ฟังก์ชัน Crop รูป Class Rider
-        imglib.Image destImage = copyCropp(
+        imglib.Image destImageRider = copyCropp(
             fixedImage, //ไฟล์รูปที่ได้จากการแปลง
             coorRider.x.round(), //ค่า x
             coorRider.y.round(), //ค่า y
@@ -87,30 +91,59 @@ List<ListResultImage> convertImage(listdata) {
                 fixedImage.width - coorRider.x.round()), //ค่า w
             min(coorRider.h.round(),
                 fixedImage.height - coorRider.y.round())); //ค่า h
-        //ไฟล์ภาพที่ได้ Crop แล้ว
-        var riderImage = imglib.encodeJpg(destImage) as Uint8List?;
+
+        //ฟังก์ชัน Crop รูป Class Rider สำหรับนำไปเช็คค่า
+        imglib.Image destImageCheck = copyCropp(
+            destImageRider, //ไฟล์รูปที่ได้จากการแปลง
+            (destImageRider.width / 5).round(), //ค่า x
+            (destImageRider.height / 5).round(), //ค่า y
+            (300).round(), //ค่า w
+            (600).round()); //ค่า h
+
+        //ไฟล์ภาพ Class Rider ที่ได้ Crop แล้ว
+        var riderImage = imglib.encodeJpg(destImageRider) as Uint8List?;
+        //ไฟล์ภาพ Class Rider ที่ได้ Crop แล้ว สำหรับนำไปเช็คค่า
+        var checkImage = imglib.encodeJpg(destImageCheck) as Uint8List?;
+
         //รับค่าสี
-        Color averageColor = getAverageColor(riderImage!);
+        Color averageColor = getAverageColor(checkImage!);
         //print("averageColor = ${averageColor}");
-        print("listFileImage = $listAvaColors");
-        if (listAvaColors.isNotEmpty) {
+        print("listAvgColors 3 = $listAvgColors");
+        print("listAvgColors 3 = $countlistAvg");
+
+        if (countlistAvg != listAvgColors.length) {
+          return [];
+        }
+
+        print("riderImage 1 = $listAvgColors");
+
+        if (listAvgColors.isNotEmpty) {
           //เปรียบเทียบค่าสี
-          for (var i = 0; i < listAvaColors.length; i++) {
-            int checkColorImg = compareColor(averageColor, listAvaColors[i]);
+          for (var i = 0; i < listAvgColors.length; i++) {
+            checkColorImg =
+                compareColor(averageColor, listAvgColors[i].avgColor);
             print("checkColorImg = $checkColorImg");
-            // 90 = เปอร์เซ็นการ Macth ของสี
-            if (checkColorImg > 90) {
+            // 75 = เปอร์เซ็นการ Macth ของสี
+            if (checkColorImg > 75) {
+              avgColorID = listAvgColors[i].id;
               riderImage = null;
+              break;
+            } else {
+              continue;
             }
           }
         }
+
+        print("riderImage 2 = $riderImage");
+        print("riderImage 3 = $checkColorImg");
+
         if (riderImage != null) {
           //รับตำแหน่งภาพที่ได้จากการตรวจจับ Class License
           PositionImage coorlicenseP =
               imagePosition(listdata, recogNew[i].license_plate);
 
           //ฟังก์ชัน Crop รูป Class license plate
-          imglib.Image destImages = copyCropp(
+          imglib.Image destImagesLicense = copyCropp(
               fixedImage, //ไฟล์รูปที่ได้จากการแปลง
               coorlicenseP.x.round(), //ค่า x
               coorlicenseP.y.round(), //ค่า y
@@ -119,19 +152,37 @@ List<ListResultImage> convertImage(listdata) {
               min(coorlicenseP.h.round(),
                   fixedImage.height - coorlicenseP.y.round())); //ค่า h
 
-          var licensePlateImg = imglib.encodeJpg(destImages) as Uint8List?;
+          var licensePlateImg =
+              imglib.encodeJpg(destImagesLicense) as Uint8List?;
 
           listDataImage.add(DataDetectedImage(riderImage, licensePlateImg!));
-          listAvaColors.add(averageColor);
+          dataforTrack.add({
+            "id": listAvgColors.length + 1,
+            "coorRider": recogNew[i].rider['rect'],
+            "confidenceTracking": checkColorImg ??= 100
+          });
+          listAvgColors
+              .add(DataAveColor(listAvgColors.length + 1, averageColor));
+        } else {
+          listDataImage = [];
+
+          dataforTrack.add({
+            "id": avgColorID,
+            "coorRider": recogNew[i].rider['rect'],
+            "confidenceTracking": checkColorImg ??= 100
+          });
         }
       }
       // print("listFileImage = ${listFileImage}");
       // print("listFileImage = ${listAvaColors}");
       if (listDataImage.isNotEmpty) {
-        listresult.add(ListResultImage(listDataImage, listAvaColors));
+        print("ListImageIsnotempty");
+        listresult
+            .add(ListResultImage(listDataImage, listAvgColors, dataforTrack));
         return listresult;
       } else {
-        return [];
+        listresult.add(ListResultImage([], [], dataforTrack));
+        return listresult;
       }
     } else {
       return [];

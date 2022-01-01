@@ -20,6 +20,7 @@ class _SettingCameraState extends State<SettingCamera> {
   bool autoUpload = false;
   bool recordVideo = false;
   bool boundingBox = false;
+  bool tracking = false;
   List<Resolution> resolution = <Resolution>[
     const Resolution(1, '720p'),
     const Resolution(2, '1080p'),
@@ -55,6 +56,11 @@ class _SettingCameraState extends State<SettingCamera> {
         } else {
           boundingBox = false;
         }
+        if (listdata["tracking"] == "true") {
+          tracking = true;
+        } else {
+          tracking = false;
+        }
       });
     } else {
       setState(() {
@@ -62,6 +68,7 @@ class _SettingCameraState extends State<SettingCamera> {
         autoUpload = true;
         recordVideo = false;
         boundingBox = true;
+        tracking = true;
       });
     }
   }
@@ -107,6 +114,8 @@ class _SettingCameraState extends State<SettingCamera> {
                 swRecordVideo(),
                 const SizedBox(height: 15.0),
                 swBoundingBox(),
+                const SizedBox(height: 15.0),
+                swTracking()
               ],
             ),
           ),
@@ -243,13 +252,42 @@ class _SettingCameraState extends State<SettingCamera> {
     );
   }
 
+  Widget swTracking() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          "แสดง Tracking",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        const SizedBox(width: 10.0),
+        FlutterSwitch(
+          height: 30.0,
+          width: 60.0,
+          padding: 4.0,
+          toggleSize: 20.0,
+          //borderRadius: 10.0,
+          activeColor: Colors.black,
+          value: tracking,
+          onToggle: (value) {
+            setState(() {
+              tracking = value;
+            });
+            print("Tracking = $tracking");
+          },
+        )
+      ],
+    );
+  }
+
   Future<void> settingList() async {
     final prefs = await SharedPreferences.getInstance();
     Map<String, dynamic> maps = SettingCam(
             valueRes!.id.toString(),
             autoUpload.toString(),
             recordVideo.toString(),
-            boundingBox.toString())
+            boundingBox.toString(),
+            tracking.toString())
         .toJson();
     String json = jsonEncode(maps);
     prefs.setString("listSetting", json);
