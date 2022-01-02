@@ -28,7 +28,7 @@ class _CameraState extends State<Camera> {
   bool isDetecting = false;
   int i = 0; //สำหรับแก้บัคข้อมูลซ้ำ
   List checkValue = []; //สำหรับแก้บัคข้อมูลซ้ำ
-  List listCameraimg = [];
+  List<CameraImage> listCameraimg = [];
   String? recordVideo;
   String? autoUpload;
   String? resolution;
@@ -44,6 +44,13 @@ class _CameraState extends State<Camera> {
   int endTime = 0;
   ///////////////////////////////////
 
+  String frameImgDirPath = ""; // path โฟลเดอร์เฟรมภาพ
+  String videoDirPath = ""; // path โฟลเดอร์วิดีโอ
+  int starttimeRec = 0;
+  int endtimeRec = 0;
+  bool saveRecordVideo = false; //เริ่มเซฟวิดีโอ
+  bool calEndtimeRec = true; // สำหรับเช็ค เพื่อคำนวณเวลาที่จะเซฟวิดีโอ
+
   @override
   void initState() {
     super.initState();
@@ -54,6 +61,11 @@ class _CameraState extends State<Camera> {
   getData() async {
     final prefs = await SharedPreferences.getInstance();
     user_id = prefs.getInt('user_id') ?? 0;
+
+    //รับ path โฟลเดอร์เฟรมภาพ
+    frameImgDirPath = await createFolder("FrameImage");
+    //รับ path โฟลเดอร์วิดีโอ
+    videoDirPath = await createFolder("Video");
 
     var listdata = await getDataSetting();
     if (listdata != "Error") {
@@ -84,11 +96,45 @@ class _CameraState extends State<Camera> {
         setState(() {});
 
         controller!.startImageStream((CameraImage img) {
+          ///////////////////////////ส่วนอัดวิดีโอ/////////////////////////////
+          if (recordVideo == "true") {
+            indexFrame++;
+            starttimeRec = DateTime.now().millisecondsSinceEpoch;
+
+            //ใเก็บเฟรมภาพตามเฟรมที่กำหนด
+            if (indexFrame == 20) {
+              listCameraimg.add(img);
+              indexFrame = 0;
+            }
+
+            if (calEndtimeRec) {
+              //เวลาที่จะให้เริ่มเซฟวิดีโอ ทุก ๆ 10 นาที
+              endtimeRec = starttimeRec + 600000;
+              calEndtimeRec = false;
+            }
+
+            if (!saveRecordVideo) {
+              if (starttimeRec > endtimeRec) {
+                saveRecordVideo = true;
+                print("AAAAAAAAAAAASSSSSSSSSSAAAAAAAAAAAAAA");
+                if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
+                  SaveVideo(listCameraimg, frameImgDirPath, videoDirPath,
+                      (value) {
+                    print("XXXXXXXXXXXXXXXXXXXXX = $value");
+                    listCameraimg.clear();
+                    saveRecordVideo = false;
+                    calEndtimeRec = true;
+                  }).init();
+                }
+              }
+            }
+          }
+          /////////////////////////////ส่วนตรวจจับ////////////////////////////
           if (!isDetecting) {
             isDetecting = true;
-            ///////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////
             startTime = DateTime.now().millisecondsSinceEpoch;
-            ///////////////////////ส่วนตรวจจับ////////////////////////////////////
+            ////////////////////////////////////////////////////////////////
             Tflite.detectObjectOnFrame(
               bytesList: img.planes.map((plane) {
                 return plane.bytes;
@@ -105,18 +151,15 @@ class _CameraState extends State<Camera> {
               threshold: 0.5,
             ).then((recognitions) {
               /////////////////////ส่วนเงื่อนไข////////////////////////////////////
-              //listimg.add(img); //สำหรับวิดีโอ
-              //listDataForTrack = [];
 
               //เงื่อนไขเพื่อแก้บัคข้อมูลซ้ำ
               if (i == 0) {
-                print("ASASASASAS");
                 checkValue.add("value");
                 if (checkValue.length > 1) {
                   recognitions = [];
                 }
               }
-              print("iiiiiii 1 = $i");
+
               if (i == 1) {
                 if (listAvgColors.isEmpty) {
                   recognitions = [];
@@ -130,22 +173,22 @@ class _CameraState extends State<Camera> {
                 listdata.add(recognitions);
                 listdata.add(screen);
                 listdata.add(listAvgColors);
-                print("listAvgColors 1 = ${listdata[3]}");
-                print("iiiiiii 2 = $i");
+                // print("listAvgColors 1 = ${listdata[3]}");
+                // print("iiiiiii 2 = $i");
 
                 compute(convertImage, listdata).then((value) {
                   i = 1;
-                  print("value = $value");
+                  //print("value = $value");
                   if (value.isNotEmpty) {
                     //print("listAvgColors = ${value[0].averageColor} 2");
-                    print("data track = ${value[0].dataforTrack}");
+                    //print("data track = ${value[0].dataforTrack}");
                     listDataForTrack = value[0].dataforTrack;
 
                     if (value[0].dataImage.isNotEmpty &&
                         value[0].listAvgColor.isNotEmpty) {
                       listAvgColors = value[0].listAvgColor;
-                      print("ListColorss = ${value[0].listAvgColor}");
-                      print("Listimage = ${value[0].dataImage}");
+                      // print("ListColorss = ${value[0].listAvgColor}");
+                      // print("Listimage = ${value[0].dataImage}");
                       for (var i = 0; i < value[0].dataImage.length; i++) {
                         if (autoUpload == "true") {
                           uploadDatectedImage(
@@ -163,14 +206,14 @@ class _CameraState extends State<Camera> {
                   }
                 });
 
-                print("listDataForTrack = $listDataForTrack 1");
+                // print("listDataForTrack = $listDataForTrack 1");
               } else {
                 listDataForTrack = [];
               }
               //////////////////////////////////////////////////////////////////
               endTime = DateTime.now().millisecondsSinceEpoch;
-              print("Detection took ${endTime - startTime}ms");
-              print("listDataForTrack = $listDataForTrack 2");
+              // print("Detection took ${endTime - startTime}ms");
+              // print("listDataForTrack = $listDataForTrack 2");
               widget.setRecognitions(
                   recognitions, img.height, img.width, listDataForTrack);
               isDetecting = false;
@@ -183,9 +226,13 @@ class _CameraState extends State<Camera> {
 
   @override
   void dispose() {
-    // if (recordVideo == "true") {
-    //   convertImage(listimg, "Video");
-    // } else {}
+    if (recordVideo == "true" && !saveRecordVideo) {
+      if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
+        SaveVideo(listCameraimg, frameImgDirPath, videoDirPath, (value) {
+          print("XXXXXXXXXXXXXXXXXXXXX = $value");
+        }).init();
+      }
+    }
     controller?.dispose();
     super.dispose();
   }
