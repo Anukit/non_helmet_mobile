@@ -92,21 +92,21 @@ List<ListResultImage> convertImage(listdata) {
             min(coorRider.h.round(),
                 fixedImage.height - coorRider.y.round())); //ค่า h
 
-        //ฟังก์ชัน Crop รูป Class Rider สำหรับนำไปเช็คค่า
-        imglib.Image destImageCheck = copyCropp(
-            destImageRider, //ไฟล์รูปที่ได้จากการแปลง
-            (destImageRider.width / 5).round(), //ค่า x
-            (destImageRider.height / 5).round(), //ค่า y
-            (300).round(), //ค่า w
-            (600).round()); //ค่า h
+        // //ฟังก์ชัน Crop รูป Class Rider สำหรับนำไปเช็คค่า
+        // imglib.Image destImageCheck = copyCropp(
+        //     destImageRider, //ไฟล์รูปที่ได้จากการแปลง
+        //     (destImageRider.width / 5).round(), //ค่า x
+        //     (destImageRider.height / 5).round(), //ค่า y
+        //     (300).round(), //ค่า w
+        //     (600).round()); //ค่า h
 
         //ไฟล์ภาพ Class Rider ที่ได้ Crop แล้ว
         var riderImage = imglib.encodeJpg(destImageRider) as Uint8List?;
         //ไฟล์ภาพ Class Rider ที่ได้ Crop แล้ว สำหรับนำไปเช็คค่า
-        var checkImage = imglib.encodeJpg(destImageCheck) as Uint8List?;
+        // var checkImage = imglib.encodeJpg(destImageCheck) as Uint8List?;
 
         //รับค่าสี
-        Color averageColor = getAverageColor(checkImage!);
+        Color averageColor = getAverageColor(riderImage!);
         //print("averageColor = ${averageColor}");
         print("listAvgColors 3 = $listAvgColors");
         print("listAvgColors 3 = $countlistAvg");

@@ -9,7 +9,7 @@ import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  //await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]); ตั้งค่าการวางแนวแอปตามแนวโทรศัพท์
   // try {
   //   cameras = await availableCameras();
   // } on CameraException catch (e) {
@@ -24,14 +24,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: true,
-      title: 'Non Helmet Detection',
-      theme: ThemeData(
-        primarySwatch: Colors.amber,
-        //fontFamily: 'NotoSansThai'
-      ),
-      home: SplashPage()
-      //home: HomeScreen(cameras),
-    );
+        debugShowCheckedModeBanner: true,
+        title: 'Non Helmet Detection',
+        theme: ThemeData(
+          primarySwatch: Colors.amber,
+          //fontFamily: 'NotoSansThai'
+        ),
+        home: SplashPage()
+        //home: HomeScreen(cameras),
+        );
   }
 }

@@ -99,22 +99,30 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     Size screen = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.black,
-          ),
-        ),
-      ),
+      // appBar: AppBar(
+      //   leading: IconButton(
+      //     onPressed: () {
+      //       Navigator.pop(context);
+      //     },
+      //     icon: const Icon(
+      //       Icons.arrow_back_ios,
+      //       color: Colors.black,
+      //     ),
+      //   ),
+      // ),
       body: _model == ""
           ? Container()
           : Stack(
               children: [
                 Camera(widget.cameras, _model, setRecognitions),
+                Positioned(
+                  left: 10.0,
+                  top: 35.0,
+                  child: IconButton(
+                    icon: const Icon(Icons.cancel, color: Colors.white),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
                 boundingBox == "true" && boundingBox != null
                     ? BoundingBox(
                         _recognitions ?? [],
