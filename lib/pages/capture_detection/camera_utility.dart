@@ -116,11 +116,11 @@ class _CameraState extends State<Camera> {
             if (!saveRecordVideo) {
               if (starttimeRec > endtimeRec) {
                 saveRecordVideo = true;
-                print("AAAAAAAAAAAASSSSSSSSSSAAAAAAAAAAAAAA");
+                //print("AAAAAAAAAAAASSSSSSSSSSAAAAAAAAAAAAAA");
                 if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
                   SaveVideo(listCameraimg, frameImgDirPath, videoDirPath,
                       (value) {
-                    print("XXXXXXXXXXXXXXXXXXXXX = $value");
+                    //print("XXXXXXXXXXXXXXXXXXXXX = $value");
                     listCameraimg.clear();
                     saveRecordVideo = false;
                     calEndtimeRec = true;
@@ -153,18 +153,18 @@ class _CameraState extends State<Camera> {
               /////////////////////ส่วนเงื่อนไข////////////////////////////////////
 
               //เงื่อนไขเพื่อแก้บัคข้อมูลซ้ำ
-              if (i == 0) {
-                checkValue.add("value");
-                if (checkValue.length > 1) {
-                  recognitions = [];
-                }
-              }
+              // if (i == 0) {
+              //   checkValue.add("value");
+              //   if (checkValue.length > 1) {
+              //     recognitions = [];
+              //   }
+              // }
 
-              if (i == 1) {
-                if (listAvgColors.isEmpty) {
-                  recognitions = [];
-                }
-              }
+              // if (i == 1) {
+              //   if (listAvgColors.isEmpty) {
+              //     recognitions = [];
+              //   }
+              // }
 
               if (recognitions!.isNotEmpty) {
                 //print("recognitions = $recognitions");
@@ -176,35 +176,39 @@ class _CameraState extends State<Camera> {
                 // print("listAvgColors 1 = ${listdata[3]}");
                 // print("iiiiiii 2 = $i");
 
-                compute(convertImage, listdata).then((value) {
+                if (i == 0) {
                   i = 1;
-                  //print("value = $value");
-                  if (value.isNotEmpty) {
-                    //print("listAvgColors = ${value[0].averageColor} 2");
-                    //print("data track = ${value[0].dataforTrack}");
-                    listDataForTrack = value[0].dataforTrack;
+                  compute(convertImage, listdata).then((value) {
+                    i = 1;
+                    //print("value = $value");
+                    if (value.isNotEmpty) {
+                      //print("listAvgColors = ${value[0].averageColor} 2");
+                      //print("data track = ${value[0].dataforTrack}");
+                      listDataForTrack = value[0].dataforTrack;
 
-                    if (value[0].dataImage.isNotEmpty &&
-                        value[0].listAvgColor.isNotEmpty) {
-                      listAvgColors = value[0].listAvgColor;
-                      // print("ListColorss = ${value[0].listAvgColor}");
-                      // print("Listimage = ${value[0].dataImage}");
-                      for (var i = 0; i < value[0].dataImage.length; i++) {
-                        if (autoUpload == "true") {
-                          uploadDatectedImage(
-                              user_id,
-                              value[0].dataImage[i].riderImg,
-                              value[0].dataImage[i].license_plateImg);
-                        } else {
-                          saveImageDetect(value[0].dataImage[i].riderImg,
-                              value[0].dataImage[i].license_plateImg);
+                      if (value[0].dataImage.isNotEmpty &&
+                          value[0].listAvgColor.isNotEmpty) {
+                        listAvgColors = value[0].listAvgColor;
+                        // print("ListColorss = ${value[0].listAvgColor}");
+                        // print("Listimage = ${value[0].dataImage}");
+                        for (var i = 0; i < value[0].dataImage.length; i++) {
+                          if (autoUpload == "true") {
+                            uploadDatectedImage(
+                                user_id,
+                                value[0].dataImage[i].riderImg,
+                                value[0].dataImage[i].license_plateImg);
+                          } else {
+                            saveImageDetect(value[0].dataImage[i].riderImg,
+                                value[0].dataImage[i].license_plateImg);
+                          }
                         }
                       }
+                    } else {
+                      listDataForTrack = [];
                     }
-                  } else {
-                    listDataForTrack = [];
-                  }
-                });
+                    i = 0;
+                  });
+                }
 
                 // print("listDataForTrack = $listDataForTrack 1");
               } else {
@@ -253,12 +257,31 @@ class _CameraState extends State<Camera> {
     var screenRatio = screenH / screenW;
     var previewRatio = previewH / previewW;
 
-    return OverflowBox(
-      maxHeight:
-          screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
-      maxWidth:
-          screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
-      child: CameraPreview(controller!),
-    );
+    // return OverflowBox(
+    //   maxHeight:
+    //       screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
+    //   maxWidth:
+    //       screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
+    //   child: CameraPreview(controller!),
+    // );
+
+    return OrientationBuilder(
+        builder: (context, orientation) => OverflowBox(
+              maxHeight: orientation == Orientation.portrait
+                  ? screenRatio > previewRatio
+                      ? screenH
+                      : screenW / previewW * previewH
+                  : screenRatio > previewRatio
+                      ? screenH / previewH * previewW
+                      : screenW,
+              maxWidth: orientation == Orientation.portrait
+                  ? screenRatio > previewRatio
+                      ? screenH / previewH * previewW
+                      : screenW
+                  : screenRatio > previewRatio
+                      ? screenH
+                      : screenW / previewW * previewH,
+              child: CameraPreview(controller!),
+            ));
   }
 }
