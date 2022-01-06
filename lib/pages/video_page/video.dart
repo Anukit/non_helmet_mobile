@@ -41,9 +41,10 @@ class _VideoPageState extends State<VideoPage> {
                 child: BetterPlayer.file(
                   widget.pathVideo,
                   betterPlayerConfiguration: const BetterPlayerConfiguration(
-                    aspectRatio: 16 / 9,
-                    fit: BoxFit.contain
-                  ),
+                      fullScreenByDefault: true,
+                      autoDetectFullscreenDeviceOrientation: true,
+                      aspectRatio: 16 / 9,
+                      fit: BoxFit.contain),
                 ),
               )
             : const CircularProgressIndicator());

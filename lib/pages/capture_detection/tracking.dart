@@ -31,7 +31,8 @@ class Tracking extends StatelessWidget {
           y = _y * scaleH;
           h = _h * scaleH;
         } else {
-          scaleH = screenW / previewW * previewH;
+          //scaleH = screenW / previewW * previewH;
+          scaleH = screenH;
           scaleW = screenW;
           var difH = (scaleH - screenH) / scaleH;
           x = _x * scaleW;

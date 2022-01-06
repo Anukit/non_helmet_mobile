@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:non_helmet_mobile/models/data_image.dart';
 import 'package:non_helmet_mobile/utility/convert_image.dart';
 import 'package:non_helmet_mobile/utility/saveimage_video.dart';
@@ -50,6 +51,10 @@ class _CameraState extends State<Camera> {
   int endtimeRec = 0;
   bool saveRecordVideo = false; //เริ่มเซฟวิดีโอ
   bool calEndtimeRec = true; // สำหรับเช็ค เพื่อคำนวณเวลาที่จะเซฟวิดีโอ
+
+  ///////////////////////////////////
+
+  int rotation_value = 90; //ค่าการหมุนจอ
 
   @override
   void initState() {
@@ -144,6 +149,7 @@ class _CameraState extends State<Camera> {
               imageWidth: img.width,
               imageMean: 127.5,
               imageStd: 127.5,
+              rotation: rotation_value,
               // numResultsPerClass: 4,
               // threshold: 0.1,
               numResultsPerClass: 8,
@@ -152,20 +158,6 @@ class _CameraState extends State<Camera> {
             ).then((recognitions) {
               /////////////////////ส่วนเงื่อนไข////////////////////////////////////
 
-              //เงื่อนไขเพื่อแก้บัคข้อมูลซ้ำ
-              // if (i == 0) {
-              //   checkValue.add("value");
-              //   if (checkValue.length > 1) {
-              //     recognitions = [];
-              //   }
-              // }
-
-              // if (i == 1) {
-              //   if (listAvgColors.isEmpty) {
-              //     recognitions = [];
-              //   }
-              // }
-
               if (recognitions!.isNotEmpty) {
                 //print("recognitions = $recognitions");
                 List listdata = [];
@@ -173,6 +165,7 @@ class _CameraState extends State<Camera> {
                 listdata.add(recognitions);
                 listdata.add(screen);
                 listdata.add(listAvgColors);
+                listdata.add(rotation_value);
                 // print("listAvgColors 1 = ${listdata[3]}");
                 // print("iiiiiii 2 = $i");
 
@@ -257,31 +250,46 @@ class _CameraState extends State<Camera> {
     var screenRatio = screenH / screenW;
     var previewRatio = previewH / previewW;
 
-    // return OverflowBox(
-    //   maxHeight:
-    //       screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
-    //   maxWidth:
-    //       screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
-    //   child: CameraPreview(controller!),
-    // );
+    return NativeDeviceOrientationReader(builder: (context) {
+      NativeDeviceOrientation orientation =
+          NativeDeviceOrientationReader.orientation(context);
 
-    return OrientationBuilder(
-        builder: (context, orientation) => OverflowBox(
-              maxHeight: orientation == Orientation.portrait
-                  ? screenRatio > previewRatio
-                      ? screenH
-                      : screenW / previewW * previewH
-                  : screenRatio > previewRatio
-                      ? screenH / previewH * previewW
-                      : screenW,
-              maxWidth: orientation == Orientation.portrait
-                  ? screenRatio > previewRatio
-                      ? screenH / previewH * previewW
-                      : screenW
-                  : screenRatio > previewRatio
-                      ? screenH
-                      : screenW / previewW * previewH,
-              child: CameraPreview(controller!),
-            ));
+      switch (orientation) {
+        case NativeDeviceOrientation.landscapeLeft:
+          rotation_value = 360;
+          break;
+        case NativeDeviceOrientation.landscapeRight:
+          rotation_value = 180;
+          break;
+        case NativeDeviceOrientation.portraitDown:
+          rotation_value = 270;
+          break;
+        default:
+          rotation_value = 90;
+          break;
+      }
+
+      if (rotation_value == 90 || rotation_value == 270) {
+        return OverflowBox(
+          maxHeight: screenRatio > previewRatio
+              ? screenH
+              : screenW / previewW * previewH,
+          maxWidth: screenRatio > previewRatio
+              ? screenH / previewH * previewW
+              : screenW,
+          child: CameraPreview(controller!),
+        );
+      } else {
+        return OverflowBox(
+          maxHeight: screenRatio > previewRatio
+              ? screenH / previewH * previewW
+              : screenW,
+          maxWidth: screenRatio > previewRatio
+              ? screenH
+              : screenW / previewW * previewH,
+          child: CameraPreview(controller!),
+        );
+      }
+    });
   }
 }

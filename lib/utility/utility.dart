@@ -180,6 +180,7 @@ PositionImage imagePosition(List listdata, listRecogClass) {
   CameraImage image = listdata[0]; //ไฟล์รูปจาก CameraImage
   List<dynamic>? recognitions = listdata[1]; //ข้อมูลที่ได้จากการตรวจจับ
   Size? screen = listdata[2]; //ขนาดจอ
+  int rotation_detect = listdata[4]; //ลิสสำหรับเก็บค่าเฉลี่ยสี
   int? previewH = math.max(image.height, image.width);
   int? previewW = math.min(image.height, image.width);
   PositionImage result; //ค่า x y w h สำหรับส่งกลับ
@@ -189,10 +190,24 @@ PositionImage imagePosition(List listdata, listRecogClass) {
   final double _y = listRecogClass['rect']['y'] as double;
   final double _h = listRecogClass['rect']['h'] as double;
   double x, y, w, h;
-  x = _x * previewW;
-  y = _y * previewH;
-  w = _w * previewW;
-  h = _h * previewH;
+  if (rotation_detect == 90 || rotation_detect == 270) {
+    x = _x * previewW;
+    y = _y * previewH;
+    w = _w * previewW;
+    h = _h * previewH;
+  } else {
+    var screenH = image.height;
+    var screenW = image.width;
+    var scaleH = screenH;
+    var scaleW = screenW;
+    var difH = (scaleH - screenH) / scaleH;
+    x = _x * scaleW;
+    w = _w * scaleW;
+    y = (_y - difH / 2) * scaleH;
+    h = _h * scaleH;
+    if (_y < difH / 2) h -= (difH / 2 - _y) * scaleH;
+  }
+
   // print(listRecogClass['detectedClass']);
   // print("x = $x");
   // print("y = $y");
