@@ -15,6 +15,7 @@ List<ListResultImage> convertImage(listdata) {
   CameraImage image = listdata[0]; //ไฟล์รูปจาก CameraImage
   List<dynamic>? recognitions = listdata[1]; //ข้อมูลที่ได้จากการตรวจจับ
   List<DataAveColor> listAvgColors = listdata[3]; //ลิสสำหรับเก็บค่าเฉลี่ยสี
+  int rotation_detect = listdata[4]; //ลิสสำหรับเก็บค่าเฉลี่ยสี
   List<DataDetectedImage> listDataImage = []; //ลิสเก็บข้อมูลรูปภาพ
   List<ListResultImage> listresult = []; //ลิสคำตอบที่จะรีเทิร์นกลับ
   List<ModelTflite> recogNew = []; //ลิสค่า Recognition ใหม่
@@ -76,7 +77,7 @@ List<ListResultImage> convertImage(listdata) {
 
     if (recogNew.isNotEmpty) {
       //แปลง image stream to image
-      imglib.Image fixedImage = yuv420toImageColor(image);
+      imglib.Image fixedImage = yuv420toImageColor(image, rotation_detect);
 
       for (var i = 0; i < recogNew.length; i++) {
         //รับตำแหน่งภาพที่ได้จากการตรวจจับ Class Rider
@@ -84,13 +85,12 @@ List<ListResultImage> convertImage(listdata) {
 
         //ฟังก์ชัน Crop รูป Class Rider
         imglib.Image destImageRider = copyCropp(
-            fixedImage, //ไฟล์รูปที่ได้จากการแปลง
-            coorRider.x.round(), //ค่า x
-            coorRider.y.round(), //ค่า y
-            min(coorRider.w.round(),
-                fixedImage.width - coorRider.x.round()), //ค่า w
-            min(coorRider.h.round(),
-                fixedImage.height - coorRider.y.round())); //ค่า h
+          fixedImage, //ไฟล์รูปที่ได้จากการแปลง
+          coorRider.x.round(), //ค่า x
+          coorRider.y.round(), //ค่า y
+          coorRider.w.round(), //ค่า w
+          coorRider.h.round(), //ค่า h
+        );
 
         // //ฟังก์ชัน Crop รูป Class Rider สำหรับนำไปเช็คค่า
         // imglib.Image destImageCheck = copyCropp(
@@ -193,7 +193,7 @@ List<ListResultImage> convertImage(listdata) {
 }
 
 ///แปลง Image Stream ในรูป yuv420 เป็นรูปภาพ
-imglib.Image yuv420toImageColor(CameraImage image) {
+imglib.Image yuv420toImageColor(CameraImage image, int rotation_detect) {
   print("yuv420toImageColor");
   List listindex = [];
   List listuvIndex = [];
@@ -234,6 +234,20 @@ imglib.Image yuv420toImageColor(CameraImage image) {
   late imglib.Image fixedImage;
   if (height1 < width1) {
     fixedImage = imglib.copyRotate(originalImage, 90);
+  }
+  switch (rotation_detect) {
+    case 360: //แนวนอนหมุนซ้าย
+      fixedImage = imglib.copyRotate(fixedImage, 270);
+      break;
+    case 180: //แนวนอนหมุนขวา
+      fixedImage = imglib.copyRotate(fixedImage, 90);
+      break;
+    case 270: //แนวตั้งกลับหัว
+      fixedImage = imglib.copyRotate(fixedImage, 180);
+      break;
+    default: //แนวตั้งปกติ
+      //fixedImage = imglib.copyRotate(fixedImage, 90);
+      break;
   }
   return fixedImage;
 }
