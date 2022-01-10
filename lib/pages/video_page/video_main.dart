@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/pages/video_page/video.dart';
+import 'package:non_helmet_mobile/utility/saveimage_video.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
+import 'package:percent_indicator/percent_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VideoMain extends StatefulWidget {
   VideoMain({Key? key}) : super(key: key);
@@ -14,6 +18,7 @@ class VideoMain extends StatefulWidget {
 
 class _VideoMainState extends State<VideoMain> {
   List<FileSystemEntity> videoList = [];
+  bool _running = true;
   @override
   void initState() {
     super.initState();
@@ -33,6 +38,27 @@ class _VideoMainState extends State<VideoMain> {
       videoList = List.from(_photoLists.reversed);
     });
     print("videoList = ${videoList}");
+  }
+
+  Stream<double> showloadingVideo() async* {
+    final prefs = await SharedPreferences.getInstance();
+    String frameImgDirPath = await createFolder("FrameImage");
+
+    while (_running) {
+      await Future<void>.delayed(const Duration(seconds: 1));
+      List<FileSystemEntity> photoList = Directory(frameImgDirPath).listSync();
+      int listFrameImg = prefs.getInt('listFrameImg') ?? -1;
+      if (photoList.isEmpty && listFrameImg == 0) {
+        _running = false;
+        yield 111;
+        setState(() {
+          getFile();
+        });
+      } else if (photoList.length <= listFrameImg) {
+        print("reuslt = ${((photoList.length * 100) / listFrameImg)}");
+        yield ((photoList.length * 100) / listFrameImg);
+      }
+    }
   }
 
   @override
@@ -59,7 +85,12 @@ class _VideoMainState extends State<VideoMain> {
         centerTitle: true,
       ),
       body: SafeArea(
-          child: videoList.isNotEmpty && videoList != null
+          child: Stack(
+        children: [
+          const SizedBox(
+            height: 10,
+          ),
+          videoList.isNotEmpty && videoList != null
               ? ListView.builder(
                   // scrollDirection: Axis.horizontal,
                   shrinkWrap: true,
@@ -71,7 +102,29 @@ class _VideoMainState extends State<VideoMain> {
                 )
               : const Center(
                   child: Text("ไม่มีวิดีโอ"),
-                )),
+                ),
+          StreamBuilder(
+            stream: showloadingVideo(),
+            builder: (context, AsyncSnapshot<double> snapshot) {
+              if (snapshot.data != null && snapshot.data! <= 100.0) {
+                return LinearPercentIndicator(
+                  width: MediaQuery.of(context).size.width,
+                  lineHeight: 15.0,
+                  percent: snapshot.data! / 100,
+                  backgroundColor: Colors.grey,
+                  progressColor: Colors.blue,
+                  center: Text(
+                    "กำลังโหลดวิดีโอใหม่ ${snapshot.data!.toStringAsFixed(2)}%",
+                    style: const TextStyle(fontSize: 10.0),
+                  ),
+                );
+              } else {
+                return Container();
+              }
+            },
+          )
+        ],
+      )),
     );
   }
 

@@ -1,9 +1,13 @@
+import 'dart:async';
+import 'dart:isolate';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:non_helmet_mobile/models/data_image.dart';
 import 'package:non_helmet_mobile/utility/convert_image.dart';
+import 'package:non_helmet_mobile/utility/convert_img_isolate.dart';
 import 'package:non_helmet_mobile/utility/saveimage_video.dart';
 import 'package:non_helmet_mobile/utility/upload_detect_image.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
@@ -34,27 +38,32 @@ class _CameraState extends State<Camera> {
   String? autoUpload;
   String? resolution;
   Size? screen; //สำหรับ Crop
-  List<DataAveColor> listAvgColors = [];
+  // List<DataAveColor> listAvgColors = [];
+  List<DataImageForCheck> listDataImg = [];
   List<dynamic> listDataForTrack = [];
   late int user_id;
 
-  ///////////////////////////////////
-  int indexFrame = 0;
-  int frame = 5;
   int startTime = 0;
   int endTime = 0;
-  ///////////////////////////////////
+
+  /////////////สำหรับวิดีโอ/////////////////
 
   String frameImgDirPath = ""; // path โฟลเดอร์เฟรมภาพ
   String videoDirPath = ""; // path โฟลเดอร์วิดีโอ
-  int starttimeRec = 0;
-  int endtimeRec = 0;
-  bool saveRecordVideo = false; //เริ่มเซฟวิดีโอ
-  bool calEndtimeRec = true; // สำหรับเช็ค เพื่อคำนวณเวลาที่จะเซฟวิดีโอ
+  bool firstTimeRecord = true; //เริ่มเซฟวิดีโอ
+  bool getFrameimg = false; //เริ่มเก็บเฟรมภาพ
+  bool? readyforRecord;
+  Timer? timeGetFrameImg;
+  int startTimeRec = 0;
+  int endTimeRec = 0;
+  //จำนวนลิสก่อนจะเข้าฟังก์ชันสร้างวิดีโอ เพื่อนำไปตัดเฟรมภาพที่ใช้ไปแล้วออก
+  int prevLengofList = 0;
 
-  ///////////////////////////////////
+  ///////////////////////////////////////
 
   int rotation_value = 90; //ค่าการหมุนจอ
+
+  IsolateUtils? isolateUtils;
 
   @override
   void initState() {
@@ -82,6 +91,9 @@ class _CameraState extends State<Camera> {
       autoUpload = "true";
       recordVideo = "false";
     }
+    // Spawn a new isolate
+    isolateUtils = IsolateUtils();
+    await isolateUtils!.start();
     imageDetect();
   }
 
@@ -103,34 +115,38 @@ class _CameraState extends State<Camera> {
         controller!.startImageStream((CameraImage img) {
           ///////////////////////////ส่วนอัดวิดีโอ/////////////////////////////
           if (recordVideo == "true") {
-            indexFrame++;
-            starttimeRec = DateTime.now().millisecondsSinceEpoch;
-
-            //ใเก็บเฟรมภาพตามเฟรมที่กำหนด
-            if (indexFrame == 20) {
-              listCameraimg.add(img);
-              indexFrame = 0;
+            //รับเฟรมภาพ
+            if (!getFrameimg) {
+              getFrameimg = true;
+              //เก็บเฟรมภาพทุก ๆ 0.5 วินาที
+              timeGetFrameImg = Timer(const Duration(milliseconds: 500), () {
+                listCameraimg.add(img);
+                getFrameimg = false;
+              });
             }
 
-            if (calEndtimeRec) {
-              //เวลาที่จะให้เริ่มเซฟวิดีโอ ทุก ๆ 10 นาที
-              endtimeRec = starttimeRec + 600000;
-              calEndtimeRec = false;
+            //ทำครั้งแรก ครั้งเดียว ต่อไปจะทำแบบสวิต เมื่อทำเสร็จแล้วทำต่อไปเลยไม่ต้องรอ
+            if (firstTimeRecord) {
+              firstTimeRecord = false;
+              //เซฟวิดีโอ 1 นาที ในครั้งแรก
+              Future.delayed(const Duration(minutes: 1), () {
+                readyforRecord = true;
+              });
             }
 
-            if (!saveRecordVideo) {
-              if (starttimeRec > endtimeRec) {
-                saveRecordVideo = true;
-                //print("AAAAAAAAAAAASSSSSSSSSSAAAAAAAAAAAAAA");
-                if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
-                  SaveVideo(listCameraimg, frameImgDirPath, videoDirPath,
-                      (value) {
-                    //print("XXXXXXXXXXXXXXXXXXXXX = $value");
-                    listCameraimg.clear();
-                    saveRecordVideo = false;
-                    calEndtimeRec = true;
-                  }).init();
-                }
+            //สร้างวิดีโอ
+            if (readyforRecord != null && readyforRecord!) {
+              startTimeRec = DateTime.now().millisecondsSinceEpoch;
+
+              if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
+                readyforRecord = false;
+                prevLengofList = listCameraimg.length;
+                SaveVideo(listCameraimg, frameImgDirPath, videoDirPath,
+                    (value) {
+                  endTimeRec = DateTime.now().millisecondsSinceEpoch;
+                  listCameraimg.removeRange(0, prevLengofList);
+                  readyforRecord = true;
+                }).init();
               }
             }
           }
@@ -159,29 +175,20 @@ class _CameraState extends State<Camera> {
               /////////////////////ส่วนเงื่อนไข////////////////////////////////////
 
               if (recognitions!.isNotEmpty) {
-                //print("recognitions = $recognitions");
-                List listdata = [];
-                listdata.add(img);
-                listdata.add(recognitions);
-                listdata.add(screen);
-                listdata.add(listAvgColors);
-                listdata.add(rotation_value);
-                // print("listAvgColors 1 = ${listdata[3]}");
-                // print("iiiiiii 2 = $i");
-
                 if (i == 0) {
                   i = 1;
-                  compute(convertImage, listdata).then((value) {
-                    i = 1;
-                    //print("value = $value");
+                  inference(IsolateData(img, recognitions, screen!, listDataImg,
+                          rotation_value))
+                      .then((value) {
+                    print("value = $value");
                     if (value.isNotEmpty) {
                       //print("listAvgColors = ${value[0].averageColor} 2");
                       //print("data track = ${value[0].dataforTrack}");
                       listDataForTrack = value[0].dataforTrack;
 
                       if (value[0].dataImage.isNotEmpty &&
-                          value[0].listAvgColor.isNotEmpty) {
-                        listAvgColors = value[0].listAvgColor;
+                          value[0].listdataImg.isNotEmpty) {
+                        listDataImg = value[0].listdataImg;
                         // print("ListColorss = ${value[0].listAvgColor}");
                         // print("Listimage = ${value[0].dataImage}");
                         for (var i = 0; i < value[0].dataImage.length; i++) {
@@ -221,17 +228,51 @@ class _CameraState extends State<Camera> {
     }
   }
 
+  /// Runs inference in another isolate
+  Future<dynamic> inference(IsolateData isolateData) async {
+    ReceivePort responsePort = ReceivePort();
+    isolateUtils!.sendPort
+        .send(isolateData..responsePort = responsePort.sendPort);
+    var results = await responsePort.first;
+    return results;
+  }
+
   @override
   void dispose() {
-    if (recordVideo == "true" && !saveRecordVideo) {
-      if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
-        SaveVideo(listCameraimg, frameImgDirPath, videoDirPath, (value) {
-          print("XXXXXXXXXXXXXXXXXXXXX = $value");
-        }).init();
+    if (recordVideo == "true") {
+      timeGetFrameImg!.cancel();
+      if (readyforRecord == null || readyforRecord == true) {
+        if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
+          SaveVideo(listCameraimg, frameImgDirPath, videoDirPath, (value) {
+            print("value from record video = $value");
+          }).init();
+        }
+      } else if (listCameraimg.isNotEmpty) {
+        Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+          checkReadyforRecVideo().then((value) {
+            if (value) {
+              timer.cancel();
+              SaveVideo(listCameraimg, frameImgDirPath, videoDirPath, (value) {
+                print("value from record video = $value");
+              }).init();
+            }
+          });
+        });
       }
     }
+
     controller?.dispose();
     super.dispose();
+  }
+
+  Future<bool> checkReadyforRecVideo() async {
+    final prefs = await SharedPreferences.getInstance();
+    int listFrameImg = prefs.getInt('listFrameImg') ?? -1;
+    if (listFrameImg == 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @override

@@ -120,7 +120,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   top: 35.0,
                   child: IconButton(
                     icon: const Icon(Icons.cancel, color: Colors.white),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => HomePage()),
+                          (Route<dynamic> route) => false);
+                    },
                   ),
                 ),
                 boundingBox == "true" && boundingBox != null

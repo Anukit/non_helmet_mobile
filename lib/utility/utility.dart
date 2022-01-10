@@ -7,6 +7,7 @@ import 'package:camera/camera.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:non_helmet_mobile/models/position_image.dart';
+import 'package:non_helmet_mobile/utility/convert_img_isolate.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -135,52 +136,57 @@ Future<dynamic> getDataSetting() async {
   }
 }
 
-/* ///รับตำแหน่งภาพ สำหรับ Crop รูปภาพ
-List<PositionImage> imagePosition(listdata) {
-  print("imagePosition");
-  CameraImage image = listdata[0]; //ไฟล์รูปจาก CameraImage
-  List<dynamic>? recognitions = listdata[1]; //ข้อมูลที่ได้จากการตรวจจับ
-  Size? screen = listdata[2]; //ขนาดจอ
-  int? previewH = math.max(image.height, image.width);
-  int? previewW = math.min(image.height, image.width);
-  //print("screen = ${screen}");
-  List recogNew = [];
-  List<PositionImage> result = []; //ค่า x y w h สำหรับส่งกลับ
+// ///รับตำแหน่งภาพ สำหรับ Crop รูปภาพ
+// PositionImage imagePosition(List listdata, listRecogClass) {
+//   print("imagePosition");
+//   CameraImage image = listdata[0]; //ไฟล์รูปจาก CameraImage
+//   List<dynamic>? recognitions = listdata[1]; //ข้อมูลที่ได้จากการตรวจจับ
+//   Size? screen = listdata[2]; //ขนาดจอ
+//   int rotation_detect = listdata[4]; //ลิสสำหรับเก็บค่าเฉลี่ยสี
+//   int? previewH = math.max(image.height, image.width);
+//   int? previewW = math.min(image.height, image.width);
+//   PositionImage result; //ค่า x y w h สำหรับส่งกลับ
 
-  //รูปกรณีมีมากกว่า 1 คันใน 1 ภาพ
-  for (var i = 0; i < recognitions!.length; i++) {
-    if (recognitions[i]["detectedClass"] == "Rider") {
-      recogNew.add(recognitions[i]);
-    } else {
-      continue;
-    }
-  }
-  if (recogNew.isNotEmpty) {
-    for (var i = 0; i < recogNew.length; i++) {
-      final double _x = recogNew[i]['rect']['x'] as double;
-      final double _w = recogNew[i]['rect']['w'] as double;
-      final double _y = recogNew[i]['rect']['y'] as double;
-      final double _h = recogNew[i]['rect']['h'] as double;
-      double x, y, w, h;
-      x = _x * previewW;
-      y = _y * previewH;
-      w = _w * previewW;
-      h = _h * previewH;
-      result.add(PositionImage(x, y, w, h));
-    }
-  } else {
-    result = [];
-  }
-  return result;
-} */
+//   final double _x = listRecogClass['rect']['x'] as double;
+//   final double _w = listRecogClass['rect']['w'] as double;
+//   final double _y = listRecogClass['rect']['y'] as double;
+//   final double _h = listRecogClass['rect']['h'] as double;
+//   double x, y, w, h;
+//   if (rotation_detect == 90 || rotation_detect == 270) {
+//     x = _x * previewW;
+//     y = _y * previewH;
+//     w = _w * previewW;
+//     h = _h * previewH;
+//   } else {
+//     var screenH = image.height;
+//     var screenW = image.width;
+//     var scaleH = screenH;
+//     var scaleW = screenW;
+//     var difH = (scaleH - screenH) / scaleH;
+//     x = _x * scaleW;
+//     w = _w * scaleW;
+//     y = (_y - difH / 2) * scaleH;
+//     h = _h * scaleH;
+//     if (_y < difH / 2) h -= (difH / 2 - _y) * scaleH;
+//   }
+
+//   // print(listRecogClass['detectedClass']);
+//   // print("x = $x");
+//   // print("y = $y");
+//   // print("w = $w");
+//   // print("h = $h");
+//   result = PositionImage(x, y, w, h);
+
+//   return result;
+// }
 
 ///รับตำแหน่งภาพ สำหรับ Crop รูปภาพ
-PositionImage imagePosition(List listdata, listRecogClass) {
+PositionImage imagePosition(IsolateData listdata, listRecogClass) {
   print("imagePosition");
-  CameraImage image = listdata[0]; //ไฟล์รูปจาก CameraImage
-  List<dynamic>? recognitions = listdata[1]; //ข้อมูลที่ได้จากการตรวจจับ
-  Size? screen = listdata[2]; //ขนาดจอ
-  int rotation_detect = listdata[4]; //ลิสสำหรับเก็บค่าเฉลี่ยสี
+  CameraImage image = listdata.cameraImage; //ไฟล์รูปจาก CameraImage
+  List<dynamic>? recognitions = listdata.recognitions; //ข้อมูลที่ได้จากการตรวจจับ
+  Size? screen = listdata.screen; //ขนาดจอ
+  int rotation_detect = listdata.rotation_value; //ลิสสำหรับเก็บค่าเฉลี่ยสี
   int? previewH = math.max(image.height, image.width);
   int? previewW = math.min(image.height, image.width);
   PositionImage result; //ค่า x y w h สำหรับส่งกลับ

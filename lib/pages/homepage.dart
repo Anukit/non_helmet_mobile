@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:camera/camera.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -23,6 +25,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int? countAllRider;
   int? countMeRider;
+  bool? checkNewvideo;
+  bool _running = true;
 
   @override
   void initState() {
@@ -50,6 +54,22 @@ class _HomePageState extends State<HomePage> {
         }
       }
     } catch (e) {}
+  }
+
+  Stream<bool> showloadingVideo() async* {
+    final prefs = await SharedPreferences.getInstance();
+    // This loop will run forever because _running is always true
+    while (_running) {
+      await Future<void>.delayed(const Duration(seconds: 1));
+      int listFrameImg = prefs.getInt('listFrameImg') ?? 0;
+      // This will be displayed on the screen as current time
+      if (listFrameImg == 0) {
+        _running = false;
+        yield false;
+      } else {
+        yield true;
+      }
+    }
   }
 
   @override
@@ -172,13 +192,34 @@ class _HomePageState extends State<HomePage> {
                           size: 60,
                         ),
                         "ตรวจจับ"),
-                    buildMenuBtn(
-                        2,
-                        const Icon(
-                          Icons.video_collection,
-                          size: 60,
-                        ),
-                        "วิดีโอ"),
+                    Stack(
+                      children: [
+                        buildMenuBtn(
+                            2,
+                            const Icon(
+                              Icons.video_collection,
+                              size: 60,
+                            ),
+                            "วิดีโอ"),
+                        StreamBuilder(
+                          stream: showloadingVideo(),
+                          builder: (context, AsyncSnapshot<bool> snapshot) {
+                            if (snapshot.data == true) {
+                              return Positioned(
+                                  child: Container(
+                                color: Colors.red,
+                                child: const Text(
+                                  "กำลังโหลดวิดีโอใหม่",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ));
+                            } else {
+                              return Container();
+                            }
+                          },
+                        )
+                      ],
+                    )
                   ],
                 ),
               ),
