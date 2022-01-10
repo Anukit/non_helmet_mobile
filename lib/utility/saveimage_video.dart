@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image/image.dart' as imglib;
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> saveImageDetect(Uint8List riderImg, Uint8List licenseImg) async {
   print("saveImageDetect");
@@ -85,30 +86,42 @@ class SaveVideo {
   final worker = Worker();
 
   Future<void> init() async {
-    await worker.init(
-      mainMessageHandler,
-      isolateMessageHandler,
-      errorHandler: print,
-    );
-    worker.sendMessage({
-      "listimg": listimg,
-      "frameImgDirPath": frameImgDirPath,
-      "videoDirPath": videoDirPath
-    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int listFrameImg = prefs.getInt('listFrameImg') ?? 0;
+    if (listFrameImg == 0) {
+      await prefs.setInt('listFrameImg', listimg.length);
+      await worker.init(
+        mainMessageHandler,
+        isolateMessageHandler,
+        errorHandler: print,
+      );
+      worker.sendMessage({
+        "listimg": listimg,
+        "frameImgDirPath": frameImgDirPath,
+        "videoDirPath": videoDirPath,
+      });
+    } else {
+      callback(false);
+    }
   }
 
   /// Handle the messages coming from the isolate
   void mainMessageHandler(dynamic data, SendPort isolateSendPort) async {
     print("SASSSSSSSSSSSSSSSSSSSSSSAS = $data");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     String _frameImgDirPath = data["frameImgDirPath"];
     String _videoDirPath = data["videoDirPath"];
     List<FileSystemEntity> _photoList = data["photoList"];
+
     final FlutterFFmpeg _flutterFFmpeg =
         FlutterFFmpeg(); // Create new ffmpeg instance somewhere in your code
+
     String filename = DateTime.now().millisecondsSinceEpoch.toString();
     String filePathMP4 = _videoDirPath + '/$filename.mp4';
     int result = await _flutterFFmpeg.execute(
         "-framerate 4 -probesize 42M -i $_frameImgDirPath/img%d.jpg -preset ultrafast -pix_fmt yuv420p $filePathMP4");
+
     if (result == 0) {
       print("True");
       // for (var i = 0; i < _photoList.length; i++) {
@@ -118,9 +131,11 @@ class SaveVideo {
       final dir = Directory(_frameImgDirPath);
       dir.deleteSync(recursive: true);
       createFolder("FrameImage");
+      await prefs.setInt('listFrameImg', 0);
       callback(true);
     } else {
       print("False");
+      await prefs.setInt('listFrameImg', -1);
       callback(false);
     }
   }
@@ -195,7 +210,7 @@ class SaveVideo {
     mainSendPort.send({
       "frameImgDirPath": frameImgDirPath,
       "videoDirPath": videoDirPath,
-      "photoList": photoList
+      "photoList": photoList,
     });
   }
 }
