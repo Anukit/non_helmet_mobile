@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case ssd:
         result = await Tflite.loadModel(
             labels: "assets/tflite/label_map.txt",
-            model: "assets/tflite/ssd_mobilenet_320_v3.tflite",
+            model: "assets/tflite/ssd_mobilenet_320_v4.tflite",
             numThreads: 4,
             useGpuDelegate: false);
     }

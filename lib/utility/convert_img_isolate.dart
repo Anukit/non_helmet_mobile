@@ -48,14 +48,16 @@ class IsolateUtils {
       List<DataImageForCheck> listImgForCheck = isolateData.listDataImgForCheck;
       //ตัวแปรหมุนจอ
       int rotation_detect = isolateData.rotation_value;
+
       List<DataDetectedImage> listDataImage = []; //ลิสเก็บข้อมูลรูปภาพ
       List<ListResultImage> listresult = []; //ลิสคำตอบที่จะรีเทิร์นกลับ
       List<ModelTflite> recogNew = []; //ลิสค่า Recognition ใหม่
       List<dynamic> dataforTrack = []; //ลิสเก็บข้อมูลไปแสดง Tracking
       int? showpercentCheck;
       int? avgColorID;
-      /////////////////////////////////////////////////////////////////////
       int countlistAvg = listImgForCheck.length;
+      /////////////////////////////////////////////////////////////////////
+
       //รูปกรณีมีมากกว่า 1 คันใน 1 ภาพ
       for (var i = 0; i < recognitions.length; i++) {
         if (recognitions[i]["detectedClass"] == "Rider") {
@@ -99,6 +101,7 @@ class IsolateUtils {
         } else {
           isolateData.responsePort!.send([]);
         }
+
         print("recogNew = $recogNew");
         print("recogNew = ${recogNew.length}");
         // print("rider = ${recogNew.first.rider}");
@@ -156,12 +159,15 @@ class IsolateUtils {
                 double checkColorImgs = await compareImages(
                     src1: checkImage,
                     src2: listImgForCheck[i].img,
-                    algorithm: IntersectionHistogram());
+                    algorithm: IntersectionHistogram(/* ignoreAlpha: true */));
 
+                //สำหรับนำไปตรวจสอบค่า
                 int checkColorImg = (checkColorImgs * 100).round();
+                //สำหรับนำไปโชว์ Tracking
                 showpercentCheck = ((1 - checkColorImgs) * 100).round();
                 print("checkColorImg = $checkColorImg");
-                if (checkColorImg < 20) {
+
+                if (checkColorImg < 25) {
                   avgColorID = listImgForCheck[i].id;
                   riderImage = null;
                   break;
@@ -194,11 +200,13 @@ class IsolateUtils {
 
               listDataImage
                   .add(DataDetectedImage(riderImage, licensePlateImg!));
+
               dataforTrack.add({
                 "id": listImgForCheck.length + 1,
                 "coorRider": recogNew[i].rider['rect'],
                 "confidenceTracking": showpercentCheck ??= 100
               });
+
               listImgForCheck.add(
                   DataImageForCheck(listImgForCheck.length + 1, checkImage!));
             } else {

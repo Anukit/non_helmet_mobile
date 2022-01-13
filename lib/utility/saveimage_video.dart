@@ -80,9 +80,10 @@ class SaveVideo {
   List<CameraImage> listimg;
   String frameImgDirPath;
   String videoDirPath;
+  int rotation_value;
   ValueChanged<bool> callback;
-  SaveVideo(
-      this.listimg, this.frameImgDirPath, this.videoDirPath, this.callback);
+  SaveVideo(this.listimg, this.frameImgDirPath, this.videoDirPath,
+      this.rotation_value, this.callback);
   final worker = Worker();
 
   Future<void> init() async {
@@ -99,13 +100,14 @@ class SaveVideo {
         "listimg": listimg,
         "frameImgDirPath": frameImgDirPath,
         "videoDirPath": videoDirPath,
+        "rotation": rotation_value
       });
     } else {
       callback(false);
     }
   }
 
-  /// Handle the messages coming from the isolate
+  /// Handle the messages coming from the isolate สร้างเป็นวิดีโอ
   void mainMessageHandler(dynamic data, SendPort isolateSendPort) async {
     print("SASSSSSSSSSSSSSSSSSSSSSSAS = $data");
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -140,14 +142,16 @@ class SaveVideo {
     }
   }
 
-  /// Handle the messages coming from the main
+  /// Handle the messages coming from the main แปลง yuv => ภาพและเซฟลงเครื่อง
   static isolateMessageHandler(
       dynamic data, SendPort mainSendPort, SendErrorFunction sendError) async {
     List<CameraImage> listimg = data["listimg"];
     String frameImgDirPath = data["frameImgDirPath"];
     String videoDirPath = data["videoDirPath"];
+    int rotation = data["rotation"];
     List<FileSystemEntity> photoList = [];
     print("data data listimg = ${listimg.length}");
+
     //แก้บัคเซฟวิดีโอ
     final File file = File('$frameImgDirPath/img.jpg');
     await file.writeAsString("Frame Image From CameraImage");
@@ -193,15 +197,33 @@ class SaveVideo {
       if (height1 < width1) {
         fixedImage = imglib.copyRotate(originalImage, 90);
       }
+
+      switch (rotation) {
+        case 360: //แนวนอนหมุนซ้าย
+          fixedImage = imglib.copyRotate(fixedImage, 270);
+          break;
+        case 180: //แนวนอนหมุนขวา
+          fixedImage = imglib.copyRotate(fixedImage, 90);
+          break;
+        case 270: //แนวตั้งกลับหัว
+          fixedImage = imglib.copyRotate(fixedImage, 180);
+          break;
+        default: //แนวตั้งปกติ
+          //fixedImage = imglib.copyRotate(fixedImage, 90);
+          break;
+      }
+
       ////////////////////////////////////////////////////////////////////////
       photoList = Directory(frameImgDirPath).listSync();
 
       String filename = "";
+
       if (photoList.isNotEmpty && photoList.length > 1) {
         filename = (photoList.length).toString();
       } else {
         filename = 1.toString();
       }
+
       var filePath = "$frameImgDirPath/img$filename.jpg";
       print("CCCCCCCCCCCCCCCC = $filePath");
       File(filePath).writeAsBytes(imglib.encodeJpg(fixedImage) as Uint8List);
