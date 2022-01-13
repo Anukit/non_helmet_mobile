@@ -118,8 +118,8 @@ class _CameraState extends State<Camera> {
             //รับเฟรมภาพ
             if (!getFrameimg) {
               getFrameimg = true;
-              //เก็บเฟรมภาพทุก ๆ 0.5 วินาที
-              timeGetFrameImg = Timer(const Duration(milliseconds: 500), () {
+              //เก็บเฟรมภาพทุก ๆ 0.25 วินาที
+              timeGetFrameImg = Timer(const Duration(milliseconds: 250), () {
                 listCameraimg.add(img);
                 getFrameimg = false;
               });
@@ -142,7 +142,7 @@ class _CameraState extends State<Camera> {
                 readyforRecord = false;
                 prevLengofList = listCameraimg.length;
                 SaveVideo(listCameraimg, frameImgDirPath, videoDirPath,
-                    (value) {
+                    rotation_value, (value) {
                   endTimeRec = DateTime.now().millisecondsSinceEpoch;
                   listCameraimg.removeRange(0, prevLengofList);
                   readyforRecord = true;
@@ -168,8 +168,8 @@ class _CameraState extends State<Camera> {
               rotation: rotation_value,
               // numResultsPerClass: 4,
               // threshold: 0.1,
-              numResultsPerClass: 8,
-              numBoxesPerBlock: 8,
+              numResultsPerClass: 10,
+              numBoxesPerBlock: 10,
               threshold: 0.5,
             ).then((recognitions) {
               /////////////////////ส่วนเงื่อนไข////////////////////////////////////
@@ -243,7 +243,9 @@ class _CameraState extends State<Camera> {
       timeGetFrameImg!.cancel();
       if (readyforRecord == null || readyforRecord == true) {
         if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
-          SaveVideo(listCameraimg, frameImgDirPath, videoDirPath, (value) {
+          SaveVideo(
+              listCameraimg, frameImgDirPath, videoDirPath, rotation_value,
+              (value) {
             print("value from record video = $value");
           }).init();
         }
@@ -252,7 +254,9 @@ class _CameraState extends State<Camera> {
           checkReadyforRecVideo().then((value) {
             if (value) {
               timer.cancel();
-              SaveVideo(listCameraimg, frameImgDirPath, videoDirPath, (value) {
+              SaveVideo(
+                  listCameraimg, frameImgDirPath, videoDirPath, rotation_value,
+                  (value) {
                 print("value from record video = $value");
               }).init();
             }

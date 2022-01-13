@@ -6,7 +6,7 @@ import 'package:non_helmet_mobile/modules/constant.dart';
 
 ///อัปโหลดรูปภาพที่ถูกตรวจจับ class rider และ class license plate
 Future<void> uploadDatectedImage(
-    int userID, Uint8List fileImage, Uint8List fileImages) async {
+    int userID, Uint8List fileImgRider, Uint8List fileImgLicense) async {
   print("uploadDatectedImage");
   String uploadurl = "${Constant().domain}/DetectedImage/uploadImage";
 
@@ -18,9 +18,9 @@ Future<void> uploadDatectedImage(
 
   FormData formdata = FormData.fromMap({
     "file": [
-      MultipartFile.fromBytes(fileImage,
+      MultipartFile.fromBytes(fileImgRider,
           filename: 'rider_' + userID.toString() + genName.toString() + '.jpg'),
-      MultipartFile.fromBytes(fileImages,
+      MultipartFile.fromBytes(fileImgLicense,
           filename: 'license-plate_' +
               userID.toString() +
               genName.toString() +
@@ -40,4 +40,3 @@ Future<void> uploadDatectedImage(
   if (response.statusCode == 200) {
   } else {}
 }
-
