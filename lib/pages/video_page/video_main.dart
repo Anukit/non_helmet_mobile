@@ -3,9 +3,12 @@ import 'dart:io';
 
 import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:non_helmet_mobile/models/file_img_video.dart';
 import 'package:non_helmet_mobile/pages/video_page/video.dart';
 import 'package:non_helmet_mobile/utility/saveimage_video.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
+import 'package:non_helmet_mobile/widgets/load_dialog.dart';
+import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,12 +20,15 @@ class VideoMain extends StatefulWidget {
 }
 
 class _VideoMainState extends State<VideoMain> {
-  List<FileSystemEntity> videoList = [];
+  //List<FileSystemEntity> videoList = [];
+  List<FileVideo> listVideo = [];
+  List<FileVideo> listSelectVideo = [];
   bool _running = true;
+  bool selectData = false;
   @override
   void initState() {
     super.initState();
-    getFile();
+    //getFile();
   }
 
   @override
@@ -35,9 +41,12 @@ class _VideoMainState extends State<VideoMain> {
     //ไฟล์รูป
     setState(() {
       List<FileSystemEntity> _photoLists = dir.listSync();
-      videoList = List.from(_photoLists.reversed);
+      List<FileSystemEntity> videoList = List.from(_photoLists.reversed);
+      for (var i = 0; i < videoList.length; i++) {
+        listVideo.add(FileVideo(i + 1, videoList[i]));
+      }
     });
-    print("videoList = ${videoList}");
+    print("listVideo = ${listVideo}");
   }
 
   Stream<double> showloadingVideo() async* {
@@ -83,6 +92,19 @@ class _VideoMainState extends State<VideoMain> {
           //textAlign: TextAlign.center,
         ),
         centerTitle: true,
+        actions: [
+          TextButton(
+              onPressed: () {
+                setState(() {
+                  selectData = true;
+                });
+              },
+              child: const Text("เลือก",
+                  style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold)))
+        ],
       ),
       body: SafeArea(
           child: Stack(
@@ -90,12 +112,12 @@ class _VideoMainState extends State<VideoMain> {
           const SizedBox(
             height: 10,
           ),
-          videoList.isNotEmpty && videoList != null
+          listVideo.isNotEmpty && listVideo != null
               ? ListView.builder(
                   // scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
+                  //shrinkWrap: true,
                   physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: videoList.length,
+                  itemCount: listVideo.length,
                   itemBuilder: (BuildContext context, int index) {
                     return buildVideoList(index);
                   },
@@ -122,115 +144,198 @@ class _VideoMainState extends State<VideoMain> {
                 return Container();
               }
             },
-          )
+          ),
+          selectData
+              ? Positioned(
+                  bottom: 35.0,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      border: Border.all(
+                        color: Colors.white,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                listSelectVideo.clear();
+                                selectData = false;
+                              });
+                            },
+                            child: const Text("ปิด",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                          const SizedBox(
+                            height: 100,
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              if (listSelectVideo.isNotEmpty) {
+                                comfirmDialog("ต้องการดาวน์โหลดหรือไม่",
+                                    listSelectVideo, 1);
+                              }
+                            },
+                            child: const Text("ดาวน์โหลด",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                          const SizedBox(
+                            height: 100,
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              if (listSelectVideo.isNotEmpty) {
+                                comfirmDialog(
+                                    "ต้องการลบหรือไม่", listSelectVideo, 2);
+                              }
+                            },
+                            child: const Text("ลบ",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold)),
+                          )
+                        ]),
+                  ))
+              : Container()
         ],
       )),
     );
   }
 
-  Future<Widget> fileName(index) async {
-    String filename = videoList[index].path.split('/').last;
+  Future<Widget> fileName(FileVideo dataVideo) async {
+    String filename = dataVideo.fileVideo.path.split('/').last;
     return Text(filename);
   }
 
-  Future<Widget> datetimeVideo(index) async {
-    String dateString =
-        videoList[index].path.split('/').last.split('_').last.split('.').first;
+  Future<Widget> datetimeVideo(FileVideo dataVideo) async {
+    String dateString = dataVideo.fileVideo.path
+        .split('/')
+        .last
+        .split('_')
+        .last
+        .split('.')
+        .first;
     var dateTime =
         DateTime.fromMillisecondsSinceEpoch(int.parse(dateString)).toString();
     return Text("วันที่" " " + formatDate(dateTime));
   }
 
-  Widget buildVideoList(index) {
+  Widget buildVideoList(int index) {
     return GestureDetector(
-        onTap: () {
+      onTap: () {
+        if (selectData) {
+          if (listSelectVideo.contains(listVideo[index])) {
+            setState(() {
+              listSelectVideo.remove(listVideo[index]);
+            });
+          } else {
+            setState(() {
+              listSelectVideo.add(listVideo[index]);
+            });
+          }
+        } else {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => VideoPage(videoList[index].path)));
-        },
-        onLongPress: () {
-          print("AAAAAAA");
-        },
-        child: Card(
-          child: Row(
-            children: [
-              Expanded(
-                  child: Image.asset(
-                "assets/images/playVideo.png",
-                scale: 10,
-              )),
-              Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "ชื่อไฟล์",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 2),
-                      FutureBuilder(
-                        future: fileName(index),
-                        builder:
-                            (BuildContext context, AsyncSnapshot snapshot) {
-                          if (snapshot.data != null) {
-                            return snapshot.data;
-                          } else {
-                            return const CircularProgressIndicator();
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 5),
-                      const Text(
-                        "วันที่บันทึก",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      FutureBuilder(
-                        future: datetimeVideo(index),
-                        builder:
-                            (BuildContext context, AsyncSnapshot snapshot) {
-                          if (snapshot.data != null) {
-                            return snapshot.data;
-                          } else {
-                            return const CircularProgressIndicator();
-                          }
-                        },
-                      ),
-                    ],
-                  )),
-              Expanded(
+                  builder: (context) =>
+                      VideoPage(listVideo[index].fileVideo.path)));
+        }
+      },
+      onLongPress: () {
+        if (!selectData) {
+          setState(() {
+            listSelectVideo.add(listVideo[index]);
+            selectData = true;
+          });
+        }
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            side: BorderSide(
+                color: listSelectVideo.contains(listVideo[index])
+                    ? Colors.blue
+                    : Colors.white,
+                width: 2.0)),
+        child: Row(
+          children: [
+            Expanded(
+                child: Image.asset(
+              "assets/images/playVideo.png",
+              scale: 10,
+            )),
+            Expanded(
+                flex: 2,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    IconButton(
-                        onPressed: () {
-                          comfirmDialog("ต้องการดาวน์โหลดหรือไม่", index, 1);
-                        },
-                        icon: const Icon(Icons.download)),
-                    IconButton(
-                        onPressed: () {
-                          comfirmDialog("ต้องการลบหรือไม่", index, 2);
-                        },
-                        icon: const Icon(
-                          Icons.restore_from_trash,
-                          color: Colors.red,
-                        ))
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "ชื่อไฟล์",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 2),
+                    FutureBuilder(
+                      future: fileName(listVideo[index]),
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
+                        if (snapshot.data != null) {
+                          return snapshot.data;
+                        } else {
+                          return const CircularProgressIndicator();
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 5),
+                    const Text(
+                      "วันที่บันทึก",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    FutureBuilder(
+                      future: datetimeVideo(listVideo[index]),
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
+                        if (snapshot.data != null) {
+                          return snapshot.data;
+                        } else {
+                          return const CircularProgressIndicator();
+                        }
+                      },
+                    ),
                   ],
-                ),
-              ),
-            ],
-          ),
-        ));
+                )),
+            selectData
+                ? Expanded(
+                    flex: 1,
+                    child: Checkbox(
+                        activeColor: Colors.blue,
+                        value: listSelectVideo.contains(listVideo[index])
+                            ? true
+                            : false,
+                        onChanged: (value) {}))
+                : Container()
+          ],
+        ),
+      ),
+    );
   }
 
-  comfirmDialog(String message, index, type) {
+  comfirmDialog(String message, List<FileVideo> listvideo, int type) {
     //type 1 = อัปโหลก type 2 = ลบไฟล์
     showDialog(
       context: context,
@@ -256,9 +361,9 @@ class _VideoMainState extends State<VideoMain> {
                 ),
                 onPressed: () {
                   if (type == 1) {
-                    downloadFile(index);
+                    downloadFile(listvideo);
                   } else {
-                    deleteFile(index);
+                    deleteFile(listvideo);
                   }
                 },
               ),
@@ -281,30 +386,51 @@ class _VideoMainState extends State<VideoMain> {
     );
   }
 
-  Future<int> deleteFile(index) async {
+  Future<int> deleteFile(List<FileVideo> listdatavideo) async {
     try {
-      videoList[index].deleteSync();
-      videoList.removeAt(index);
+      for (var i = 0; i < listdatavideo.length; i++) {
+        listdatavideo[i].fileVideo.deleteSync();
+        listVideo.remove(listdatavideo[i]);
+      }
+
       Navigator.pop(context, 'OK');
-      setState(() {});
+
+      setState(() {
+        listSelectVideo.clear();
+        selectData = false;
+      });
+
       return 0;
     } catch (e) {
       return 1;
     }
   }
 
-  Future<int> downloadFile(index) async {
+  Future<int> downloadFile(List<FileVideo> listdatavideo) async {
+    ShowloadDialog().showLoading(context);
     print("downloadFile");
     try {
       String? tempPath = await ExtStorage.getExternalStoragePublicDirectory(
           ExtStorage.DIRECTORY_DOWNLOADS);
-      String filename = DateTime.now().millisecondsSinceEpoch.toString();
-      String filePath = tempPath! + '/file_$filename.mp4';
-      File fileOutput = File(filePath);
-      File fileInput = File(videoList[index].path);
-      await fileOutput.writeAsBytes(fileInput.readAsBytesSync(),
-          mode: FileMode.writeOnly);
+
+      for (var i = 0; i < listdatavideo.length; i++) {
+        String filename = DateTime.now().millisecondsSinceEpoch.toString();
+        String filePath = tempPath! + '/file_$filename.mp4';
+        File fileOutput = File(filePath);
+        File fileInput = File(listdatavideo[i].fileVideo.path);
+        await fileOutput.writeAsBytes(fileInput.readAsBytesSync(),
+            mode: FileMode.writeOnly);
+      }
+
       Navigator.pop(context, 'OK');
+      Navigator.of(context, rootNavigator: true).pop();
+
+      setState(() {
+        listSelectVideo.clear();
+        selectData = false;
+      });
+
+      normalDialog(context, "ดาวน์โหลดสำเร็จ");
       print("Succeed");
       return 0;
     } catch (e) {

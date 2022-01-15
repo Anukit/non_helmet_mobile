@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:exif/exif.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:non_helmet_mobile/models/file_img_video.dart';
 import 'package:non_helmet_mobile/modules/constant.dart';
 import 'package:non_helmet_mobile/pages/upload_Page/google_map.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
@@ -31,7 +32,10 @@ class _MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
-  List<FileSystemEntity> _photoList = [];
+  //List<FileSystemEntity> _photoList = [];
+  List<FileDetectImg> listimg = [];
+  List<FileDetectImg> listSelectimg = [];
+  bool selectData = false;
   late int user_id;
   // ใส่เพื่อเมื่อสลับหน้า(Tab) ให้ใช้ข้อมูลเดิมที่เคยโหลดแล้ว ไม่ต้องโหลดใหม่
   @override
@@ -48,7 +52,10 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
     //ไฟล์รูป
     setState(() {
       List<FileSystemEntity> _photoLists = dir.listSync();
-      _photoList = List.from(_photoLists.reversed);
+      List<FileSystemEntity> _photoList = List.from(_photoLists.reversed);
+      for (var i = 0; i < _photoList.length; i++) {
+        listimg.add(FileDetectImg(i + 1, _photoList[i]));
+      }
     });
   }
 
@@ -57,24 +64,31 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
     user_id = prefs.getInt('user_id') ?? 0;
   }
 
-  Future<int> deleteFile(index) async {
+  Future<int> deleteFile(List<FileDetectImg> listdataImg) async {
     try {
       Directory dir = await checkDirectory("License_plate");
-      String filenameLicense = _photoList[index].path.split("/").last;
 
-      //ลบไฟล์รูป Rider
-      _photoList[index].deleteSync();
-      _photoList.removeAt(index);
+      for (var i = 0; i < listdataImg.length; i++) {
+        String filenameLicense = listdataImg[i].fileImg.path.split("/").last;
 
-      //ลบไฟล์รูป License plate
-      File(dir.path + '/' + filenameLicense).deleteSync();
+        //ลบไฟล์รูป Rider
+        listdataImg[i].fileImg.delete(recursive: true);
+        listimg.remove(listdataImg[i]);
+
+        //ลบไฟล์รูป License plate
+        File(dir.path + '/' + filenameLicense).delete();
+      }
 
       Navigator.pop(context, 'OK');
 
-      setState(() {});
+      setState(() {
+        listSelectimg.clear();
+        selectData = false;
+      });
 
       return 0;
     } catch (e) {
+      print("Error => $e");
       return 1;
     }
   }
@@ -82,44 +96,141 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        toolbarHeight: 40,
+        bottomOpacity: 0.0,
+        elevation: 0.0,
+        actions: [
+          TextButton(
+              onPressed: () {
+                setState(() {
+                  selectData = true;
+                });
+              },
+              child: const Text("เลือก",
+                  style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold)))
+        ],
+      ),
       body: SafeArea(
-          child: _photoList.isNotEmpty
+          child: Stack(
+        children: [
+          listimg.isNotEmpty
               ? ListView.builder(
                   // scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
+                  //shrinkWrap: true,
                   physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: _photoList.length,
+                  itemCount: listimg.length,
                   itemBuilder: (BuildContext context, int index) {
                     return buildDataImage(index);
                   },
                 )
               : const Center(
                   child: Text("ไม่มีรูปภาพ"),
-                )),
+                ),
+          selectData
+              ? Positioned(
+                  bottom: 35.0,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      border: Border.all(
+                        color: Colors.white,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                listSelectimg.clear();
+                                selectData = false;
+                              });
+                            },
+                            child: const Text("ปิด",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                          const SizedBox(
+                            height: 100,
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              if (listSelectimg.isNotEmpty) {
+                                comfirmDialog(
+                                    "ต้องการอัปโหลดหรือไม่", listSelectimg, 1);
+                              }
+                            },
+                            child: const Text("อัปโหลด",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                          const SizedBox(
+                            height: 100,
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              if (listSelectimg.isNotEmpty) {
+                                comfirmDialog(
+                                    "ต้องการลบหรือไม่", listSelectimg, 2);
+                              }
+                            },
+                            child: const Text("ลบ",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold)),
+                          )
+                        ]),
+                  ))
+              : Container()
+        ],
+      )),
     );
   }
 
-  Future<String> datetimeImage(index) async {
-    final tags = await readExifFromFile(_photoList[index]);
-    String dateTime = tags['EXIF DateTimeOriginal'].toString();
-    return dateTime;
+  Future<String> datetimeImage(FileDetectImg dataimg) async {
+    try {
+      final tags = await readExifFromFile(dataimg.fileImg);
+      String dateTime = tags['EXIF DateTimeOriginal'].toString();
+      return dateTime;
+    } catch (e) {
+      return "";
+    }
   }
 
-  Future<Widget> displayPicture(index) async {
-    return Image.file(
-      _photoList[index] as File,
-      width: 150.0,
-      height: 150.0,
-      //scale: 16.0,
-      fit: BoxFit.contain,
+  Future<Widget> displayPicture(FileDetectImg dataimg) async {
+    return GestureDetector(
+      child: Image.file(
+        dataimg.fileImg as File,
+        width: 150.0,
+        height: 150.0,
+        //scale: 16.0,
+        fit: BoxFit.contain,
+      ),
+      onTap: () {
+        zoomPictureDialog(context, dataimg.fileImg, 1);
+      },
     );
   }
 
-  Future<List<double>> coordinates(index) async {
+  Future<List<double>> coordinates(FileDetectImg dataimg) async {
     List<double> latlong = [];
     /////////////////////////////////// พิกัด////////////////////////////////////
     try {
-      final tags = await readExifFromFile(_photoList[index]);
+      final tags = await readExifFromFile(dataimg.fileImg);
       final latitudeValue = tags['GPS GPSLatitude']!
           .values
           .toList()
@@ -155,20 +266,44 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
     return latlong;
   }
 
-  Widget buildDataImage(index) {
+  Widget buildDataImage(int index) {
     return GestureDetector(
         onTap: () {
-          zoomPictureDialog(context, _photoList[index], 1);
+          if (selectData) {
+            if (listSelectimg.contains(listimg[index])) {
+              setState(() {
+                listSelectimg.remove(listimg[index]);
+              });
+            } else {
+              setState(() {
+                listSelectimg.add(listimg[index]);
+              });
+            }
+          }
+        },
+        onLongPress: () {
+          if (!selectData) {
+            setState(() {
+              listSelectimg.add(listimg[index]);
+              selectData = true;
+            });
+          }
         },
         child: Container(
             margin: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+                border: Border.all(
+                    color: listSelectimg.contains(listimg[index])
+                        ? Colors.blueAccent
+                        : Colors.white,
+                    width: 2)),
             child: Card(
               child: Row(
                 children: [
                   Expanded(
                     flex: 3,
                     child: FutureBuilder(
-                        future: displayPicture(index),
+                        future: displayPicture(listimg[index]),
                         builder:
                             (BuildContext context, AsyncSnapshot snapshot) {
                           if (snapshot.data != null) {
@@ -191,7 +326,7 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                                   fontWeight: FontWeight.bold),
                               textAlign: TextAlign.left),
                           FutureBuilder(
-                              future: datetimeImage(index),
+                              future: datetimeImage(listimg[index]),
                               builder: (BuildContext context,
                                   AsyncSnapshot snapshot) {
                                 if (snapshot.data != null) {
@@ -214,7 +349,7 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                               //margin: const EdgeInsets.symmetric(vertical: 10),
                               child: TextButton(
                             onPressed: () {
-                              coordinates(index).then((value) {
+                              coordinates(listimg[index]).then((value) {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -223,7 +358,7 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                               });
                             },
                             child: FutureBuilder(
-                                future: coordinates(index),
+                                future: coordinates(listimg[index]),
                                 builder: (BuildContext context,
                                     AsyncSnapshot snapshot) {
                                   if (snapshot.data != null) {
@@ -238,36 +373,23 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                           )),
                         ],
                       )),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        IconButton(
-                            onPressed: () {
-                              comfirmDialog("ต้องการอัปโหลดหรือไม่", index, 1);
-                            },
-                            icon: const Icon(Icons.file_upload)),
-                        const SizedBox(
-                          height: 100,
-                        ),
-                        IconButton(
-                            onPressed: () {
-                              comfirmDialog("ต้องการลบหรือไม่", index, 2);
-                            },
-                            icon: const Icon(
-                              Icons.restore_from_trash,
-                              color: Colors.red,
-                            ))
-                      ],
-                    ),
-                  ),
+                  selectData
+                      ? Expanded(
+                          flex: 1,
+                          child: Checkbox(
+                              activeColor: Colors.blue,
+                              value: listSelectimg.contains(listimg[index])
+                                  ? true
+                                  : false,
+                              onChanged: (value) {}))
+                      : Container()
                 ],
               ),
             )));
   }
 
-  comfirmDialog(String message, index, type) {
-    //type 1 = อัปโหลก type 2 = ลบไฟล์
+  comfirmDialog(String message, List<FileDetectImg> listdataimg, int type) {
+    //type 1 = อัปโหลด type 2 = ลบไฟล์
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -292,9 +414,9 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                 ),
                 onPressed: () {
                   if (type == 1) {
-                    uploadDetectedImage(index);
+                    uploadDetectedImage(listdataimg);
                   } else {
-                    deleteFile(index);
+                    deleteFile(listdataimg);
                   }
                 },
               ),
@@ -317,53 +439,59 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  Future<void> uploadDetectedImage(index) async {
+  Future<void> uploadDetectedImage(List<FileDetectImg> listdataImg) async {
     Navigator.pop(context, 'OK');
     ShowloadDialog().showLoading(context);
 
     String uploadurl = "${Constant().domain}/DetectedImage/uploadImage";
-    //ชื่อไฟล์
-    int genName = DateTime.now().millisecondsSinceEpoch;
-    DateTime datenow = DateTime.now();
-    //วันที่ตรวจจับ
-    String detectionDate = await datetimeImage(index);
-    //พิกัด
-    List<double> listCoordinates = await coordinates(index);
-    Directory dir = await checkDirectory("License_plate");
-    String filenameLicense = _photoList[index].path.split("/").last;
-    String pathLicenseImg = dir.path + '/' + filenameLicense;
+    int? checkupload;
 
-    FormData formdata = FormData.fromMap({
-      "file": [
-        await MultipartFile.fromFile(_photoList[index].path,
-            filename:
-                'rider_' + user_id.toString() + genName.toString() + '.jpg'),
-        await MultipartFile.fromFile(pathLicenseImg,
-            filename: 'license-plate_' +
-                user_id.toString() +
-                genName.toString() +
-                '.jpg')
-      ],
-      "user_id": user_id,
-      "datetime": datenow.toString(),
-      "latitude": listCoordinates[0],
-      "longitude": listCoordinates[1],
-      "detection_at": detectionDate
-    });
+    for (var i = 0; i < listdataImg.length; i++) {
+      //ชื่อไฟล์
+      int genName = DateTime.now().millisecondsSinceEpoch;
+      DateTime datenow = DateTime.now();
+      //วันที่ตรวจจับ
+      String detectionDate = await datetimeImage(listdataImg[i]);
+      //พิกัด
+      List<double> listCoordinates = await coordinates(listdataImg[i]);
+      Directory dir = await checkDirectory("License_plate");
+      String filenameLicense = listdataImg[i].fileImg.path.split("/").last;
+      String pathLicenseImg = dir.path + '/' + filenameLicense;
 
-    Response response = await Dio().post(
-      uploadurl,
-      data: formdata,
-    );
-    Navigator.of(context, rootNavigator: true).pop();
-    if (response.statusCode == 200) {
-      //print("response = ${response.data}");
-      if (response.data["status"] == "Succeed") {
-        normalDialog(context, "อัปโหลดสำเร็จ");
-        deleteFile(index);
+      FormData formdata = FormData.fromMap({
+        "file": [
+          await MultipartFile.fromFile(listdataImg[i].fileImg.path,
+              filename:
+                  'rider_' + user_id.toString() + genName.toString() + '.jpg'),
+          await MultipartFile.fromFile(pathLicenseImg,
+              filename: 'license-plate_' +
+                  user_id.toString() +
+                  genName.toString() +
+                  '.jpg')
+        ],
+        "user_id": user_id,
+        "datetime": datenow.toString(),
+        "latitude": listCoordinates[0],
+        "longitude": listCoordinates[1],
+        "detection_at": detectionDate
+      });
+
+      Response response = await Dio().post(
+        uploadurl,
+        data: formdata,
+      );
+      if (response.statusCode == 200) {
+        checkupload = i;
       } else {
-        normalDialog(context, "อัปโหลดไม่สำเร็จ");
+        checkupload = -1;
+        break;
       }
+    }
+
+    Navigator.of(context, rootNavigator: true).pop();
+    if (checkupload != -1) {
+      normalDialog(context, "อัปโหลดสำเร็จ");
+      deleteFile(listdataImg);
     } else {
       normalDialog(context, "อัปโหลดไม่สำเร็จ");
     }
