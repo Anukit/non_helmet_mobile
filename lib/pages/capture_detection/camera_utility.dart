@@ -29,6 +29,8 @@ class Camera extends StatefulWidget {
 }
 
 class _CameraState extends State<Camera> {
+  ////////////////////////////////////////
+
   CameraController? controller;
   bool isDetecting = false;
   int i = 0; //สำหรับแก้บัคข้อมูลซ้ำ
@@ -63,7 +65,9 @@ class _CameraState extends State<Camera> {
 
   int rotation_value = 90; //ค่าการหมุนจอ
 
-  IsolateUtils? isolateUtils;
+  IsolateUtils? isolateUtils; //สำหรับทำ Isolate
+
+  bool toggleDetect = false; //สำหรับปิด/เปิดการตรวจจับ
 
   @override
   void initState() {
@@ -113,115 +117,119 @@ class _CameraState extends State<Camera> {
         setState(() {});
 
         controller!.startImageStream((CameraImage img) {
-          ///////////////////////////ส่วนอัดวิดีโอ/////////////////////////////
-          if (recordVideo == "true") {
-            //รับเฟรมภาพ
-            if (!getFrameimg) {
-              getFrameimg = true;
-              //เก็บเฟรมภาพทุก ๆ 0.25 วินาที
-              timeGetFrameImg = Timer(const Duration(milliseconds: 250), () {
-                listCameraimg.add(img);
-                getFrameimg = false;
-              });
-            }
+          if (toggleDetect) {
+            ///////////////////////////ส่วนอัดวิดีโอ/////////////////////////////
+            if (recordVideo == "true") {
+              //รับเฟรมภาพ
+              if (!getFrameimg) {
+                getFrameimg = true;
+                //เก็บเฟรมภาพทุก ๆ 0.25 วินาที
+                timeGetFrameImg = Timer(const Duration(milliseconds: 250), () {
+                  listCameraimg.add(img);
+                  getFrameimg = false;
+                });
+              }
 
-            //ทำครั้งแรก ครั้งเดียว ต่อไปจะทำแบบสวิต เมื่อทำเสร็จแล้วทำต่อไปเลยไม่ต้องรอ
-            if (firstTimeRecord) {
-              firstTimeRecord = false;
-              //เซฟวิดีโอ 1 นาที ในครั้งแรก
-              Future.delayed(const Duration(minutes: 1), () {
-                readyforRecord = true;
-              });
-            }
-
-            //สร้างวิดีโอ
-            if (readyforRecord != null && readyforRecord!) {
-              startTimeRec = DateTime.now().millisecondsSinceEpoch;
-
-              if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
-                readyforRecord = false;
-                prevLengofList = listCameraimg.length;
-                SaveVideo(listCameraimg, frameImgDirPath, videoDirPath,
-                    rotation_value, (value) {
-                  endTimeRec = DateTime.now().millisecondsSinceEpoch;
-                  listCameraimg.removeRange(0, prevLengofList);
+              //ทำครั้งแรก ครั้งเดียว ต่อไปจะทำแบบสวิต เมื่อทำเสร็จแล้วทำต่อไปเลยไม่ต้องรอ
+              if (firstTimeRecord) {
+                firstTimeRecord = false;
+                //เซฟวิดีโอ 1 นาที ในครั้งแรก
+                Future.delayed(const Duration(minutes: 1), () {
                   readyforRecord = true;
-                }).init();
+                });
+              }
+
+              //สร้างวิดีโอ
+              if (readyforRecord != null && readyforRecord!) {
+                startTimeRec = DateTime.now().millisecondsSinceEpoch;
+
+                if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
+                  readyforRecord = false;
+                  prevLengofList = listCameraimg.length;
+                  SaveVideo(listCameraimg, frameImgDirPath, videoDirPath,
+                      rotation_value, (value) {
+                    endTimeRec = DateTime.now().millisecondsSinceEpoch;
+                    listCameraimg.removeRange(0, prevLengofList);
+                    readyforRecord = true;
+                  }).init();
+                }
               }
             }
-          }
-          /////////////////////////////ส่วนตรวจจับ////////////////////////////
-          if (!isDetecting) {
-            isDetecting = true;
-            ////////////////////////////////////////////////////////////////
-            startTime = DateTime.now().millisecondsSinceEpoch;
-            ////////////////////////////////////////////////////////////////
-            Tflite.detectObjectOnFrame(
-              bytesList: img.planes.map((plane) {
-                return plane.bytes;
-              }).toList(),
-              model: "SSDMobileNet",
-              imageHeight: img.height,
-              imageWidth: img.width,
-              imageMean: 127.5,
-              imageStd: 127.5,
-              rotation: rotation_value,
-              // numResultsPerClass: 4,
-              // threshold: 0.1,
-              numResultsPerClass: 10,
-              numBoxesPerBlock: 10,
-              threshold: 0.5,
-            ).then((recognitions) {
-              /////////////////////ส่วนเงื่อนไข////////////////////////////////////
+            /////////////////////////////ส่วนตรวจจับ////////////////////////////
+            if (!isDetecting) {
+              isDetecting = true;
+              ////////////////////////////////////////////////////////////////
+              startTime = DateTime.now().millisecondsSinceEpoch;
+              ////////////////////////////////////////////////////////////////
+              Tflite.detectObjectOnFrame(
+                bytesList: img.planes.map((plane) {
+                  return plane.bytes;
+                }).toList(),
+                model: "SSDMobileNet",
+                imageHeight: img.height,
+                imageWidth: img.width,
+                imageMean: 127.5,
+                imageStd: 127.5,
+                rotation: rotation_value,
+                // numResultsPerClass: 4,
+                // threshold: 0.1,
+                numResultsPerClass: 10,
+                numBoxesPerBlock: 10,
+                threshold: 0.5,
+              ).then((recognitions) {
+                /////////////////////ส่วนเงื่อนไข////////////////////////////////////
 
-              if (recognitions!.isNotEmpty) {
-                if (i == 0) {
-                  i = 1;
-                  inference(IsolateData(img, recognitions, screen!, listDataImg,
-                          rotation_value))
-                      .then((value) {
-                    print("value = $value");
-                    if (value.isNotEmpty) {
-                      //print("listAvgColors = ${value[0].averageColor} 2");
-                      //print("data track = ${value[0].dataforTrack}");
-                      listDataForTrack = value[0].dataforTrack;
+                if (recognitions!.isNotEmpty) {
+                  if (i == 0) {
+                    i = 1;
+                    inference(IsolateData(img, recognitions, screen!,
+                            listDataImg, rotation_value))
+                        .then((value) {
+                      print("value = $value");
+                      if (value.isNotEmpty) {
+                        //print("listAvgColors = ${value[0].averageColor} 2");
+                        //print("data track = ${value[0].dataforTrack}");
+                        listDataForTrack = value[0].dataforTrack;
 
-                      if (value[0].dataImage.isNotEmpty &&
-                          value[0].listdataImg.isNotEmpty) {
-                        listDataImg = value[0].listdataImg;
-                        // print("ListColorss = ${value[0].listAvgColor}");
-                        // print("Listimage = ${value[0].dataImage}");
-                        for (var i = 0; i < value[0].dataImage.length; i++) {
-                          if (autoUpload == "true") {
-                            uploadDatectedImage(
-                                user_id,
-                                value[0].dataImage[i].riderImg,
-                                value[0].dataImage[i].license_plateImg);
-                          } else {
-                            saveImageDetect(value[0].dataImage[i].riderImg,
-                                value[0].dataImage[i].license_plateImg);
+                        if (value[0].dataImage.isNotEmpty &&
+                            value[0].listdataImg.isNotEmpty) {
+                          listDataImg = value[0].listdataImg;
+                          // print("ListColorss = ${value[0].listAvgColor}");
+                          // print("Listimage = ${value[0].dataImage}");
+                          for (var i = 0; i < value[0].dataImage.length; i++) {
+                            if (autoUpload == "true") {
+                              uploadDatectedImage(
+                                  user_id,
+                                  value[0].dataImage[i].riderImg,
+                                  value[0].dataImage[i].license_plateImg);
+                            } else {
+                              saveImageDetect(value[0].dataImage[i].riderImg,
+                                  value[0].dataImage[i].license_plateImg);
+                            }
                           }
                         }
+                      } else {
+                        listDataForTrack = [];
                       }
-                    } else {
-                      listDataForTrack = [];
-                    }
-                    i = 0;
-                  });
-                }
+                      i = 0;
+                    });
+                  }
 
-                // print("listDataForTrack = $listDataForTrack 1");
-              } else {
-                listDataForTrack = [];
-              }
-              //////////////////////////////////////////////////////////////////
-              endTime = DateTime.now().millisecondsSinceEpoch;
-              // print("Detection took ${endTime - startTime}ms");
-              // print("listDataForTrack = $listDataForTrack 2");
-              widget.setRecognitions(
-                  recognitions, img.height, img.width, listDataForTrack);
-              isDetecting = false;
-            });
+                  // print("listDataForTrack = $listDataForTrack 1");
+                } else {
+                  listDataForTrack = [];
+                }
+                //////////////////////////////////////////////////////////////////
+                endTime = DateTime.now().millisecondsSinceEpoch;
+                // print("Detection took ${endTime - startTime}ms");
+                // print("listDataForTrack = $listDataForTrack 2");
+                widget.setRecognitions(
+                    recognitions, img.height, img.width, listDataForTrack);
+                isDetecting = false;
+              });
+            }
+          } else {
+            widget.setRecognitions([], img.height, img.width, []);
           }
         });
       });
@@ -239,7 +247,7 @@ class _CameraState extends State<Camera> {
 
   @override
   void dispose() {
-    if (recordVideo == "true") {
+    if (recordVideo == "true" && listCameraimg.isNotEmpty) {
       timeGetFrameImg!.cancel();
       if (readyforRecord == null || readyforRecord == true) {
         if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
@@ -316,24 +324,62 @@ class _CameraState extends State<Camera> {
 
       if (rotation_value == 90 || rotation_value == 270) {
         return OverflowBox(
-          maxHeight: screenRatio > previewRatio
-              ? screenH
-              : screenW / previewW * previewH,
-          maxWidth: screenRatio > previewRatio
-              ? screenH / previewH * previewW
-              : screenW,
-          child: CameraPreview(controller!),
-        );
+            maxHeight: screenRatio > previewRatio
+                ? screenH
+                : screenW / previewW * previewH,
+            maxWidth: screenRatio > previewRatio
+                ? screenH / previewH * previewW
+                : screenW,
+            child: Stack(children: [
+              CameraPreview(controller!),
+              Positioned(
+                  left: screenW / 2,
+                  bottom: 40,
+                  child: MaterialButton(
+                    onPressed: () {
+                      setState(() {
+                        toggleDetect = !toggleDetect;
+                      });
+                    },
+                    color: toggleDetect ? Colors.red : Colors.amber,
+                    textColor: Colors.white,
+                    child: const Icon(
+                      Icons.camera_alt,
+                      size: 24,
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    shape: const CircleBorder(),
+                  ))
+            ]));
       } else {
         return OverflowBox(
-          maxHeight: screenRatio > previewRatio
-              ? screenH / previewH * previewW
-              : screenW,
-          maxWidth: screenRatio > previewRatio
-              ? screenH
-              : screenW / previewW * previewH,
-          child: CameraPreview(controller!),
-        );
+            maxHeight: screenRatio > previewRatio
+                ? screenH / previewH * previewW
+                : screenW,
+            maxWidth: screenRatio > previewRatio
+                ? screenH
+                : screenW / previewW * previewH,
+            child: Stack(children: [
+              CameraPreview(controller!),
+              Positioned(
+                  left: 20,
+                  bottom: screenW / 2,
+                  child: MaterialButton(
+                    onPressed: () {
+                      setState(() {
+                        toggleDetect = !toggleDetect;
+                      });
+                    },
+                    color: toggleDetect ? Colors.red : Colors.amber,
+                    textColor: Colors.white,
+                    child: const Icon(
+                      Icons.camera_alt,
+                      size: 24,
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    shape: const CircleBorder(),
+                  ))
+            ]));
       }
     });
   }
