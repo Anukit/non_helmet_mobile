@@ -25,6 +25,7 @@ class _VideoMainState extends State<VideoMain> {
   List<FileVideo> listSelectVideo = [];
   bool _running = true;
   bool selectData = false;
+  bool selectAll = false; //สำหรับเลือกไฟล์ทั้งหมด
   @override
   void initState() {
     super.initState();
@@ -93,9 +94,32 @@ class _VideoMainState extends State<VideoMain> {
         ),
         centerTitle: true,
         actions: [
+          //สำหรับเลือกทุกไฟล์
+          selectData
+              ? Checkbox(
+                  activeColor: Colors.blue,
+                  value: selectAll,
+                  onChanged: (value) {
+                    setState(() {
+                      selectAll = value!;
+                      if (value) {
+                        listSelectVideo.clear();
+                        for (var i = 0; i < listVideo.length; i++) {
+                          listSelectVideo.add(listVideo[i]);
+                        }
+                      } else {
+                        listSelectVideo.clear();
+                      }
+                    });
+                  })
+              : Container(),
+          //ปุ่มเลือก
           TextButton(
               onPressed: () {
                 setState(() {
+                  if (!selectData) {
+                    selectAll = false;
+                  }
                   selectData = true;
                 });
               },
@@ -236,6 +260,9 @@ class _VideoMainState extends State<VideoMain> {
     return GestureDetector(
       onTap: () {
         if (selectData) {
+          if (selectAll) {
+            selectAll = false;
+          }
           if (listSelectVideo.contains(listVideo[index])) {
             setState(() {
               listSelectVideo.remove(listVideo[index]);
@@ -257,6 +284,9 @@ class _VideoMainState extends State<VideoMain> {
         if (!selectData) {
           setState(() {
             listSelectVideo.add(listVideo[index]);
+            if (!selectData) {
+              selectAll = false;
+            }
             selectData = true;
           });
         }

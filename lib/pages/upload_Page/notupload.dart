@@ -36,6 +36,7 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
   List<FileDetectImg> listimg = [];
   List<FileDetectImg> listSelectimg = [];
   bool selectData = false;
+  bool selectAll = false; //สำหรับเลือกไฟล์ทั้งหมด
   late int user_id;
   // ใส่เพื่อเมื่อสลับหน้า(Tab) ให้ใช้ข้อมูลเดิมที่เคยโหลดแล้ว ไม่ต้องโหลดใหม่
   @override
@@ -103,9 +104,32 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
         bottomOpacity: 0.0,
         elevation: 0.0,
         actions: [
+          //สำหรับเลือกทุกไฟล์
+          selectData
+              ? Checkbox(
+                  activeColor: Colors.blue,
+                  value: selectAll,
+                  onChanged: (value) {
+                    setState(() {
+                      selectAll = value!;
+                      if (value) {
+                        listSelectimg.clear();
+                        for (var i = 0; i < listimg.length; i++) {
+                          listSelectimg.add(listimg[i]);
+                        }
+                      } else {
+                        listSelectimg.clear();
+                      }
+                    });
+                  })
+              : Container(),
+          //ปุ่มเลือก
           TextButton(
               onPressed: () {
                 setState(() {
+                  if (!selectData) {
+                    selectAll = false;
+                  }
                   selectData = true;
                 });
               },
@@ -270,6 +294,9 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
     return GestureDetector(
         onTap: () {
           if (selectData) {
+            if (selectAll) {
+              selectAll = false;
+            }
             if (listSelectimg.contains(listimg[index])) {
               setState(() {
                 listSelectimg.remove(listimg[index]);
@@ -285,6 +312,9 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
           if (!selectData) {
             setState(() {
               listSelectimg.add(listimg[index]);
+              if (!selectData) {
+                selectAll = false;
+              }
               selectData = true;
             });
           }

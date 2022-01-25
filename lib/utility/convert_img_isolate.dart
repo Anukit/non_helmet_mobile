@@ -156,10 +156,14 @@ class IsolateUtils {
             if (listImgForCheck.isNotEmpty) {
               //เปรียบเทียบภาพ
               for (var i = 0; i < listImgForCheck.length; i++) {
+                // double checkColorImgs = await compareImages(
+                //     src1: checkImage,
+                //     src2: listImgForCheck[i].img,
+                //     algorithm: IntersectionHistogram(/* ignoreAlpha: true */));
                 double checkColorImgs = await compareImages(
                     src1: checkImage,
                     src2: listImgForCheck[i].img,
-                    algorithm: IntersectionHistogram(/* ignoreAlpha: true */));
+                    algorithm: EuclideanColorDistance(ignoreAlpha: true));
 
                 //สำหรับนำไปตรวจสอบค่า
                 int checkColorImg = (checkColorImgs * 100).round();
@@ -167,8 +171,10 @@ class IsolateUtils {
                 showpercentCheck = ((1 - checkColorImgs) * 100).round();
                 print("checkColorImg = $checkColorImg");
 
-                if (checkColorImg < 25) {
+                if (checkColorImg < 20) {
                   avgColorID = listImgForCheck[i].id;
+                  listImgForCheck[i] =
+                      DataImageForCheck(listImgForCheck[i].id, checkImage!);
                   riderImage = null;
                   break;
                 } else {
@@ -199,7 +205,7 @@ class IsolateUtils {
                   imglib.encodeJpg(destImagesLicense) as Uint8List?;
 
               listDataImage
-                  .add(DataDetectedImage(riderImage, licensePlateImg!));
+                  .add(DataDetectedImage(checkImage!, licensePlateImg!));
 
               dataforTrack.add({
                 "id": listImgForCheck.length + 1,
@@ -208,7 +214,7 @@ class IsolateUtils {
               });
 
               listImgForCheck.add(
-                  DataImageForCheck(listImgForCheck.length + 1, checkImage!));
+                  DataImageForCheck(listImgForCheck.length + 1, checkImage));
             } else {
               listDataImage = [];
 
@@ -229,7 +235,7 @@ class IsolateUtils {
 
             isolateData.responsePort!.send(listresult);
           } else {
-            listresult.add(ListResultImage([], [], dataforTrack));
+            listresult.add(ListResultImage([], listImgForCheck, dataforTrack));
 
             isolateData.responsePort!.send(listresult);
           }

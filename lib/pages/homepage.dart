@@ -110,12 +110,12 @@ class _HomePageState extends State<HomePage> {
             child: Center(
           child: Column(
             children: [
-              const SizedBox(height: 30),
+              const SizedBox(height: 50),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'รถที่คุณตรวจจับได้:',
+                    'รถที่คุณตรวจจับได้ทั้งหมด:',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 15.0,
@@ -123,7 +123,7 @@ class _HomePageState extends State<HomePage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 20),
+                  //const SizedBox(width: 20),
                   Container(
                       margin: const EdgeInsets.all(20.0),
                       height: 25.0,
@@ -144,13 +144,8 @@ class _HomePageState extends State<HomePage> {
                           child: countMeRider != null
                               ? Text(countMeRider.toString())
                               : const Text("กำลังโหลด"))),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
                   const Text(
-                    'รถที่ตรวจจับได้ทั้งหมด:',
+                    'คัน',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 15.0,
@@ -158,28 +153,43 @@ class _HomePageState extends State<HomePage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Container(
-                      margin: const EdgeInsets.all(20.0),
-                      height: 25.0,
-                      width: 80.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        color: Colors.grey[200],
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            offset: Offset(0, 2),
-                            blurRadius: 6.0,
-                          ),
-                        ],
-                      ),
-                      child: Align(
-                          alignment: Alignment.center,
-                          child: countAllRider != null
-                              ? Text(countAllRider.toString())
-                              : const Text("กำลังโหลด")))
                 ],
               ),
+              const Divider(height: 35),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     const Text(
+              //       'รถที่ตรวจจับได้ทั้งหมด:',
+              //       style: TextStyle(
+              //         color: Colors.black,
+              //         fontSize: 15.0,
+              //         // height: 0.25,
+              //         fontWeight: FontWeight.bold,
+              //       ),
+              //     ),
+              //     Container(
+              //         margin: const EdgeInsets.all(20.0),
+              //         height: 25.0,
+              //         width: 80.0,
+              //         decoration: BoxDecoration(
+              //           shape: BoxShape.rectangle,
+              //           color: Colors.grey[200],
+              //           boxShadow: const [
+              //             BoxShadow(
+              //               color: Colors.black26,
+              //               offset: Offset(0, 2),
+              //               blurRadius: 6.0,
+              //             ),
+              //           ],
+              //         ),
+              //         child: Align(
+              //             alignment: Alignment.center,
+              //             child: countAllRider != null
+              //                 ? Text(countAllRider.toString())
+              //                 : const Text("กำลังโหลด")))
+              //   ],
+              // ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 50.0),
                 child: Row(
