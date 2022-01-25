@@ -41,7 +41,7 @@ class _CameraState extends State<Camera> {
   String? resolution;
   Size? screen; //สำหรับ Crop
   // List<DataAveColor> listAvgColors = [];
-  List<DataImageForCheck> listDataImg = [];
+  List<DataImageForCheck> listDataImg = []; //สำหรับนำไปตรวจสอบค่า
   List<dynamic> listDataForTrack = [];
   late int user_id;
 
@@ -190,10 +190,9 @@ class _CameraState extends State<Camera> {
                         //print("listAvgColors = ${value[0].averageColor} 2");
                         //print("data track = ${value[0].dataforTrack}");
                         listDataForTrack = value[0].dataforTrack;
+                        listDataImg = value[0].listdataImg;
 
-                        if (value[0].dataImage.isNotEmpty &&
-                            value[0].listdataImg.isNotEmpty) {
-                          listDataImg = value[0].listdataImg;
+                        if (value[0].dataImage.isNotEmpty) {
                           // print("ListColorss = ${value[0].listAvgColor}");
                           // print("Listimage = ${value[0].dataImage}");
                           for (var i = 0; i < value[0].dataImage.length; i++) {
