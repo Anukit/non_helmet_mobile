@@ -146,8 +146,8 @@ class _CameraState extends State<Camera> {
                 if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
                   readyforRecord = false;
                   prevLengofList = listCameraimg.length;
-                  SaveVideo(listCameraimg, frameImgDirPath, videoDirPath,
-                      rotation_value, (value) {
+                  SaveVideo(user_id, listCameraimg, frameImgDirPath,
+                      videoDirPath, rotation_value, (value) {
                     endTimeRec = DateTime.now().millisecondsSinceEpoch;
                     listCameraimg.removeRange(0, prevLengofList);
                     readyforRecord = true;
@@ -202,7 +202,9 @@ class _CameraState extends State<Camera> {
                                   value[0].dataImage[i].riderImg,
                                   value[0].dataImage[i].license_plateImg);
                             } else {
-                              saveImageDetect(value[0].dataImage[i].riderImg,
+                              saveImageDetect(
+                                  user_id,
+                                  value[0].dataImage[i].riderImg,
                                   value[0].dataImage[i].license_plateImg);
                             }
                           }
@@ -250,9 +252,8 @@ class _CameraState extends State<Camera> {
       timeGetFrameImg!.cancel();
       if (readyforRecord == null || readyforRecord == true) {
         if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
-          SaveVideo(
-              listCameraimg, frameImgDirPath, videoDirPath, rotation_value,
-              (value) {
+          SaveVideo(user_id, listCameraimg, frameImgDirPath, videoDirPath,
+              rotation_value, (value) {
             print("value from record video = $value");
           }).init();
         }
@@ -261,9 +262,8 @@ class _CameraState extends State<Camera> {
           checkReadyforRecVideo().then((value) {
             if (value) {
               timer.cancel();
-              SaveVideo(
-                  listCameraimg, frameImgDirPath, videoDirPath, rotation_value,
-                  (value) {
+              SaveVideo(user_id, listCameraimg, frameImgDirPath, videoDirPath,
+                  rotation_value, (value) {
                 print("value from record video = $value");
               }).init();
             }

@@ -26,9 +26,11 @@ class _VideoMainState extends State<VideoMain> {
   bool _running = true;
   bool selectData = false;
   bool selectAll = false; //สำหรับเลือกไฟล์ทั้งหมด
+  late int user_id;
   @override
   void initState() {
     super.initState();
+    getuserID();
     //getFile();
   }
 
@@ -37,14 +39,27 @@ class _VideoMainState extends State<VideoMain> {
     super.dispose();
   }
 
+  Future<void> getuserID() async {
+    final prefs = await SharedPreferences.getInstance();
+    user_id = prefs.getInt('user_id') ?? 0;
+  }
+
   Future<void> getFile() async {
     Directory dir = await checkDirectory("Video");
     //ไฟล์รูป
     setState(() {
       List<FileSystemEntity> _photoLists = dir.listSync();
       List<FileSystemEntity> videoList = List.from(_photoLists.reversed);
-      for (var i = 0; i < videoList.length; i++) {
-        listVideo.add(FileVideo(i + 1, videoList[i]));
+
+      if (user_id != 0) {
+        for (var i = 0; i < videoList.length; i++) {
+          String userIDFromFile =
+              videoList[i].path.split('/').last.split('_').first;
+
+          if (user_id.toString() == userIDFromFile) {
+            listVideo.add(FileVideo(i + 1, videoList[i]));
+          }
+        }
       }
     });
     print("listVideo = ${listVideo}");

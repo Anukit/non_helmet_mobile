@@ -12,7 +12,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:image/image.dart' as imglib;
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<void> saveImageDetect(Uint8List riderImg, Uint8List licenseImg) async {
+Future<void> saveImageDetect(
+    int user_id, Uint8List riderImg, Uint8List licenseImg) async {
   print("saveImageDetect");
   //รับพิกัด
   var position = await Geolocator.getCurrentPosition(
@@ -30,8 +31,8 @@ Future<void> saveImageDetect(Uint8List riderImg, Uint8List licenseImg) async {
   if (tempPathPic.isNotEmpty && tempPathLic.isNotEmpty) {
     String filename = DateTime.now().millisecondsSinceEpoch.toString();
 
-    var filePathRider = tempPathPic + '/file_$filename.jpg';
-    var filePathLicense = tempPathLic + '/file_$filename.jpg';
+    var filePathRider = tempPathPic + '/${user_id}_$filename.jpg';
+    var filePathLicense = tempPathLic + '/${user_id}_$filename.jpg';
 
     File(filePathRider).writeAsBytes(modifiedImage!);
     File(filePathLicense).writeAsBytes(licenseImg);
@@ -77,12 +78,13 @@ Future<String> createFolder(String folderName) async {
 }
 
 class SaveVideo {
+  int userID;
   List<CameraImage> listimg;
   String frameImgDirPath;
   String videoDirPath;
   int rotation_value;
   ValueChanged<bool> callback;
-  SaveVideo(this.listimg, this.frameImgDirPath, this.videoDirPath,
+  SaveVideo(this.userID, this.listimg, this.frameImgDirPath, this.videoDirPath,
       this.rotation_value, this.callback);
   final worker = Worker();
 
@@ -97,6 +99,7 @@ class SaveVideo {
         errorHandler: print,
       );
       worker.sendMessage({
+        "userID": userID,
         "listimg": listimg,
         "frameImgDirPath": frameImgDirPath,
         "videoDirPath": videoDirPath,
@@ -112,6 +115,7 @@ class SaveVideo {
     print("SASSSSSSSSSSSSSSSSSSSSSSAS = $data");
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
+    String user_ID = data["userID"].toString();
     String _frameImgDirPath = data["frameImgDirPath"];
     String _videoDirPath = data["videoDirPath"];
     List<FileSystemEntity> _photoList = data["photoList"];
@@ -120,7 +124,7 @@ class SaveVideo {
         FlutterFFmpeg(); // Create new ffmpeg instance somewhere in your code
 
     String filename = DateTime.now().millisecondsSinceEpoch.toString();
-    String filePathMP4 = _videoDirPath + '/$filename.mp4';
+    String filePathMP4 = _videoDirPath + '/${user_ID}_$filename.mp4';
     int result = await _flutterFFmpeg.execute(
         "-framerate 4 -probesize 42M -i $_frameImgDirPath/img%d.jpg -preset ultrafast -pix_fmt yuv420p $filePathMP4");
 
@@ -149,6 +153,7 @@ class SaveVideo {
     String frameImgDirPath = data["frameImgDirPath"];
     String videoDirPath = data["videoDirPath"];
     int rotation = data["rotation"];
+    int userID_data = data["userID"];
     List<FileSystemEntity> photoList = [];
     print("data data listimg = ${listimg.length}");
 
@@ -230,6 +235,7 @@ class SaveVideo {
       ////////////////////////////////////////////////////////////////////////
     }
     mainSendPort.send({
+      "userID": userID_data,
       "frameImgDirPath": frameImgDirPath,
       "videoDirPath": videoDirPath,
       "photoList": photoList,
