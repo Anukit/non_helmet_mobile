@@ -250,7 +250,7 @@ class _Login_PageState extends State<Login_Page> {
         var listdata = result.data;
         if (listdata["status"] == "Succeed") {
           int user_id = listdata["data"][0]["id"];
-          setUserid(user_id);
+          setUserData(user_id);
         } else if (listdata["data"] == "Invalid email") {
           normalDialog(context, "อีเมลไม่ถูกต้อง");
         } else if (listdata["data"] == "Incorrect password") {
@@ -260,10 +260,11 @@ class _Login_PageState extends State<Login_Page> {
     } catch (e) {}
   }
 
-  Future<void> setUserid(user_id) async {
+  Future<void> setUserData(user_id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var setId_ok = await prefs.setInt('user_id', user_id);
-    if (setId_ok) {
+    var setlistFrameimg_ok = await prefs.setInt('listFrameImg', 0);
+    if (setId_ok && setlistFrameimg_ok) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => HomePage()),

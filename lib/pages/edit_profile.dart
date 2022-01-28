@@ -79,12 +79,12 @@ class _EditProfileState extends State<EditProfile> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            //Navigator.pop(context);
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => HomePage()),
-                (Route<dynamic> route) => false);
+            Navigator.pop(context);
+            // Navigator.pushAndRemoveUntil(
+            //     context,
+            //     MaterialPageRoute(
+            //         builder: (BuildContext context) => HomePage()),
+            //     (Route<dynamic> route) => false);
           },
           icon: const Icon(
             Icons.arrow_back_ios,

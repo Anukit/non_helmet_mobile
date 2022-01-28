@@ -2,8 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
+import 'package:non_helmet_mobile/pages/about_app.dart';
 import 'package:non_helmet_mobile/pages/changepassword.dart';
 import 'package:non_helmet_mobile/pages/edit_profile.dart';
+import 'package:non_helmet_mobile/pages/homepage.dart';
 import 'package:non_helmet_mobile/pages/setting_camera.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,7 +49,12 @@ class _SettingPageState extends State<SettingPage> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            //Navigator.pop(context);
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => HomePage()),
+                (Route<dynamic> route) => false);
           },
           icon: const Icon(
             Icons.arrow_back_ios,
@@ -79,15 +86,15 @@ class _SettingPageState extends State<SettingPage> {
               buildEditProfile(),
               const SizedBox(height: 10.0),
               buildChangePw(),
-              const SizedBox(height: 10.0),
-              buildFeedb(),
+              // const SizedBox(height: 10.0),
+              // buildFeedb(),
               const SizedBox(height: 10.0),
               buildAbout(),
-              const SizedBox(height: 150.0),
+              const SizedBox(height: 250.0),
               buildAcc(),
-              const SizedBox(height: 10.0),
-              buildReport(),
-              const SizedBox(height: 10.0),
+              // const SizedBox(height: 10.0),
+              // buildReport(),
+              const SizedBox(height: 20.0),
               buildLogout()
             ],
           ),
@@ -234,10 +241,15 @@ class _SettingPageState extends State<SettingPage> {
     );
   }
 
-  //About
+  //About App
   Widget buildAbout() {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AboutApp()),
+        );
+      },
       style: ElevatedButton.styleFrom(
         primary: Colors.grey[300],
       ),
