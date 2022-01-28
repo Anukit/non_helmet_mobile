@@ -44,13 +44,23 @@ class _HomePageState extends State<HomePage> {
 
     Directory dir = await checkDirectory("Pictures");
     List<FileSystemEntity> _photoLists = dir.listSync();
+    int numDetectedImg = 0;
+
+    for (var i = 0; i < _photoLists.length; i++) {
+      String userIDFromFile =
+          _photoLists[i].path.split('/').last.split('_').first;
+
+      if (user_id.toString() == userIDFromFile) {
+        numDetectedImg += 1;
+      }
+    }
 
     try {
       var result = await getAmountRider(user_id);
       if (result.pass) {
         if (result.data["status"] == "Succeed") {
           return DataStatics(
-            _photoLists.length,
+            numDetectedImg,
             result.data["data"]["countMeRider"]["today"],
             result.data["data"]["countMeRider"]["tomonth"],
             result.data["data"]["countMeRider"]["total"],

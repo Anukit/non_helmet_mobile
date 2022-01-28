@@ -44,8 +44,8 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
-    getFile();
     getuserID();
+    getFile();
   }
 
   Future<void> getFile() async {
@@ -54,8 +54,16 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
     setState(() {
       List<FileSystemEntity> _photoLists = dir.listSync();
       List<FileSystemEntity> _photoList = List.from(_photoLists.reversed);
-      for (var i = 0; i < _photoList.length; i++) {
-        listimg.add(FileDetectImg(i + 1, _photoList[i]));
+
+      if (user_id != 0) {
+        for (var i = 0; i < _photoList.length; i++) {
+          String userIDFromFile =
+              _photoList[i].path.split('/').last.split('_').first;
+
+          if (user_id.toString() == userIDFromFile) {
+            listimg.add(FileDetectImg(i + 1, _photoList[i]));
+          }
+        }
       }
     });
   }
