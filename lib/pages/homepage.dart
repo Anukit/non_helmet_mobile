@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:camera/camera.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:non_helmet_mobile/models/data_statics.dart';
 import 'package:non_helmet_mobile/modules/constant.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/capture_detection/home_screen_camera.dart';
@@ -34,26 +35,34 @@ class _HomePageState extends State<HomePage> {
     checkInternet(context);
     permissionCamera()
         .then((value) => !value ? settingPermissionDialog(context) : null);
-    getData();
+    //getData();
   }
 
-  Future<void> getData() async {
-    print("AAAAAAAAAAAAAAAAA");
+  Future<DataStatics?> getData() async {
     final prefs = await SharedPreferences.getInstance();
     int user_id = prefs.getInt('user_id') ?? 0;
+
+    Directory dir = await checkDirectory("Pictures");
+    List<FileSystemEntity> _photoLists = dir.listSync();
 
     try {
       var result = await getAmountRider(user_id);
       if (result.pass) {
         if (result.data["status"] == "Succeed") {
-          setState(() {
-            //var listdata = result.data["data"][0];
-            countMeRider = result.data["data"]["countMeRider"];
-            countAllRider = result.data["data"]["countAllRider"];
-          });
+          return DataStatics(
+            _photoLists.length,
+            result.data["data"]["countMeRider"]["today"],
+            result.data["data"]["countMeRider"]["tomonth"],
+            result.data["data"]["countMeRider"]["total"],
+            result.data["data"]["countAllRider"]["today"],
+            result.data["data"]["countAllRider"]["tomonth"],
+            result.data["data"]["countAllRider"]["total"],
+          );
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      return null;
+    }
   }
 
   Stream<bool> showloadingVideo() async* {
@@ -74,7 +83,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print("countAllRider = $countAllRider");
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -111,85 +119,24 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             children: [
               const SizedBox(height: 50),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'รถที่คุณตรวจจับได้ทั้งหมด:',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 15.0,
-                      // height: 0.25,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  //const SizedBox(width: 20),
-                  Container(
-                      margin: const EdgeInsets.all(20.0),
-                      height: 25.0,
-                      width: 80.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        color: Colors.grey[200],
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            offset: Offset(0, 2),
-                            blurRadius: 6.0,
-                          ),
-                        ],
-                      ),
-                      child: Align(
-                          alignment: Alignment.center,
-                          child: countMeRider != null
-                              ? Text(countMeRider.toString())
-                              : const Text("กำลังโหลด"))),
-                  const Text(
-                    'คัน',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 15.0,
-                      // height: 0.25,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+              SizedBox(
+                height: 175,
+                child: FutureBuilder(
+                    future: getData(),
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.data != null) {
+                        return ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            itemCount: 3,
+                            itemBuilder: (context, index) =>
+                                displayStatics(index, snapshot.data));
+                      } else {
+                        return const Text("กรุณารอสักครู่");
+                      }
+                    }),
               ),
-              const Divider(height: 35),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     const Text(
-              //       'รถที่ตรวจจับได้ทั้งหมด:',
-              //       style: TextStyle(
-              //         color: Colors.black,
-              //         fontSize: 15.0,
-              //         // height: 0.25,
-              //         fontWeight: FontWeight.bold,
-              //       ),
-              //     ),
-              //     Container(
-              //         margin: const EdgeInsets.all(20.0),
-              //         height: 25.0,
-              //         width: 80.0,
-              //         decoration: BoxDecoration(
-              //           shape: BoxShape.rectangle,
-              //           color: Colors.grey[200],
-              //           boxShadow: const [
-              //             BoxShadow(
-              //               color: Colors.black26,
-              //               offset: Offset(0, 2),
-              //               blurRadius: 6.0,
-              //             ),
-              //           ],
-              //         ),
-              //         child: Align(
-              //             alignment: Alignment.center,
-              //             child: countAllRider != null
-              //                 ? Text(countAllRider.toString())
-              //                 : const Text("กำลังโหลด")))
-              //   ],
-              // ),
+              const Divider(height: 5),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 50.0),
                 child: Row(
@@ -258,6 +205,162 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         )));
+  }
+
+  //แสดงสถิติ (ส่วนหลัก)
+  Widget displayStatics(int index, DataStatics data) {
+    return Container(
+        decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            border: Border.all(
+              color: Colors.black,
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(20))),
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          children: [
+            index == 0
+                ? staticsNotUpload(data)
+                : index == 1
+                    ? staticsRiderMe(data)
+                    : staticsRiderAll(data)
+          ],
+        ));
+  }
+
+  //สถิติของผู้ใช้คนนั้น กรณียังไม่อัปโหลด
+  Widget staticsNotUpload(DataStatics data) {
+    return Column(
+      children: [
+        const SizedBox(height: 20),
+        const Text(
+          "จำนวนรถจักรยานยนต์ที่คุณตรวจจับได้ (ยังไม่อัปโหลด)",
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'ทั้งหมด:',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Container(
+                margin: const EdgeInsets.all(20.0),
+                height: 25.0,
+                width: 80.0,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  color: Colors.white,
+                  // ignore: unnecessary_const
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(0, 2),
+                      blurRadius: 6.0,
+                    ),
+                  ],
+                ),
+                child: Align(
+                    alignment: Alignment.center,
+                    child: Text(data.countRiderNotup.toString()))),
+            const Text(
+              'คัน',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  //สถิติของผู้ใช้คนนั้น กรณีอัปโหลดแล้ว
+  Widget staticsRiderMe(DataStatics data) {
+    return Column(
+      children: [
+        const SizedBox(height: 20),
+        const Text(
+          "จำนวนรถจักรยานยนต์ที่คุณตรวจจับได้ (อัปโหลดแล้ว)",
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 5),
+        displayDataStatics("\t\t\t\tวันนี้", data.countMeRidertoday),
+        displayDataStatics("เดือนนี้", data.countMeRidertomonth),
+        displayDataStatics("ทั้งหมด", data.countMeRidertotal),
+      ],
+    );
+  }
+
+  //สถิติของผู้ใช้ในระบบทั้งหมด
+  Widget staticsRiderAll(DataStatics data) {
+    return Column(
+      children: [
+        const SizedBox(height: 20),
+        const Text(
+          "จำนวนรถจักรยานยนต์ที่ถูกตรวจจับทั้งหมด",
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 5),
+        displayDataStatics("\t\t\t\tวันนี้", data.countAllRidertoday),
+        displayDataStatics("เดือนนี้", data.countAllRidertomonth),
+        displayDataStatics("ทั้งหมด", data.countAllRidertotal),
+      ],
+    );
+  }
+
+  //แสดงข้อมูล รายวัน เดือน ทั้งหมด
+  Widget displayDataStatics(String title, int data) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          '$title:',
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Container(
+            margin: const EdgeInsets.all(8.0),
+            height: 25.0,
+            width: 80.0,
+            decoration: const BoxDecoration(
+              shape: BoxShape.rectangle,
+              color: Colors.white,
+              // ignore: unnecessary_const
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  offset: Offset(0, 2),
+                  blurRadius: 6.0,
+                ),
+              ],
+            ),
+            child: Align(
+                alignment: Alignment.center, child: Text(data.toString()))),
+        const Text(
+          'คัน',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget buildMenuBtn(onPressed, icon, content) {
@@ -371,12 +474,16 @@ class _HomePageState extends State<HomePage> {
       var result = await getDataUser(user_id);
       if (result.pass) {
         var imagename = result.data["data"][0]["image_profile"];
-        String urlImage = "${Constant().domain}/profiles/$imagename";
-        var response = await Dio().get(urlImage);
-        if (response.statusCode == 200) {
-          return urlImage;
+        if (imagename != null) {
+          String urlImage = "${Constant().domain}/profiles/$imagename";
+          var response = await Dio().get(urlImage);
+          if (response.statusCode == 200) {
+            return urlImage;
+          } else {
+            return "false";
+          }
         } else {
-          return "false";
+          return "Error";
         }
       } else {
         return "false";

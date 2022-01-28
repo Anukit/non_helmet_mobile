@@ -132,7 +132,7 @@ class IsolateUtils {
                 destImageRider, //ไฟล์รูปที่ได้จากการแปลง
                 (destImageRider.width / 4).round(), //ค่า x
                 (destImageRider.height / 4).round(), //ค่า y
-                (destImageRider.width / 2).round(), //ค่า w
+                (destImageRider.width / 3).round(), //ค่า w
                 (destImageRider.height / 2).round()); //ค่า h
 
             //ไฟล์ภาพ Class Rider ที่ได้ Crop แล้ว
@@ -154,33 +154,39 @@ class IsolateUtils {
             print("riderImage 1 = $listImgForCheck");
 
             if (listImgForCheck.isNotEmpty) {
-              //เปรียบเทียบภาพ
-              for (var i = 0; i < listImgForCheck.length; i++) {
-                // double checkColorImgs = await compareImages(
-                //     src1: checkImage,
-                //     src2: listImgForCheck[i].img,
-                //     algorithm: IntersectionHistogram(/* ignoreAlpha: true */));
-                double checkColorImgs = await compareImages(
-                    src1: checkImage,
-                    src2: listImgForCheck[i].img,
-                    algorithm: EuclideanColorDistance(ignoreAlpha: true));
+              try {
+                //เปรียบเทียบภาพ
+                for (var i = 0; i < listImgForCheck.length; i++) {
+                  // double checkColorImgs = await compareImages(
+                  //     src1: checkImage,
+                  //     src2: listImgForCheck[i].img,
+                  //     algorithm: IntersectionHistogram(/* ignoreAlpha: true */));
+                  double checkColorImgs = await compareImages(
+                      src1: checkImage,
+                      src2: listImgForCheck[i].img,
+                      algorithm: EuclideanColorDistance(ignoreAlpha: true));
 
-                //สำหรับนำไปตรวจสอบค่า
-                int checkColorImg = (checkColorImgs * 100).round();
-                //สำหรับนำไปโชว์ Tracking
-                showpercentCheck = ((1 - checkColorImgs) * 100).round();
-                print("checkColorImg = $checkColorImg");
+                  //สำหรับนำไปตรวจสอบค่า
+                  int checkColorImg = (checkColorImgs * 100).round();
+                  //สำหรับนำไปโชว์ Tracking
+                  showpercentCheck = ((1 - checkColorImgs) * 100).round();
+                  print("------------checkColorImg---------------");
+                  print("checkColorImg 1 list = ${listImgForCheck.length}");
+                  print("checkColorImg 2 % = $checkColorImg");
+                  print("checkColorImg 3 ID = ${listImgForCheck[i].id}");
 
-                if (checkColorImg < 20) {
-                  avgColorID = listImgForCheck[i].id;
-                  listImgForCheck[i] =
-                      DataImageForCheck(listImgForCheck[i].id, checkImage!);
-                  riderImage = null;
-                  break;
-                } else {
-                  continue;
+                  if (checkColorImg < 20) {
+                    avgColorID = listImgForCheck[i].id;
+                    listImgForCheck[i] =
+                        DataImageForCheck(listImgForCheck[i].id, checkImage!);
+                    riderImage = null;
+                    break;
+                  } else {
+                    continue;
+                  }
                 }
-              }
+                // ignore: empty_catches
+              } catch (e) {}
             }
 
             print("riderImage 2 = $riderImage");
