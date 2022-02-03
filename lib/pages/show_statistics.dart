@@ -89,44 +89,56 @@ class _ShowStatPageState extends State<ShowStatPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'ทั้งหมด:',
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Container(
-                margin: const EdgeInsets.all(20.0),
-                height: 25.0,
-                width: 80.0,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  color: Colors.white,
-                  // ignore: unnecessary_const
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      offset: Offset(0, 2),
-                      blurRadius: 6.0,
+        const SizedBox(height: 15),
+        Card(
+          color: Colors.yellow.shade100,
+          child: Row(
+            children: [
+              const Expanded(
+                  flex: 2,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'ทั้งหมด:',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ],
+                  )),
+              Expanded(
+                  child: Container(
+                      margin: const EdgeInsets.all(8.0),
+                      height: 25.0,
+                      width: 80.0,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        color: Colors.white,
+                        // ignore: unnecessary_const
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 2),
+                            blurRadius: 6.0,
+                          ),
+                        ],
+                      ),
+                      child: Align(
+                          alignment: Alignment.center,
+                          child: Text(data.countRiderNotup.toString())))),
+              const Expanded(
+                child: Text(
+                  'คัน',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                child: Align(
-                    alignment: Alignment.center,
-                    child: Text(data.countRiderNotup.toString()))),
-            const Text(
-              'คัน',
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+              )
+            ],
+          ),
         ),
+        const SizedBox(height: 15),
       ],
     );
   }
@@ -177,85 +189,103 @@ class _ShowStatPageState extends State<ShowStatPage> {
 
   ///แสดงข้อมูล รายวัน เดือน
   Widget displayDataStatics(String title, int data) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          '$title:',
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Container(
-            margin: const EdgeInsets.all(8.0),
-            height: 25.0,
-            width: 80.0,
-            decoration: const BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: Colors.white,
-              // ignore: unnecessary_const
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  offset: Offset(0, 2),
-                  blurRadius: 6.0,
-                ),
-              ],
+    return Card(
+      color: Colors.yellow.shade100,
+      child: Row(
+        children: [
+          Expanded(
+              flex: 2,
+              child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '$title:',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ))),
+          Expanded(
+              child: Container(
+                  margin: const EdgeInsets.all(8.0),
+                  height: 25.0,
+                  width: 80.0,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    color: Colors.white,
+                    // ignore: unnecessary_const
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        offset: Offset(0, 2),
+                        blurRadius: 6.0,
+                      ),
+                    ],
+                  ),
+                  child: Align(
+                      alignment: Alignment.center,
+                      child: Text(data.toString())))),
+          const Expanded(
+              child: Text(
+            'คัน',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
             ),
-            child: Align(
-                alignment: Alignment.center, child: Text(data.toString()))),
-        const Text(
-          'คัน',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
+          ))
+        ],
+      ),
     );
   }
 
   ///แสดงข้อมูล ทั้งหมด
   Widget displayAllStatics(String title, int data) {
-    print("Screen = ${MediaQuery.of(context).size.width}");
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        MediaQuery.of(context).orientation == Orientation.portrait
-            ? SizedBox(width: 17)
-            : SizedBox(width: 222),
-        Text(
-          '$title:',
-          style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
-        ),
-        Container(
-            margin: const EdgeInsets.all(8.0),
-            height: 25.0,
-            width: 80.0,
-            decoration: const BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: Colors.white,
-              // ignore: unnecessary_const
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  offset: Offset(0, 2),
-                  blurRadius: 6.0,
+    return Card(
+      color: Colors.yellow.shade100,
+      child: Row(
+        children: [
+          Expanded(
+              flex: 2,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '$title:',
+                  style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13),
                 ),
-              ],
-            ),
-            child: Align(
-                alignment: Alignment.center, child: Text(data.toString()))),
-        const Text(
-          'คัน',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
+              )),
+          Expanded(
+            child: Container(
+                margin: const EdgeInsets.all(8.0),
+                height: 25.0,
+                width: 80.0,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  color: Colors.white,
+                  // ignore: unnecessary_const
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(0, 2),
+                      blurRadius: 6.0,
+                    ),
+                  ],
+                ),
+                child: Align(
+                    alignment: Alignment.center, child: Text(data.toString()))),
           ),
-        ),
-      ],
+          const Expanded(
+            child: Text(
+              'คัน',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }

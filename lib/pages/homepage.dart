@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
             children: [
               const SizedBox(height: 50),
               SizedBox(
-                height: 180,
+                height: 170,
                 child: FutureBuilder(
                     future: getData(),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -247,51 +247,48 @@ class _HomePageState extends State<HomePage> {
     return Column(
       children: [
         const SizedBox(height: 40),
-        const Text(
-          "จำนวนรถจักรยานยนต์ที่คุณตรวจจับได้ (ยังไม่อัปโหลด)",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'ทั้งหมด:',
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Container(
-                margin: const EdgeInsets.all(20.0),
-                height: 25.0,
-                width: 80.0,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  color: Colors.white,
-                  // ignore: unnecessary_const
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      offset: Offset(0, 2),
-                      blurRadius: 6.0,
-                    ),
-                  ],
+        const Text("จำนวนรถจักรยานยนต์ที่คุณตรวจจับได้ (ยังไม่อัปโหลด)",
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            )),
+        const SizedBox(height: 15),
+        Container(
+            color: Colors.yellow.shade100,
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Text(
+                'ทั้งหมด:',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 ),
-                child: Align(
-                    alignment: Alignment.center,
-                    child: Text(data.countRiderNotup.toString()))),
-            const Text(
-              'คัน',
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
               ),
-            ),
-          ],
-        ),
+              Container(
+                  margin: const EdgeInsets.all(8.0),
+                  height: 25.0,
+                  width: 80.0,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    color: Colors.white,
+                    // ignore: unnecessary_const
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        offset: Offset(0, 2),
+                        blurRadius: 6.0,
+                      ),
+                    ],
+                  ),
+                  child: Align(
+                      alignment: Alignment.center,
+                      child: Text(data.countRiderNotup.toString()))),
+              const Text('คัน',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ))
+            ])),
+        const SizedBox(height: 15),
       ],
     );
   }
@@ -310,6 +307,7 @@ class _HomePageState extends State<HomePage> {
         ),
         const SizedBox(height: 5),
         displayDataStatics("\t\t\t\tวันนี้", data.countMeRidertoday),
+        const SizedBox(height: 5),
         displayDataStatics("เดือนนี้", data.countMeRidertomonth),
         //displayDataStatics("ทั้งหมด", data.countMeRidertotal),
       ],
@@ -330,6 +328,7 @@ class _HomePageState extends State<HomePage> {
         ),
         const SizedBox(height: 5),
         displayDataStatics("\t\t\t\tวันนี้", data.countAllRidertoday),
+        const SizedBox(height: 5),
         displayDataStatics("เดือนนี้", data.countAllRidertomonth),
         //displayDataStatics("ทั้งหมด", data.countAllRidertotal),
       ],
@@ -338,63 +337,74 @@ class _HomePageState extends State<HomePage> {
 
   ///แสดงข้อมูล รายวัน เดือน ทั้งหมด
   Widget displayDataStatics(String title, int data) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          '$title:',
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Container(
-            margin: const EdgeInsets.all(8.0),
-            height: 25.0,
-            width: 80.0,
-            decoration: const BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: Colors.white,
-              // ignore: unnecessary_const
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  offset: Offset(0, 2),
-                  blurRadius: 6.0,
-                ),
-              ],
+    return Container(
+        color: Colors.yellow.shade100,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '$title:',
+              style: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            child: Align(
-                alignment: Alignment.center, child: Text(data.toString()))),
-        const Text(
-          'คัน',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
+            Container(
+                margin: const EdgeInsets.all(8.0),
+                height: 25.0,
+                width: 80.0,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  color: Colors.white,
+                  // ignore: unnecessary_const
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(0, 2),
+                      blurRadius: 6.0,
+                    ),
+                  ],
+                ),
+                child: Align(
+                    alignment: Alignment.center, child: Text(data.toString()))),
+            const Text(
+              'คัน',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ));
   }
 
   ///ปุ่มสำหรับไปหน้าแสดงภาพรวมสถิติทั้งหมด
   Widget btnSeeMoreStat() {
-    return Align(
-        alignment: Alignment.centerRight,
-        child: TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ShowStatPage(dataStat)),
-              );
-            },
-            child: const Text(
-              "ดูเพิ่มเติม",
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
+    return SizedBox(
+      height: 25,
+      child: Align(
+          alignment: Alignment.centerRight,
+          child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ShowStatPage(dataStat)),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                primary: Colors.grey.shade200, // <-- Button color
+                // onPrimary: Colors.red, // <-- Splash color
               ),
-            )));
+              child: const Text(
+                "ดูเพิ่มเติม",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ))),
+    );
   }
 
   Widget buildMenuBtn(onPressed, icon, content) {
