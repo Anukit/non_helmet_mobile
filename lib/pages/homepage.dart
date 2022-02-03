@@ -10,6 +10,7 @@ import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/capture_detection/home_screen_camera.dart';
 import 'package:non_helmet_mobile/pages/edit_profile.dart';
 import 'package:non_helmet_mobile/pages/settings.dart';
+import 'package:non_helmet_mobile/pages/show_statistics.dart';
 import 'package:non_helmet_mobile/pages/upload_Page/upload_home.dart';
 import 'package:non_helmet_mobile/pages/video_page/video_main.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
@@ -28,6 +29,7 @@ class _HomePageState extends State<HomePage> {
   int? countMeRider;
   bool? checkNewvideo;
   bool _running = true;
+  late DataStatics dataStat;
 
   @override
   void initState() {
@@ -130,11 +132,12 @@ class _HomePageState extends State<HomePage> {
             children: [
               const SizedBox(height: 50),
               SizedBox(
-                height: 175,
+                height: 180,
                 child: FutureBuilder(
                     future: getData(),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       if (snapshot.data != null) {
+                        dataStat = snapshot.data;
                         return ListView.builder(
                             scrollDirection: Axis.horizontal,
                             shrinkWrap: true,
@@ -217,7 +220,7 @@ class _HomePageState extends State<HomePage> {
         )));
   }
 
-  //แสดงสถิติ (ส่วนหลัก)
+  ///แสดงสถิติ (ส่วนหลัก)
   Widget displayStatics(int index, DataStatics data) {
     return Container(
         decoration: BoxDecoration(
@@ -233,16 +236,17 @@ class _HomePageState extends State<HomePage> {
                 ? staticsNotUpload(data)
                 : index == 1
                     ? staticsRiderMe(data)
-                    : staticsRiderAll(data)
+                    : staticsRiderAll(data),
+            btnSeeMoreStat()
           ],
         ));
   }
 
-  //สถิติของผู้ใช้คนนั้น กรณียังไม่อัปโหลด
+  ///สถิติของผู้ใช้คนนั้น กรณียังไม่อัปโหลด
   Widget staticsNotUpload(DataStatics data) {
     return Column(
       children: [
-        const SizedBox(height: 20),
+        const SizedBox(height: 40),
         const Text(
           "จำนวนรถจักรยานยนต์ที่คุณตรวจจับได้ (ยังไม่อัปโหลด)",
           style: TextStyle(
@@ -292,7 +296,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //สถิติของผู้ใช้คนนั้น กรณีอัปโหลดแล้ว
+  ///สถิติของผู้ใช้คนนั้น กรณีอัปโหลดแล้ว
   Widget staticsRiderMe(DataStatics data) {
     return Column(
       children: [
@@ -307,18 +311,18 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 5),
         displayDataStatics("\t\t\t\tวันนี้", data.countMeRidertoday),
         displayDataStatics("เดือนนี้", data.countMeRidertomonth),
-        displayDataStatics("ทั้งหมด", data.countMeRidertotal),
+        //displayDataStatics("ทั้งหมด", data.countMeRidertotal),
       ],
     );
   }
 
-  //สถิติของผู้ใช้ในระบบทั้งหมด
+  ///สถิติของผู้ใช้ในระบบทั้งหมด
   Widget staticsRiderAll(DataStatics data) {
     return Column(
       children: [
         const SizedBox(height: 20),
         const Text(
-          "จำนวนรถจักรยานยนต์ที่ถูกตรวจจับทั้งหมด",
+          "จำนวนรถจักรยานยนต์ที่ถูกตรวจจับได้ในระบบ",
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -327,12 +331,12 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 5),
         displayDataStatics("\t\t\t\tวันนี้", data.countAllRidertoday),
         displayDataStatics("เดือนนี้", data.countAllRidertomonth),
-        displayDataStatics("ทั้งหมด", data.countAllRidertotal),
+        //displayDataStatics("ทั้งหมด", data.countAllRidertotal),
       ],
     );
   }
 
-  //แสดงข้อมูล รายวัน เดือน ทั้งหมด
+  ///แสดงข้อมูล รายวัน เดือน ทั้งหมด
   Widget displayDataStatics(String title, int data) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -373,64 +377,88 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  ///ปุ่มสำหรับไปหน้าแสดงภาพรวมสถิติทั้งหมด
+  Widget btnSeeMoreStat() {
+    return Align(
+        alignment: Alignment.centerRight,
+        child: TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ShowStatPage(dataStat)),
+              );
+            },
+            child: const Text(
+              "ดูเพิ่มเติม",
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            )));
+  }
+
   Widget buildMenuBtn(onPressed, icon, content) {
     print("1");
     return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.amber,
-        border: Border.all(color: Colors.black, width: 2.5),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black,
-            offset: Offset(0, 2),
-            blurRadius: 5.0,
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: () async {
-          if (onPressed == 1) {
-            late List<CameraDescription> cameras;
-            try {
-              cameras = await availableCameras();
-            } on CameraException catch (e) {
-              print('Error: $e.code \n Eooro Message: $e.message');
-              cameras = [];
+        decoration: BoxDecoration(
+          //shape: BoxShape.rectangle,
+          //color: Colors.amber,
+          border: Border.all(color: Colors.black, width: 2.5),
+          borderRadius: BorderRadius.circular(10.0),
+          // boxShadow: const [
+          //   BoxShadow(
+          //     color: Colors.black,
+          //     offset: Offset(0, 2),
+          //     blurRadius: 5.0,
+          //   ),
+          // ],
+        ),
+        child: ElevatedButton(
+          onPressed: () async {
+            if (onPressed == 1) {
+              late List<CameraDescription> cameras;
+              try {
+                cameras = await availableCameras();
+              } on CameraException catch (e) {
+                print('Error: $e.code \n Eooro Message: $e.message');
+                cameras = [];
+              }
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => HomeScreen(cameras)));
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => onPressed == 2
+                        ? VideoMain()
+                        : onPressed == 3
+                            ? Upload()
+                            : onPressed == 4
+                                ? SettingPage()
+                                : HomePage()),
+              );
             }
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => HomeScreen(cameras)));
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => onPressed == 2
-                      ? VideoMain()
-                      : onPressed == 3
-                          ? Upload()
-                          : onPressed == 4
-                              ? SettingPage()
-                              : HomePage()),
-            );
-          }
-        },
-        child: Column(
-          children: [
-            icon,
-            Text(
-              "$content",
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-            )
-          ],
-        ),
-        style: ElevatedButton.styleFrom(
-          shape: const CircleBorder(),
-          padding: const EdgeInsets.all(25),
-          // primary: Colors.blue, // <-- Button color
-          // onPrimary: Colors.red, // <-- Splash color
-        ),
-      ),
-    );
+          },
+          child: Column(
+            children: [
+              icon,
+              Text(
+                "$content",
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              )
+            ],
+          ),
+          style: ElevatedButton.styleFrom(
+            //shape: const CircleBorder(),
+            padding: const EdgeInsets.all(25),
+            shape: const BeveledRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+            ),
+            primary: Colors.amber, // <-- Button color
+            // onPrimary: Colors.red, // <-- Splash color
+          ),
+        ));
   }
 
   Widget buildimageAc(onTap) {

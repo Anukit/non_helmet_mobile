@@ -248,6 +248,7 @@ class _CameraState extends State<Camera> {
 
   @override
   void dispose() {
+    ////////////////////ทำหลังจากออกจากหน้าตรวจจับ/////////////////////////
     if (recordVideo == "true" && listCameraimg.isNotEmpty) {
       timeGetFrameImg!.cancel();
       if (readyforRecord == null || readyforRecord == true) {
@@ -271,7 +272,7 @@ class _CameraState extends State<Camera> {
         });
       }
     }
-
+    /////////////////////////////////////////////////////////////////////
     controller?.dispose();
     super.dispose();
   }
