@@ -10,6 +10,8 @@ class ShowStatPage extends StatefulWidget {
 }
 
 class _ShowStatPageState extends State<ShowStatPage> {
+  double? valueWidth;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,6 +55,13 @@ class _ShowStatPageState extends State<ShowStatPage> {
 
   ///แสดงสถิติ (ส่วนหลัก)
   Widget displayStatics(int index, DataStatics data) {
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+      // is portrait
+      valueWidth = MediaQuery.of(context).size.width - 60;
+    } else {
+      // is landscape
+      valueWidth = MediaQuery.of(context).size.width / 2;
+    }
     return Column(
       children: [
         const SizedBox(height: 20),
@@ -91,53 +100,50 @@ class _ShowStatPageState extends State<ShowStatPage> {
         ),
         const SizedBox(height: 15),
         Card(
-          color: Colors.yellow.shade100,
-          child: Row(
-            children: [
-              const Expanded(
-                  flex: 2,
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      'ทั้งหมด:',
+            color: Colors.yellow.shade100,
+            child: SizedBox(
+              width: valueWidth,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    '\t\tทั้งหมด:',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Row(children: [
+                    Container(
+                        margin: const EdgeInsets.all(8.0),
+                        height: 25.0,
+                        width: 80.0,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Colors.white,
+                          // ignore: unnecessary_const
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              offset: Offset(0, 2),
+                              blurRadius: 6.0,
+                            ),
+                          ],
+                        ),
+                        child: Align(
+                            alignment: Alignment.center,
+                            child: Text(data.countRiderNotup.toString()))),
+                    const Text(
+                      'คัน\t\t',
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  )),
-              Expanded(
-                  child: Container(
-                      margin: const EdgeInsets.all(8.0),
-                      height: 25.0,
-                      width: 80.0,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        color: Colors.white,
-                        // ignore: unnecessary_const
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            offset: Offset(0, 2),
-                            blurRadius: 6.0,
-                          ),
-                        ],
-                      ),
-                      child: Align(
-                          alignment: Alignment.center,
-                          child: Text(data.countRiderNotup.toString())))),
-              const Expanded(
-                child: Text(
-                  'คัน',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
+                  ])
+                ],
+              ),
+            )),
         const SizedBox(height: 15),
       ],
     );
@@ -156,10 +162,10 @@ class _ShowStatPageState extends State<ShowStatPage> {
           ),
         ),
         const SizedBox(height: 15),
-        displayDataStatics("\t\t\t\tวันนี้", data.countMeRidertoday),
-        displayDataStatics("เดือนนี้", data.countMeRidertomonth),
-        displayAllStatics(
-            "จำนวนรถจักรยานยนต์\nที่คุณตรวจจับทั้งหมด", data.countMeRidertotal),
+        displayDataStatics("\t\tวันนี้:", data.countMeRidertoday),
+        displayDataStatics("\t\tเดือนนี้:", data.countMeRidertomonth),
+        displayAllStatics("\t\tจำนวนรถจักรยานยนต์\n\t\tที่คุณตรวจจับทั้งหมด:",
+            data.countMeRidertotal),
         const SizedBox(height: 15),
       ],
     );
@@ -178,10 +184,10 @@ class _ShowStatPageState extends State<ShowStatPage> {
           ),
         ),
         const SizedBox(height: 15),
-        displayDataStatics("\t\t\t\tวันนี้", data.countAllRidertoday),
-        displayDataStatics("เดือนนี้", data.countAllRidertomonth),
-        displayAllStatics(
-            "จำนวนรถจักรยานยนต์\nในระบบทั้งหมด", data.countAllRidertotal),
+        displayDataStatics("\t\tวันนี้:", data.countAllRidertoday),
+        displayDataStatics("\t\tเดือนนี้:", data.countAllRidertomonth),
+        displayAllStatics("\t\tจำนวนรถจักรยานยนต์\n\t\tในระบบทั้งหมด:",
+            data.countAllRidertotal),
         const SizedBox(height: 15),
       ],
     );
@@ -190,22 +196,70 @@ class _ShowStatPageState extends State<ShowStatPage> {
   ///แสดงข้อมูล รายวัน เดือน
   Widget displayDataStatics(String title, int data) {
     return Card(
-      color: Colors.yellow.shade100,
-      child: Row(
-        children: [
-          Expanded(
-              flex: 2,
-              child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    '$title:',
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
+        color: Colors.yellow.shade100,
+        child: SizedBox(
+          width: valueWidth,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Row(children: [
+                Container(
+                    margin: const EdgeInsets.all(8.0),
+                    height: 25.0,
+                    width: 80.0,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      color: Colors.white,
+                      // ignore: unnecessary_const
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 6.0,
+                        ),
+                      ],
                     ),
-                  ))),
-          Expanded(
-              child: Container(
+                    child: Align(
+                        alignment: Alignment.center,
+                        child: Text(data.toString()))),
+                const Text(
+                  'คัน\t\t',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+              ])
+            ],
+          ),
+        ));
+  }
+
+  ///แสดงข้อมูล ทั้งหมด
+  Widget displayAllStatics(String title, int data) {
+    return Card(
+        color: Colors.yellow.shade100,
+        child: SizedBox(
+          width: valueWidth,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13),
+              ),
+              Row(children: [
+                Container(
                   margin: const EdgeInsets.all(8.0),
                   height: 25.0,
                   width: 80.0,
@@ -223,69 +277,18 @@ class _ShowStatPageState extends State<ShowStatPage> {
                   ),
                   child: Align(
                       alignment: Alignment.center,
-                      child: Text(data.toString())))),
-          const Expanded(
-              child: Text(
-            'คัน',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ))
-        ],
-      ),
-    );
-  }
-
-  ///แสดงข้อมูล ทั้งหมด
-  Widget displayAllStatics(String title, int data) {
-    return Card(
-      color: Colors.yellow.shade100,
-      child: Row(
-        children: [
-          Expanded(
-              flex: 2,
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '$title:',
-                  style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13),
+                      child: Text(data.toString())),
                 ),
-              )),
-          Expanded(
-            child: Container(
-                margin: const EdgeInsets.all(8.0),
-                height: 25.0,
-                width: 80.0,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  color: Colors.white,
-                  // ignore: unnecessary_const
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      offset: Offset(0, 2),
-                      blurRadius: 6.0,
-                    ),
-                  ],
-                ),
-                child: Align(
-                    alignment: Alignment.center, child: Text(data.toString()))),
+                const Text(
+                  'คัน\t\t',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+              ])
+            ],
           ),
-          const Expanded(
-            child: Text(
-              'คัน',
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          )
-        ],
-      ),
-    );
+        ));
   }
 }
