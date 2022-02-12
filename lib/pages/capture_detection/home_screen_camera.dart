@@ -54,13 +54,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   setRecognitions(recognitions, imageHeight, imageWidth, dataForTrack) {
-    setState(() {
-      _recognitions = recognitions;
-      _imageHeight = imageHeight;
-      _imageWidth = imageWidth;
-      _dataForTrack = dataForTrack;
-      print("test = $dataForTrack");
-    });
+    if (mounted) {
+      setState(() {
+        _recognitions = recognitions;
+        _imageHeight = imageHeight;
+        _imageWidth = imageWidth;
+        _dataForTrack = dataForTrack;
+        // print("test = $dataForTrack");
+      });
+    }
   }
 
   @override

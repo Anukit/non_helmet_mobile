@@ -108,7 +108,7 @@ class _SettingCameraState extends State<SettingCamera> {
               children: <Widget>[
                 const SizedBox(height: 10.0),
                 dnResolution(),
-                const SizedBox(height: 15.0),
+                const SizedBox(height: 5.0),
                 swAutoUpload(),
                 const SizedBox(height: 15.0),
                 swRecordVideo(),
@@ -131,38 +131,32 @@ class _SettingCameraState extends State<SettingCamera> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const SizedBox(width: 10.0),
-        Container(
-          width: 100,
-          decoration: const BoxDecoration(
-              border: Border(
-            bottom: BorderSide(width: 1.0, color: Colors.black),
-          )),
-          child: DropdownButtonHideUnderline(
-            child: new DropdownButton<Resolution>(
-              underline: Container(
-                height: 2,
-                color: Colors.deepPurpleAccent,
-              ),
-              //isExpanded: true,
-              hint: const Text('กรุณาเลือก'),
-              value: valueRes,
-              onChanged: (value) {
-                setState(() {
-                  valueRes = value!;
-                });
-                print("valueRes = ${valueRes!.id}");
-              },
-              items: resolution.map((Resolution persontypes) {
-                return new DropdownMenuItem<Resolution>(
-                  value: persontypes,
-                  child: new Text(
-                    persontypes.name,
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                );
-              }).toList(),
-            ),
+        DropdownButton<Resolution>(
+          value: valueRes,
+          // elevation: 16,
+          // style: const TextStyle(color: Colors.black),
+          underline: Container(
+            height: 2,
+            color: Colors.black,
           ),
+          onChanged: (Resolution? newValue) {
+            setState(() {
+              valueRes = newValue!;
+            });
+            print("valueRes = ${valueRes!.id}");
+          },
+          items: resolution.map((Resolution resValue) {
+            return new DropdownMenuItem<Resolution>(
+              value: resValue,
+              child: new Text(
+                resValue.name,
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
+              ),
+            );
+          }).toList(),
         )
       ],
     );
