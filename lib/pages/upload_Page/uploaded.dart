@@ -125,10 +125,8 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                                 margin: const EdgeInsets.symmetric(
                                   vertical: 5,
                                 ),
-                                child: Text("วันที่"
-                                        " " +
-                                    formatDateDatabase(
-                                        listDataImg[index]["update_at"]))),
+                                child: Text(formatDateDatabase(
+                                    listDataImg[index]["update_at"]))),
                             const Text("วันที่ตรวจจับ",
                                 style: TextStyle(
                                     color: Colors.black,
@@ -137,10 +135,8 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                                 textAlign: TextAlign.left),
                             Container(
                                 margin: const EdgeInsets.symmetric(vertical: 5),
-                                child: Text("วันที่"
-                                        " " +
-                                    formatDateDatabase(
-                                        listDataImg[index]["detection_at"]))),
+                                child: Text(formatDateDatabase(
+                                    listDataImg[index]["detection_at"]))),
                             const Text("ละติจูด, ลองติจูด",
                                 style: TextStyle(
                                     color: Colors.black,

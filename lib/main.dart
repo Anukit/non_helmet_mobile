@@ -1,20 +1,13 @@
 // ignore_for_file: empty_catches, unused_catch_clause, avoid_print
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
-
-//late List<CameraDescription> cameras;
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
+  Intl.defaultLocale = 'th';
   WidgetsFlutterBinding.ensureInitialized();
-  //await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]); ตั้งค่าการวางแนวแอปตามแนวโทรศัพท์
-  // try {
-  //   cameras = await availableCameras();
-  // } on CameraException catch (e) {
-  //   print('Error: $e.code \n Eooro Message: $e.message');
-  // }
   runApp(const MyApp());
 }
 
@@ -24,6 +17,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('th', 'TH'), // Thai
+        ],
         debugShowCheckedModeBanner: true,
         title: 'Non Helmet Detection',
         theme: ThemeData(
