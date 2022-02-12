@@ -371,8 +371,7 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                                   return Container(
                                       margin: const EdgeInsets.symmetric(
                                           vertical: 10),
-                                      child: Text("วันที่" " " +
-                                          formatDate(snapshot.data)));
+                                      child: Text(formatDate(snapshot.data)));
                                 } else {
                                   return const CircularProgressIndicator();
                                 }

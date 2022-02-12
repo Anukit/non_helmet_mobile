@@ -20,8 +20,11 @@ import 'package:image/image.dart' as imglib;
 String formatDate(dateTime) {
   try {
     DateTime date = DateTime.parse(dateTime);
-    String formattedDate = DateFormat('dd-MM-yyyy เวลา HH:mm').format(date);
-    return formattedDate;
+    DateTime datetimeTH =
+        DateTime(date.year + 543, date.month, date.day, date.hour, date.minute);
+    String dateString = DateFormat("dd MMM yyyy เวลา HH:mm").format(datetimeTH);
+
+    return dateString;
   } catch (e) {
     return "ไม่สามารถแสดงวันที่ได้";
   }
@@ -32,18 +35,11 @@ String formatDateDatabase(dateTime) {
   try {
     DateTime dateNew =
         DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(dateTime).toLocal();
+    DateTime datetimeTH = DateTime(dateNew.year + 543, dateNew.month,
+        dateNew.day, dateNew.hour, dateNew.minute);
+    String dateString = DateFormat("dd MMM yyyy เวลา HH:mm").format(datetimeTH);
 
-    return dateNew.day.toString() +
-        '-' +
-        dateNew.month.toString() +
-        '-' +
-        dateNew.year.toString() +
-        ' ' +
-        'เวลา' +
-        ' ' +
-        dateNew.hour.toString() +
-        ':' +
-        dateNew.minute.toString();
+    return dateString;
   } catch (e) {
     return "ไม่สามารถแสดงวันที่ได้";
   }
@@ -184,7 +180,8 @@ Future<dynamic> getDataSetting() async {
 PositionImage imagePosition(IsolateData listdata, listRecogClass) {
   print("imagePosition");
   CameraImage image = listdata.cameraImage; //ไฟล์รูปจาก CameraImage
-  List<dynamic>? recognitions = listdata.recognitions; //ข้อมูลที่ได้จากการตรวจจับ
+  List<dynamic>? recognitions =
+      listdata.recognitions; //ข้อมูลที่ได้จากการตรวจจับ
   Size? screen = listdata.screen; //ขนาดจอ
   int rotation_detect = listdata.rotation_value; //ลิสสำหรับเก็บค่าเฉลี่ยสี
   int? previewH = math.max(image.height, image.width);
