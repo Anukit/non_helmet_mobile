@@ -133,7 +133,8 @@ class _HomePageState extends State<HomePage> {
             children: [
               const SizedBox(height: 50),
               SizedBox(
-                height: 180,
+                // color: Colors.amber,
+                height: 190,
                 child: FutureBuilder(
                     future: getData(),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -150,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                       }
                     }),
               ),
-              const Divider(height: 5),
+              // const Divider(height: 5),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 50.0),
                 child: Row(
@@ -225,18 +226,13 @@ class _HomePageState extends State<HomePage> {
   Widget displayStatics(int index, DataStatics data) {
     if (MediaQuery.of(context).orientation == Orientation.portrait) {
       // is portrait
-      valueWidth = MediaQuery.of(context).size.width - 50;
+      valueWidth = MediaQuery.of(context).size.width - 70;
     } else {
       // is landscape
       valueWidth = MediaQuery.of(context).size.width / 2;
     }
-    return Container(
-        decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            border: Border.all(
-              color: Colors.black,
-            ),
-            borderRadius: const BorderRadius.all(Radius.circular(20))),
+    return SizedBox(
+        // color: Colors.amber,
         width: MediaQuery.of(context).size.width,
         child: Column(
           children: [
@@ -245,115 +241,147 @@ class _HomePageState extends State<HomePage> {
                 : index == 1
                     ? staticsRiderMe(data)
                     : staticsRiderAll(data),
-            btnSeeMoreStat(),
           ],
         ));
   }
 
   ///สถิติของผู้ใช้คนนั้น กรณียังไม่อัปโหลด
   Widget staticsNotUpload(DataStatics data) {
-    return Column(
-      children: [
-        const SizedBox(height: 35),
-        const Text("จำนวนรถจักรยานยนต์ที่คุณตรวจจับได้ (ยังไม่อัปโหลด)",
-            style: TextStyle(
+    return Container(
+        margin: const EdgeInsets.fromLTRB(10, 20, 10, 10),
+        width: MediaQuery.of(context).size.width - 20,
+        height: 160,
+        decoration: const BoxDecoration(
+          color: Color.fromRGBO(62, 73, 122, 1),
+          // border: Border.all(
+          //   color: Colors.black,
+          // ),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
               color: Colors.black,
-              fontWeight: FontWeight.bold,
-            )),
-        const SizedBox(height: 10),
-        Card(
-            color: Colors.yellow.shade100,
-            child: SizedBox(
-                width: valueWidth,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        '\t\tทั้งหมด:',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Row(children: [
-                        Container(
-                            margin: const EdgeInsets.all(8.0),
-                            height: 25.0,
-                            width: 80.0,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              color: Colors.white,
-                              // ignore: unnecessary_const
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  offset: Offset(0, 2),
-                                  blurRadius: 6.0,
-                                ),
-                              ],
-                            ),
-                            child: Align(
-                                alignment: Alignment.center,
-                                child: Text(data.countRiderNotup.toString()))),
-                        const Text('คัน\t\t',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ))
-                      ])
-                    ]))),
-      ],
-    );
+              // offset: Offset(0, 2),
+              blurRadius: 10.0,
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            const Text("จำนวนรถจักรยานยนต์ที่คุณตรวจจับได้",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                )),
+            const Text("(ยังไม่อัปโหลด)",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                )),
+            const SizedBox(height: 10),
+            displayDataStatics("\t\tทั้งหมด", data.countRiderNotup),
+            btnSeeMoreStat(),
+            showIconNavi(0)
+          ],
+        ));
   }
 
   ///สถิติของผู้ใช้คนนั้น กรณีอัปโหลดแล้ว
   Widget staticsRiderMe(DataStatics data) {
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        const Text(
-          "จำนวนรถจักรยานยนต์ที่คุณตรวจจับได้ (อัปโหลดแล้ว)",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
+    return Container(
+        margin: const EdgeInsets.fromLTRB(10, 20, 10, 10),
+        width: MediaQuery.of(context).size.width - 20,
+        height: 160,
+        decoration: const BoxDecoration(
+          color: Color.fromRGBO(62, 73, 122, 1),
+          // border: Border.all(
+          //   color: Colors.black,
+          // ),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black,
+              // offset: Offset(0, 2),
+              blurRadius: 10.0,
+            ),
+          ],
         ),
-        const SizedBox(height: 5),
-        displayDataStatics("วันนี้:\t\t\t\t", data.countMeRidertoday),
-        displayDataStatics("เดือนนี้:", data.countMeRidertomonth),
-        //displayDataStatics("ทั้งหมด", data.countMeRidertotal),
-      ],
-    );
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            const Text(
+              "จำนวนรถจักรยานยนต์ที่คุณตรวจจับได้",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Text(
+              "(อัปโหลดแล้ว)",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            // displayDataStatics("วันนี้:\t\t\t\t", data.countMeRidertoday),
+            // displayDataStatics("เดือนนี้:", data.countMeRidertomonth),
+            displayDataStatics("\t\tทั้งหมด", data.countMeRidertotal),
+            btnSeeMoreStat(),
+            showIconNavi(1)
+          ],
+        ));
   }
 
   ///สถิติของผู้ใช้ในระบบทั้งหมด
   Widget staticsRiderAll(DataStatics data) {
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        const Text(
-          "จำนวนรถจักรยานยนต์ที่ถูกตรวจจับได้ในระบบ",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
+    return Container(
+        margin: const EdgeInsets.fromLTRB(10, 20, 10, 10),
+        width: MediaQuery.of(context).size.width - 20,
+        height: 160,
+        decoration: const BoxDecoration(
+          color: Color.fromRGBO(62, 73, 122, 1),
+          // border: Border.all(
+          //   color: Colors.black,
+          // ),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black,
+              // offset: Offset(0, 2),
+              blurRadius: 10.0,
+            ),
+          ],
         ),
-        const SizedBox(height: 5),
-        displayDataStatics("วันนี้:\t\t\t\t", data.countAllRidertoday),
-        displayDataStatics("เดือนนี้:", data.countAllRidertomonth),
-        //displayDataStatics("ทั้งหมด", data.countAllRidertotal),
-      ],
-    );
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            const Text(
+              "จำนวนรถจักรยานยนต์ที่ถูกตรวจจับได้ในระบบ",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            // displayDataStatics("วันนี้:\t\t\t\t", data.countAllRidertoday),
+            // displayDataStatics("เดือนนี้:", data.countAllRidertomonth),
+            displayDataStatics("\t\tทั้งหมด", data.countAllRidertotal),
+            btnSeeMoreStat(),
+            const SizedBox(height: 8.25),
+            showIconNavi(2)
+          ],
+        ));
   }
 
   ///แสดงข้อมูล รายวัน เดือน ทั้งหมด
   Widget displayDataStatics(String title, int data) {
     return Card(
-        color: Colors.yellow.shade100,
+        color: Colors.grey[350],
         child: SizedBox(
             width: valueWidth,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   title,
@@ -383,7 +411,7 @@ class _HomePageState extends State<HomePage> {
                           alignment: Alignment.center,
                           child: Text(data.toString()))),
                   const Text(
-                    'คัน',
+                    'คัน\t\t',
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -411,18 +439,42 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.grey.shade200, // <-- Button color
+                    primary: Colors.amber, // <-- Button color
                     // onPrimary: Colors.red, // <-- Splash color
                   ),
                   child: const Text(
                     "ดูเพิ่มเติม",
                     style: TextStyle(
-                      color: Colors.red,
+                      color: Color.fromRGBO(33, 50, 94, 1),
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
                   ))),
         ));
+  }
+
+  //ไอคอน 3 จุดสำหรับแสดงว่าตอนนี้อยู่ tab ไหน
+  Widget showIconNavi(int i) {
+    return SizedBox(
+        height: 1,
+        child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: 3,
+            itemBuilder: (context, index) {
+              return index == i
+                  ? const Icon(
+                      Icons.fiber_manual_record,
+                      size: 15,
+                      color: Colors.amber,
+                    )
+                  : const Icon(
+                      Icons.fiber_manual_record_outlined,
+                      size: 15,
+                      color: Colors.white,
+                    );
+            }));
   }
 
   Widget buildMenuBtn(onPressed, icon, content) {
@@ -431,15 +483,15 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           //shape: BoxShape.rectangle,
           //color: Colors.amber,
-          border: Border.all(color: Colors.black, width: 2.5),
+          // border: Border.all(color: Colors.black, width: 2.5),
           borderRadius: BorderRadius.circular(10.0),
-          // boxShadow: const [
-          //   BoxShadow(
-          //     color: Colors.black,
-          //     offset: Offset(0, 2),
-          //     blurRadius: 5.0,
-          //   ),
-          // ],
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black,
+              offset: Offset(0, 2),
+              blurRadius: 5.0,
+            ),
+          ],
         ),
         child: ElevatedButton(
           onPressed: () async {
