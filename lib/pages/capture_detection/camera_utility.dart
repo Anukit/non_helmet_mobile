@@ -182,15 +182,16 @@ class _CameraState extends State<Camera> {
                 if (recognitions!.isNotEmpty) {
                   if (i == 0) {
                     i = 1;
+                    print("Datetime process 1 = ${DateTime.now()}");
                     inference(IsolateData(img, recognitions, screen!,
                             listDataImg, rotation_value))
                         .then((value) {
-                      print("value = $value");
                       if (value.isNotEmpty) {
                         //print("listAvgColors = ${value[0].averageColor} 2");
                         //print("data track = ${value[0].dataforTrack}");
                         listDataForTrack = value[0].dataforTrack;
                         listDataImg = value[0].listdataImg;
+                        print("Datetime process 2 = ${DateTime.now()}");
 
                         if (value[0].dataImage.isNotEmpty) {
                           // print("ListColorss = ${value[0].listAvgColor}");
@@ -200,12 +201,14 @@ class _CameraState extends State<Camera> {
                               uploadDatectedImage(
                                   user_id,
                                   value[0].dataImage[i].riderImg,
-                                  value[0].dataImage[i].license_plateImg);
+                                  value[0].dataImage[i].license_plateImg,
+                                  value[0].dataImage[i].datetimeDetected);
                             } else {
                               saveImageDetect(
                                   user_id,
                                   value[0].dataImage[i].riderImg,
-                                  value[0].dataImage[i].license_plateImg);
+                                  value[0].dataImage[i].license_plateImg,
+                                  value[0].dataImage[i].datetimeDetected);
                             }
                           }
                         }
@@ -221,7 +224,7 @@ class _CameraState extends State<Camera> {
                   listDataForTrack = [];
                 }
                 //////////////////////////////////////////////////////////////////
-                endTime = DateTime.now().millisecondsSinceEpoch;
+                // endTime = DateTime.now().millisecondsSinceEpoch;
                 // print("Detection took ${endTime - startTime}ms");
                 // print("listDataForTrack = $listDataForTrack 2");
                 widget.setRecognitions(

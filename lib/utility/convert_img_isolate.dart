@@ -62,7 +62,8 @@ class IsolateUtils {
       for (var i = 0; i < recognitions.length; i++) {
         if (recognitions[i]["detectedClass"] == "Rider") {
           //recogNew.add(recognitions[i]);
-          recogNew.add(ModelTflite(recognitions[i], null, null));
+          recogNew.add(ModelTflite(recognitions[i], null, null,
+              DateTime.now().millisecondsSinceEpoch));
         }
       }
 
@@ -79,11 +80,14 @@ class IsolateUtils {
                 // print("recognitions : ${recognitions[y]}");
                 if (recognitions[y]["detectedClass"] == "None-helmet") {
                   recogNew[i] = ModelTflite(recogNew[i].rider, recognitions[y],
-                      recogNew[i].license_plate);
+                      recogNew[i].license_plate, recogNew[i].dateDetected);
                 } else if (recognitions[y]["detectedClass"] ==
                     "License-plate") {
                   recogNew[i] = ModelTflite(
-                      recogNew[i].rider, recogNew[i].helmet, recognitions[y]);
+                      recogNew[i].rider,
+                      recogNew[i].helmet,
+                      recognitions[y],
+                      recogNew[i].dateDetected);
                 }
               }
             }
@@ -157,6 +161,16 @@ class IsolateUtils {
               try {
                 //เปรียบเทียบภาพ
                 for (var i = 0; i < listImgForCheck.length; i++) {
+                  //วันเวลาสำหรับเช็คว่าภาพ Crop ที่จะนำไปใช้ในการตรวจสอบอยู่เก็บไว้นานเกิน 2 นาทีหรือยัง
+                  DateTime datetimeCheck = listImgForCheck[i]
+                      .datetimeDetected
+                      .add(const Duration(minutes: 2));
+
+                  //เช็คเวลา Crop มาเกินเวลาที่กำหนดหรือยังหรือยัง
+                  if (datetimeCheck.isBefore(DateTime.now())) {
+                    listImgForCheck.removeAt(i);
+                    continue;
+                  }
                   // double checkColorImgs = await compareImages(
                   //     src1: checkImage,
                   //     src2: listImgForCheck[i].img,
@@ -177,8 +191,10 @@ class IsolateUtils {
 
                   if (checkColorImg < 20) {
                     avgColorID = listImgForCheck[i].id;
-                    listImgForCheck[i] =
-                        DataImageForCheck(listImgForCheck[i].id, checkImage!);
+                    listImgForCheck[i] = DataImageForCheck(
+                        listImgForCheck[i].id,
+                        checkImage!,
+                        listImgForCheck[i].datetimeDetected);
                     riderImage = null;
                     break;
                   } else {
@@ -210,8 +226,8 @@ class IsolateUtils {
               var licensePlateImg =
                   imglib.encodeJpg(destImagesLicense) as Uint8List?;
 
-              listDataImage
-                  .add(DataDetectedImage(checkImage!, licensePlateImg!));
+              listDataImage.add(DataDetectedImage(
+                  checkImage!, licensePlateImg!, recogNew[i].dateDetected));
 
               dataforTrack.add({
                 "id": listImgForCheck.length + 1,
@@ -219,8 +235,11 @@ class IsolateUtils {
                 "confidenceTracking": showpercentCheck ??= 100
               });
 
-              listImgForCheck.add(
-                  DataImageForCheck(listImgForCheck.length + 1, checkImage));
+              listImgForCheck.add(DataImageForCheck(
+                  listImgForCheck.length + 1,
+                  checkImage,
+                  DateTime.fromMillisecondsSinceEpoch(
+                      recogNew[i].dateDetected)));
             } else {
               listDataImage = [];
 

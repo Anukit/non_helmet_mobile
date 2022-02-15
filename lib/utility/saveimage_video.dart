@@ -12,15 +12,16 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:image/image.dart' as imglib;
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<void> saveImageDetect(
-    int user_id, Uint8List riderImg, Uint8List licenseImg) async {
+Future<void> saveImageDetect(int user_id, Uint8List riderImg,
+    Uint8List licenseImg, int datetimeDetect) async {
   print("saveImageDetect");
   //รับพิกัด
   var position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high);
   final exif = dd.FlutterExif.fromBytes(riderImg);
   await exif.setLatLong(position.latitude, position.longitude);
-  await exif.setAttribute("DateTimeOriginal", DateTime.now().toString());
+  await exif.setAttribute("DateTimeOriginal",
+      DateTime.fromMillisecondsSinceEpoch(datetimeDetect).toString());
   await exif.saveAttributes();
 
   final modifiedImage = await exif.imageData;

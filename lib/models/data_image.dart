@@ -17,7 +17,8 @@ class DataImage {
 class ListResultImage {
   List<DataDetectedImage> dataImage; //ลิสรูปภาพที่ได้จากการตรวจจับ
   //List<DataAveColor> listAvgColor; //ลิสค่าเฉลี่ยสีของรูปภาพ
-  List<DataImageForCheck> listdataImg; //ลิสเก็บภาพ rider เพื่อนำไปตรวจสอบ ทำ Tracking
+  List<DataImageForCheck>
+      listdataImg; //ลิสเก็บภาพ rider เพื่อนำไปตรวจสอบ ทำ Tracking
   List<dynamic> dataforTrack;
 
   ListResultImage(this.dataImage, this.listdataImg, this.dataforTrack);
@@ -26,7 +27,9 @@ class ListResultImage {
 class DataDetectedImage {
   Uint8List riderImg;
   Uint8List license_plateImg;
-  DataDetectedImage(this.riderImg, this.license_plateImg);
+  int datetimeDetected;
+  DataDetectedImage(
+      this.riderImg, this.license_plateImg, this.datetimeDetected);
 }
 
 class DataAveColor {
@@ -38,5 +41,6 @@ class DataAveColor {
 class DataImageForCheck {
   int id;
   Uint8List img;
-  DataImageForCheck(this.id, this.img);
+  DateTime datetimeDetected;
+  DataImageForCheck(this.id, this.img, this.datetimeDetected);
 }

@@ -38,6 +38,7 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
   bool selectData = false;
   bool selectAll = false; //สำหรับเลือกไฟล์ทั้งหมด
   late int user_id;
+  bool loadData = false;
   // ใส่เพื่อเมื่อสลับหน้า(Tab) ให้ใช้ข้อมูลเดิมที่เคยโหลดแล้ว ไม่ต้องโหลดใหม่
   @override
   bool get wantKeepAlive => true;
@@ -65,6 +66,7 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
           }
         }
       }
+      loadData = true;
     });
   }
 
@@ -151,19 +153,21 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
       body: SafeArea(
           child: Stack(
         children: [
-          listimg.isNotEmpty
-              ? ListView.builder(
-                  // scrollDirection: Axis.horizontal,
-                  //shrinkWrap: true,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: listimg.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return buildDataImage(index);
-                  },
-                )
-              : const Center(
-                  child: Text("ไม่มีรูปภาพ"),
-                ),
+          loadData
+              ? listimg.isNotEmpty
+                  ? ListView.builder(
+                      // scrollDirection: Axis.horizontal,
+                      //shrinkWrap: true,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: listimg.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return buildDataImage(index);
+                      },
+                    )
+                  : const Center(
+                      child: Text("ไม่มีรูปภาพ"),
+                    )
+              : const Center(child: CircularProgressIndicator()),
           selectData
               ? Positioned(
                   bottom: 35.0,
@@ -418,7 +422,20 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                               value: listSelectimg.contains(listimg[index])
                                   ? true
                                   : false,
-                              onChanged: (value) {}))
+                              onChanged: (value) {
+                                if (selectAll) {
+                                  selectAll = false;
+                                }
+                                if (listSelectimg.contains(listimg[index])) {
+                                  setState(() {
+                                    listSelectimg.remove(listimg[index]);
+                                  });
+                                } else {
+                                  setState(() {
+                                    listSelectimg.add(listimg[index]);
+                                  });
+                                }
+                              }))
                       : Container()
                 ],
               ),

@@ -90,10 +90,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             const SizedBox(
                               height: 30,
                             ),
-                            buildAcceptCheckbox(),
-                            const SizedBox(
-                              height: 30,
-                            ),
+                            // buildAcceptCheckbox(),
+                            // const SizedBox(
+                            //   height: 30,
+                            // ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [backbt(), summitbt()],
@@ -370,7 +370,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   late int user_id;
   Future<void> postdataUser() async {
-    if (_acceptRegis) {
+    // if (_acceptRegis) {
       ShowloadDialog().showLoading(context);
       try {
         var result = await registerUser({
@@ -395,9 +395,9 @@ class _RegisterPageState extends State<RegisterPage> {
         }
         // ignore: empty_catches
       } catch (e) {}
-    } else {
-      normalDialog(context, "กรุณากดยอมรับข้อตกลง");
-    }
+    // } else {
+    //   normalDialog(context, "กรุณากดยอมรับข้อตกลง");
+    // }
   }
 
   Future<void> reqOTP() async {
