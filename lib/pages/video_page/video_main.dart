@@ -27,6 +27,8 @@ class _VideoMainState extends State<VideoMain> {
   bool selectData = false;
   bool selectAll = false; //สำหรับเลือกไฟล์ทั้งหมด
   late int user_id;
+  bool loadData = false;
+  bool loadnewVideo = false;
   @override
   void initState() {
     super.initState();
@@ -61,6 +63,7 @@ class _VideoMainState extends State<VideoMain> {
           }
         }
       }
+      loadData = true;
     });
     print("listVideo = ${listVideo}");
   }
@@ -84,6 +87,7 @@ class _VideoMainState extends State<VideoMain> {
         yield ((photoList.length * 100) / listFrameImg);
       }
     }
+    loadnewVideo = true;
   }
 
   @override
@@ -151,19 +155,21 @@ class _VideoMainState extends State<VideoMain> {
           const SizedBox(
             height: 10,
           ),
-          listVideo.isNotEmpty && listVideo != null
-              ? ListView.builder(
-                  // scrollDirection: Axis.horizontal,
-                  //shrinkWrap: true,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: listVideo.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return buildVideoList(index);
-                  },
-                )
-              : const Center(
-                  child: Text("ไม่มีวิดีโอ"),
-                ),
+          loadData && loadnewVideo
+              ? listVideo.isNotEmpty && listVideo != null
+                  ? ListView.builder(
+                      // scrollDirection: Axis.horizontal,
+                      //shrinkWrap: true,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: listVideo.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return buildVideoList(index);
+                      },
+                    )
+                  : const Center(
+                      child: Text("ไม่มีวิดีโอ"),
+                    )
+              : const Center(child: CircularProgressIndicator()),
           StreamBuilder(
             stream: showloadingVideo(),
             builder: (context, AsyncSnapshot<double> snapshot) {
@@ -266,9 +272,9 @@ class _VideoMainState extends State<VideoMain> {
         .last
         .split('.')
         .first;
-    var dateTime =
+    String dateTime =
         DateTime.fromMillisecondsSinceEpoch(int.parse(dateString)).toString();
-    return Text("วันที่" " " + formatDate(dateTime));
+    return Text(formatDate(dateTime));
   }
 
   Widget buildVideoList(int index) {
@@ -372,7 +378,20 @@ class _VideoMainState extends State<VideoMain> {
                         value: listSelectVideo.contains(listVideo[index])
                             ? true
                             : false,
-                        onChanged: (value) {}))
+                        onChanged: (value) {
+                          if (selectAll) {
+                            selectAll = false;
+                          }
+                          if (listSelectVideo.contains(listVideo[index])) {
+                            setState(() {
+                              listSelectVideo.remove(listVideo[index]);
+                            });
+                          } else {
+                            setState(() {
+                              listSelectVideo.add(listVideo[index]);
+                            });
+                          }
+                        }))
                 : Container()
           ],
         ),

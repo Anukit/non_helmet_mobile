@@ -5,12 +5,14 @@ import 'package:geolocator/geolocator.dart';
 import 'package:non_helmet_mobile/modules/constant.dart';
 
 ///อัปโหลดรูปภาพที่ถูกตรวจจับ class rider และ class license plate
-Future<void> uploadDatectedImage(
-    int userID, Uint8List fileImgRider, Uint8List fileImgLicense) async {
+Future<void> uploadDatectedImage(int userID, Uint8List fileImgRider,
+    Uint8List fileImgLicense, int datetimeDetect) async {
   print("uploadDatectedImage");
   String uploadurl = "${Constant().domain}/DetectedImage/uploadImage";
 
   int genName = DateTime.now().millisecondsSinceEpoch;
+  DateTime convertDatetimeDetect =
+      DateTime.fromMillisecondsSinceEpoch(datetimeDetect);
   DateTime datenow = DateTime.now();
   //รับพิกัด
   var position = await Geolocator.getCurrentPosition(
@@ -30,7 +32,7 @@ Future<void> uploadDatectedImage(
     "datetime": datenow.toString(),
     "latitude": position.latitude,
     "longitude": position.longitude,
-    "detection_at": datenow.toString(),
+    "detection_at": convertDatetimeDetect.toString(),
   });
 
   Response response = await Dio().post(

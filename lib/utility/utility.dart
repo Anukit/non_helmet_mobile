@@ -17,7 +17,7 @@ import 'dart:math' as math;
 import 'package:image/image.dart' as imglib;
 
 ///แปลงรูปแบบวันที่
-String formatDate(dateTime) {
+String formatDate(String dateTime) {
   try {
     DateTime date = DateTime.parse(dateTime);
     DateTime datetimeTH =
@@ -31,7 +31,7 @@ String formatDate(dateTime) {
 }
 
 ///แปลงรูปแบบวันที่จากฐานข้อมูล
-String formatDateDatabase(dateTime) {
+String formatDateDatabase(String dateTime) {
   try {
     DateTime dateNew =
         DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(dateTime).toLocal();

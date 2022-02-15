@@ -29,6 +29,7 @@ class _MyPage extends StatefulWidget {
 class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
   List<dynamic> listDataImg = [];
   // ใส่เพื่อเมื่อสลับหน้า(Tab) ให้ใช้ข้อมูลเดิมที่เคยโหลดแล้ว ไม่ต้องโหลดใหม่
+  bool loadData = false;
   @override
   bool get wantKeepAlive => true;
   @override
@@ -49,6 +50,7 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
             listDataImg = result.data["data"];
             listDataImg
                 .sort((a, b) => b["update_at"].compareTo(a["update_at"]));
+            loadData = true;
           });
         }
       }
@@ -59,19 +61,21 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: listDataImg.isNotEmpty
-              ? ListView.builder(
-                  // scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: listDataImg.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return buildDataImage(index);
-                  },
-                )
-              : const Center(
-                  child: Text("ไม่มีรูปภาพ"),
-                )),
+          child: loadData
+              ? listDataImg.isNotEmpty
+                  ? ListView.builder(
+                      // scrollDirection: Axis.horizontal,
+                      shrinkWrap: true,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: listDataImg.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return buildDataImage(index);
+                      },
+                    )
+                  : const Center(
+                      child: Text("ไม่มีรูปภาพ"),
+                    )
+              : const Center(child: CircularProgressIndicator())),
     );
   }
 
