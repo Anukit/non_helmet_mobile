@@ -116,7 +116,7 @@ Future<void> zoomPictureDialog(BuildContext context, file, int type) async {
     pageBuilder: (_, __, ___) {
       // Makes widget fullscreen
       return SizedBox.expand(
-        child: Column(
+        child: Stack(
           children: <Widget>[
             Expanded(
               flex: 5,
@@ -142,6 +142,12 @@ Future<void> zoomPictureDialog(BuildContext context, file, int type) async {
                           )),
               )),
             ),
+            Positioned(
+              top: 25,
+              child: TextButton(
+                  child: const Icon(Icons.cancel, color: Colors.white),
+                  onPressed: () => Navigator.of(context).pop()),
+            )
           ],
         ),
       );
