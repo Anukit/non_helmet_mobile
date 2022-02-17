@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:non_helmet_mobile/widgets/dialog_otp.dart';
+import 'package:non_helmet_mobile/widgets/load_dialog.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -10,7 +12,7 @@ Future<void> normalDialog(BuildContext context, String message) async {
       title: Text(
         message,
         style: const TextStyle(
-          fontSize: 17,
+          fontSize: 15,
         ),
       ),
       children: <Widget>[
@@ -152,5 +154,45 @@ Future<void> zoomPictureDialog(BuildContext context, file, int type) async {
         ),
       );
     },
+  );
+}
+
+Future<void> dialogOTP_login(
+    BuildContext context, int user_id, String email) async {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => SimpleDialog(
+      title: const Text(
+        "อีเมลนี้ยังไม่ได้ยืนยันตัวตน\nกรุณายืนยัน OTP",
+        style: TextStyle(fontSize: 15),
+      ),
+      children: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            TextButton(
+              child: Text(
+                "ตกลง",
+                style: TextStyle(fontSize: 15, color: Colors.amber.shade700),
+              ),
+              onPressed: () {
+                ShowloadDialog().showLoading(context);
+                reqOTP(context, user_id, email, 3);
+              },
+            ),
+            TextButton(
+              child: const Text(
+                "ยกเลิก",
+                style: TextStyle(fontSize: 15, color: Colors.red),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        )
+      ],
+    ),
   );
 }

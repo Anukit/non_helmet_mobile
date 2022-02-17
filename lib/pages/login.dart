@@ -255,6 +255,8 @@ class _Login_PageState extends State<Login_Page> {
           normalDialog(context, "อีเมลไม่ถูกต้อง");
         } else if (listdata["data"] == "Incorrect password") {
           normalDialog(context, "รหัสผ่านไม่ถูกต้อง");
+        } else if (listdata["data"] == "Email is not verified") {
+          dialogOTP_login(context, listdata["userID"], profiles.email!);
         }
       }
     } catch (e) {}
