@@ -81,6 +81,8 @@ class _SettingPageState extends State<SettingPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               const SizedBox(height: 10.0),
+              buildEmailUser(),
+              const SizedBox(height: 20.0),
               buildSettingCamera(),
               const SizedBox(height: 10.0),
               buildEditProfile(),
@@ -88,12 +90,13 @@ class _SettingPageState extends State<SettingPage> {
               buildChangePw(),
               // const SizedBox(height: 10.0),
               // buildFeedb(),
-              const SizedBox(height: 10.0),
-              buildAbout(),
+              // const SizedBox(height: 10.0),
+              // buildAbout(),
               const SizedBox(height: 250.0),
-              buildAcc(),
               // const SizedBox(height: 10.0),
               // buildReport(),
+              const SizedBox(height: 10.0),
+              buildEmailAdmin(),
               const SizedBox(height: 20.0),
               buildLogout()
             ],
@@ -278,33 +281,63 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   //แสดงอีเมลผู้ใช้
-  Widget buildAcc() {
+  Widget buildEmailUser() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+            padding: const EdgeInsets.symmetric(vertical: 2.5),
+            width: double.infinity,
+            child: Row(children: [
+              const Text(
+                'บัญชีผู้ใช้:\t',
+                style: TextStyle(fontSize: 15),
+              ),
+              // const SizedBox(w: 10.0),
+              FutureBuilder(
+                future: getData(),
+                //initialData: InitialData,
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    return Column(children: [
+                      Container(height: 2),
+                      Text(
+                        "${snapshot.data}", //แสดงอีเมลผู้ใช้งาน
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors
+                              .grey.shade600, /* fontWeight: FontWeight.bold */
+                        ),
+                      )
+                    ]);
+                  } else {
+                    return const Text("กรุณารอสักครู่");
+                  }
+                },
+              ),
+            ]))
+      ],
+    );
+  }
+
+  //แสดงอีเมลผู้พัฒนา
+  Widget buildEmailAdmin() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'บัญชีผู้ใช้',
+          'ติดต่อผู้ดูแลระบบ:',
           style: TextStyle(fontSize: 15),
         ),
         Container(
           padding: EdgeInsets.symmetric(vertical: 2.5),
           width: double.infinity,
-          child: FutureBuilder(
-            future: getData(),
-            //initialData: InitialData,
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.hasData) {
-                return Text(
-                  "${snapshot.data}", //แสดงอีเมลผู้ใช้งาน
-                  style: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold),
-                );
-              } else {
-                return const Text("กรุณารอสักครู่");
-              }
-            },
+          child: Text(
+            "non.helmet@gmail.com",
+            style: TextStyle(
+              fontSize: 15,
+              color: Colors.grey.shade600, /* fontWeight: FontWeight.bold */
+            ),
           ),
         )
       ],

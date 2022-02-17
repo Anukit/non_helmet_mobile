@@ -6,6 +6,7 @@ import 'package:non_helmet_mobile/pages/upload_Page/google_map.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import "package:http/http.dart" as http;
 
 class Uploaded extends StatelessWidget {
   Uploaded();
@@ -47,9 +48,11 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
       if (result.pass) {
         if (result.data["status"] == "Succeed") {
           setState(() {
-            listDataImg = result.data["data"];
-            listDataImg
-                .sort((a, b) => b["update_at"].compareTo(a["update_at"]));
+            if (result.data["data"].length > 0) {
+              listDataImg = result.data["data"];
+              listDataImg
+                  .sort((a, b) => b["update_at"].compareTo(a["update_at"]));
+            }
             loadData = true;
           });
         }
@@ -197,13 +200,26 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
   }
 
   Future<Widget> displayPicture(index) async {
-    return Image.network(
-      "${Constant().domain}/detectedImage/${listDataImg[index]["image_detection"]}",
-      width: 150.0,
-      height: 150.0,
-      //scale: 16.0,
-      fit: BoxFit.contain,
-    );
+    try {
+      var url =
+          "${Constant().domain}/detectedImage/${listDataImg[index]["image_detection"]}";
+      var result = await http.get(Uri.parse(url));
+      if (result.statusCode == 200) {
+        return Image.network(
+          "${Constant().domain}/detectedImage/${listDataImg[index]["image_detection"]}",
+          width: 150.0,
+          height: 150.0,
+          //scale: 16.0,
+          fit: BoxFit.contain,
+        );
+      } else {
+        return const Text("ไม่สามารถโหลดรูปได้",
+            style: TextStyle(color: Colors.black, fontSize: 12));
+      }
+    } catch (e) {
+      return const Text("ไม่สามารถโหลดรูป",
+          style: TextStyle(color: Colors.black, fontSize: 12));
+    }
   }
 
   Future<String> getStatusImg(index) async {

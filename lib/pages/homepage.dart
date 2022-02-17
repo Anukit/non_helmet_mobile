@@ -569,7 +569,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
                 image: DecorationImage(
-                    image: NetworkImage("${snapshot.data}"), fit: BoxFit.fill),
+                    image: NetworkImage("${snapshot.data}"), fit: BoxFit.cover),
               ),
             );
           } else if (snapshot.data == "Error") {

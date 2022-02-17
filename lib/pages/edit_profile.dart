@@ -145,8 +145,14 @@ class _EditProfileState extends State<EditProfile> {
                 ? FutureBuilder(
                     future: getImageDB(),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      print("snapshot.data = ${snapshot.data}");
-                      print("snapshot.hasError = ${snapshot.hasError}");
+                      // print("snapshot.data = ${snapshot.data}");
+                      // print("snapshot.hasError = ${snapshot.hasError}");
+                      // print("snapshot.hasData = ${snapshot.connectionState}");
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircleAvatar(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
                       if (snapshot.hasError) {
                         return const CircleAvatar();
                       }
@@ -168,7 +174,7 @@ class _EditProfileState extends State<EditProfile> {
                             ],
                             image: DecorationImage(
                                 image: NetworkImage("${snapshot.data}"),
-                                fit: BoxFit.fill),
+                                fit: BoxFit.cover),
                           ),
                         );
                       } else if (snapshot.data == "Error") {
@@ -310,7 +316,7 @@ class _EditProfileState extends State<EditProfile> {
         return "Error";
       }
     } else {
-      return "false";
+      return "Error";
     }
   }
 
