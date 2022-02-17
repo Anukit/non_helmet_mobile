@@ -132,14 +132,14 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         onPressed: () {
           formKey.currentState!.save();
           if (formKey.currentState!.validate()) {
-            reqOTP();
+            _reqOTP();
           }
         },
       ),
     );
   }
 
-  Future<void> reqOTP() async {
+  Future<void> _reqOTP() async {
     ShowloadDialog().showLoading(context);
     try {
       var result = await req_OTP({
@@ -161,25 +161,30 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     } catch (e) {}
   }
 
-  Future<void> checkOTP() async {
+  Future<void> _checkOTP() async {
     ShowloadDialog().showLoading(context);
     try {
-      var result = await check_OTP({
-        "otp": otpUser,
-        "user_id": 0,
-        "email": profiles.email,
-        "type": 2,
-        "datetime": DateTime.now().toString()
-      });
-      if (result.pass) {
-        Navigator.of(context, rootNavigator: true).pop();
-        if (result.data["status"] == "Succeed") {
-          dialogCreatePW();
-        } else if (result.data["data"] == "Invalid OTP") {
-          normalDialog(context, "รหัส OTP ไม่ถูกต้อง");
-        } else {
-          normalDialog(context, "หมดเวลาส่ง OTP กรุณาขอ OTP ใหม่อีกครั้ง");
+      if (otpUser != "") {
+        var result = await check_OTP({
+          "otp": otpUser,
+          "user_id": 0,
+          "email": profiles.email,
+          "type": 2,
+          "datetime": DateTime.now().toString()
+        });
+        if (result.pass) {
+          Navigator.of(context, rootNavigator: true).pop();
+          if (result.data["status"] == "Succeed") {
+            dialogCreatePW();
+          } else if (result.data["data"] == "Invalid OTP") {
+            normalDialog(context, "รหัส OTP ไม่ถูกต้อง");
+          } else {
+            normalDialog(context, "หมดเวลาส่ง OTP กรุณาขอ OTP ใหม่อีกครั้ง");
+          }
         }
+      } else {
+        Navigator.of(context, rootNavigator: true).pop();
+        normalDialog(context, "กรุณากรอก OTP");
       }
     } catch (e) {}
   }
@@ -190,39 +195,52 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       barrierDismissible: false,
       builder: (context) => SimpleDialog(
         title: const Text(
-          'กรอกรหัส OTP ที่ได้รับใน 5 นาที',
+          'กรุณากรอก OTP ที่ได้รับจากอีเมลของคุณภายใน 5 นาที',
           style: TextStyle(
-            fontSize: 17,
+            fontSize: 15,
           ),
         ),
         children: <Widget>[
           SingleChildScrollView(
-              child: Container(
-            padding: const EdgeInsets.all(10),
-            child: TextFormField(
-              keyboardType: TextInputType.number,
-              style: const TextStyle(fontSize: 18),
-              decoration: InputDecoration(
-                labelText: 'รหัส OTP',
-                labelStyle:
-                    TextStyle(fontSize: 18, color: Colors.grey.shade600),
-                fillColor: Colors.white,
-                errorStyle: const TextStyle(color: Colors.red, fontSize: 14),
-                prefixIcon: const Icon(
-                  Icons.email,
-                  color: Colors.grey,
-                ),
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10),
+              child: Column(children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: TextFormField(
+                keyboardType: TextInputType.number,
+                style: const TextStyle(fontSize: 18),
+                decoration: InputDecoration(
+                  labelText: 'รหัส OTP',
+                  labelStyle:
+                      TextStyle(fontSize: 18, color: Colors.grey.shade600),
+                  fillColor: Colors.white,
+                  errorStyle: const TextStyle(color: Colors.red, fontSize: 14),
+                  prefixIcon: const Icon(
+                    Icons.email,
+                    color: Colors.grey,
+                  ),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10),
+                    ),
                   ),
                 ),
+                onChanged: (value) {
+                  otpUser = value;
+                },
               ),
-              onChanged: (value) {
-                otpUser = value;
+            ),
+            TextButton(
+              child: const Text('ขอ OTP อีกครั้ง',
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange)),
+              style: TextButton.styleFrom(fixedSize: const Size.fromHeight(10)),
+              onPressed: () {
+                _reqOTP();
               },
             ),
-          )),
+          ])),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -238,7 +256,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     ),
                   ),
                   onPressed: () {
-                    checkOTP();
+                    _checkOTP();
                   },
                 ),
               ),
