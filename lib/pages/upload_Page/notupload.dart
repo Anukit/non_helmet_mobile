@@ -54,18 +54,22 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
     //ไฟล์รูป
     setState(() {
       List<FileSystemEntity> _photoLists = dir.listSync();
-      List<FileSystemEntity> _photoList = List.from(_photoLists.reversed);
 
-      if (user_id != 0) {
-        for (var i = 0; i < _photoList.length; i++) {
-          String userIDFromFile =
-              _photoList[i].path.split('/').last.split('_').first;
+      if (_photoLists.isNotEmpty) {
+        List<FileSystemEntity> _photoList = List.from(_photoLists.reversed);
 
-          if (user_id.toString() == userIDFromFile) {
-            listimg.add(FileDetectImg(i + 1, _photoList[i]));
+        if (user_id != 0) {
+          for (var i = 0; i < _photoList.length; i++) {
+            String userIDFromFile =
+                _photoList[i].path.split('/').last.split('_').first;
+
+            if (user_id.toString() == userIDFromFile) {
+              listimg.add(FileDetectImg(i + 1, _photoList[i]));
+            }
           }
         }
       }
+
       loadData = true;
     });
   }
