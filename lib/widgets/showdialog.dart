@@ -41,7 +41,7 @@ Future<void> succeedDialog(
       title: Text(
         message,
         style: const TextStyle(
-          fontSize: 17,
+          fontSize: 15,
         ),
       ),
       children: <Widget>[
