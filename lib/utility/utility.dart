@@ -35,7 +35,7 @@ String formatDateDatabase(String dateTime) {
   try {
     print("dateTime = ${dateTime}");
     DateTime dateNew =
-        DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(dateTime).toLocal();
+        DateFormat("yyyy-MM-ddTHH:mm:ssZ").parse(dateTime).toLocal();
     print("dateNew = ${dateNew}");
     DateTime datetimeTH = DateTime(dateNew.year + 543, dateNew.month,
         dateNew.day, dateNew.hour, dateNew.minute);

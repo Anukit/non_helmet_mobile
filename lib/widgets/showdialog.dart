@@ -120,30 +120,30 @@ Future<void> zoomPictureDialog(BuildContext context, file, int type) async {
       return SizedBox.expand(
         child: Stack(
           children: <Widget>[
-            Expanded(
-              flex: 5,
-              child: SizedBox.expand(
-                  child: Center(
-                child: InteractiveViewer(
-                    panEnabled: true, // Set it to false
-                    boundaryMargin: const EdgeInsets.all(100),
-                    minScale: 0.5,
-                    maxScale: 2,
-                    child: type == 1
-                        ? Image.file(
-                            file,
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height,
-                            fit: BoxFit.contain,
-                          )
-                        : Image.network(
-                            file,
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height,
-                            fit: BoxFit.contain,
-                          )),
-              )),
-            ),
+            /*     Expanded(
+              flex: 5, */
+            /* child: */ SizedBox.expand(
+                child: Center(
+              child: InteractiveViewer(
+                  panEnabled: true, // Set it to false
+                  boundaryMargin: const EdgeInsets.all(100),
+                  minScale: 0.5,
+                  maxScale: 2,
+                  child: type == 1
+                      ? Image.file(
+                          file,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          fit: BoxFit.contain,
+                        )
+                      : Image.network(
+                          file,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          fit: BoxFit.contain,
+                        )),
+            )),
+            /*   ), */
             Positioned(
               top: 25,
               child: TextButton(
