@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
           Locale('th', 'TH'), // Thai
         ],
         debugShowCheckedModeBanner: true,
-        title: 'Non Helmet Detection',
+        title: 'None Helmet Detection',
         theme: ThemeData(
           primarySwatch: Colors.amber,
           //fontFamily: 'NotoSansThai'

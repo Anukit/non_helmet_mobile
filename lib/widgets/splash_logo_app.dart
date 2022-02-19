@@ -36,8 +36,8 @@ class _SplashPageState extends State<SplashPage> {
     return SplashScreenView(
       navigateRoute: user_id != 0 ? HomePage() : Login_Page(),
       duration: 3000,
-      imageSize: 200,
-      imageSrc: "assets/images/LogoApp.png",
+      imageSize: 300,
+      imageSrc: "assets/images/logoSplash.png",
       backgroundColor: Colors.white,
     );
   }

@@ -42,16 +42,16 @@ class _Login_PageState extends State<Login_Page> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
                     Text(
-                      "Helmet",
+                      "None Helmet",
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 25,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(width: 10),
+                    SizedBox(width: 6),
                     Text(
-                      "Capture",
+                      "Detection",
                       style: TextStyle(
                         color: Colors.amber,
                         fontSize: 25,

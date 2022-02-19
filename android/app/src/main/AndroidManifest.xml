@@ -35,7 +35,7 @@
 </queries>
    <application
         android:requestLegacyExternalStorage="true"
-        android:label="Non Helmet Detection"
+        android:label="None Helmet Detection"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

@@ -34,10 +34,10 @@ class _RegisterPageState extends State<RegisterPage> {
             Column(
               children: const [
                 Text(
-                  'Helmet',
+                  'None Helmet',
                   style: TextStyle(color: Colors.black),
                 ),
-                Text('Capture', style: TextStyle(color: Colors.white)),
+                Text('Detection', style: TextStyle(color: Colors.white)),
               ],
             )
           ],

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/models/data_statics.dart';
 import 'package:non_helmet_mobile/modules/constant.dart';
@@ -16,6 +15,7 @@ import 'package:non_helmet_mobile/pages/video_page/video_main.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import "package:http/http.dart" as http;
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -107,11 +107,11 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
                   Text(
-                    'Helmet',
+                    'None Helmet',
                     style: TextStyle(color: Colors.black),
                   ),
                   Text(
-                    'Capture',
+                    'Detection',
                     style: TextStyle(color: Colors.white),
                   )
                 ],
@@ -594,11 +594,11 @@ class _HomePageState extends State<HomePage> {
         var imagename = result.data["data"][0]["image_profile"];
         if (imagename != null) {
           String urlImage = "${Constant().domain}/profiles/$imagename";
-          var response = await Dio().get(urlImage);
+          var response = await http.get(Uri.parse(urlImage));
           if (response.statusCode == 200) {
             return urlImage;
           } else {
-            return "false";
+            return "Error";
           }
         } else {
           return "Error";

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +10,7 @@ import 'package:non_helmet_mobile/pages/homepage.dart';
 import 'package:non_helmet_mobile/widgets/load_dialog.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import "package:http/http.dart" as http;
 
 class EditProfile extends StatefulWidget {
   EditProfile({Key? key}) : super(key: key);
@@ -304,13 +304,13 @@ class _EditProfileState extends State<EditProfile> {
   Future<String> getImageDB() async {
     print("getImageDB");
     if (imageName != "") {
-      String urlImage = "${Constant().domain}/profiles/${imageName}";
-      var response = await Dio().get(urlImage);
       try {
+        String urlImage = "${Constant().domain}/profiles/${imageName}";
+        var response = await http.get(Uri.parse(urlImage));
         if (response.statusCode == 200) {
           return urlImage;
         } else {
-          return "false";
+          return "Error";
         }
       } catch (e) {
         return "Error";
