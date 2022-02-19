@@ -227,7 +227,7 @@ class IsolateUtils {
                   imglib.encodeJpg(destImagesLicense) as Uint8List?;
 
               listDataImage.add(DataDetectedImage(
-                  checkImage!, licensePlateImg!, recogNew[i].dateDetected));
+                  riderImage, licensePlateImg!, recogNew[i].dateDetected));
 
               dataforTrack.add({
                 "id": listImgForCheck.length + 1,
@@ -237,7 +237,7 @@ class IsolateUtils {
 
               listImgForCheck.add(DataImageForCheck(
                   listImgForCheck.length + 1,
-                  checkImage,
+                  checkImage!,
                   DateTime.fromMillisecondsSinceEpoch(
                       recogNew[i].dateDetected)));
             } else {
