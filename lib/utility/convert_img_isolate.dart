@@ -192,9 +192,7 @@ class IsolateUtils {
                   if (checkColorImg < 20) {
                     avgColorID = listImgForCheck[i].id;
                     listImgForCheck[i] = DataImageForCheck(
-                        listImgForCheck[i].id,
-                        checkImage!,
-                        listImgForCheck[i].datetimeDetected);
+                        listImgForCheck[i].id, checkImage!, DateTime.now());
                     riderImage = null;
                     break;
                   } else {
