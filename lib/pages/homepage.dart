@@ -31,14 +31,27 @@ class _HomePageState extends State<HomePage> {
   bool _running = true;
   double? valueWidth;
   late DataStatics dataStat;
+  var dataSetting;
 
   @override
   void initState() {
     super.initState();
-    checkInternet(context);
+    checkInternet(context).then((value) {
+      if (value == 0) {
+        normalDialog(context, "กรุณาตรวจสอบอินเทอร์เน็ต");
+      } else {}
+    });
     permissionCamera()
         .then((value) => !value ? settingPermissionDialog(context) : null);
+    getSetting();
     //getData();
+  }
+
+  getSetting() async {
+    var listSetting = await getDataSetting();
+    setState(() {
+      dataSetting = listSetting;
+    });
   }
 
   Future<DataStatics?> getData() async {
@@ -496,15 +509,26 @@ class _HomePageState extends State<HomePage> {
         child: ElevatedButton(
           onPressed: () async {
             if (onPressed == 1) {
-              late List<CameraDescription> cameras;
-              try {
-                cameras = await availableCameras();
-              } on CameraException catch (e) {
-                print('Error: $e.code \n Eooro Message: $e.message');
-                cameras = [];
+              int statusInternet = await checkInternet(context);
+              if (dataSetting != null) {
+                if (statusInternet == 0 &&
+                    dataSetting["autoUpload"] == "true") {
+                  normalDialog(context,
+                      "ไม่สามารถใช้งานอัปโหลดอัตโนมัติได้\nกรุณาตรวจสอบอินเทอร์เน็ต");
+                } else {
+                  late List<CameraDescription> cameras;
+                  try {
+                    cameras = await availableCameras();
+                  } on CameraException catch (e) {
+                    print('Error: $e.code \n Eooro Message: $e.message');
+                    cameras = [];
+                  }
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => HomeScreen(cameras)));
+                }
               }
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => HomeScreen(cameras)));
             } else {
               Navigator.push(
                 context,

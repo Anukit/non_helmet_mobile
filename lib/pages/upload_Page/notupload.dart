@@ -470,9 +470,15 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                       color: Colors.amber.shade900,
                       fontWeight: FontWeight.bold),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (type == 1) {
-                    uploadDetectedImage(listdataimg);
+                    int statusInternet = await checkInternet(context);
+                    if (statusInternet != 0) {
+                      uploadDetectedImage(listdataimg);
+                    } else {
+                      normalDialog(context,
+                          "ไม่สามารถอัปโหลดได้\nกรุณาตรวจสอบอินเทอร์เน็ต");
+                    }
                   } else {
                     deleteFile(listdataimg);
                   }

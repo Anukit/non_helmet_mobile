@@ -11,6 +11,7 @@ import 'package:non_helmet_mobile/utility/convert_img_isolate.dart';
 import 'package:non_helmet_mobile/utility/saveimage_video.dart';
 import 'package:non_helmet_mobile/utility/upload_detect_image.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
+import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite/tflite.dart';
 import 'dart:math' as math;
@@ -198,11 +199,19 @@ class _CameraState extends State<Camera> {
                           // print("Listimage = ${value[0].dataImage}");
                           for (var i = 0; i < value[0].dataImage.length; i++) {
                             if (autoUpload == "true") {
-                              uploadDatectedImage(
-                                  user_id,
-                                  value[0].dataImage[i].riderImg,
-                                  value[0].dataImage[i].license_plateImg,
-                                  value[0].dataImage[i].datetimeDetected);
+                              //เช็คอินเทอร์เน็ต
+                              checkInternet(context).then((status) {
+                                if (status != 0) {
+                                  uploadDatectedImage(
+                                      user_id,
+                                      value[0].dataImage[i].riderImg,
+                                      value[0].dataImage[i].license_plateImg,
+                                      value[0].dataImage[i].datetimeDetected);
+                                } else {
+                                  dialogAuto(context,
+                                      "ไม่สามารถอัปโหลดได้\nกรุณาตรวจสอบอินเทอร์เน็ต");
+                                }
+                              });
                             } else {
                               saveImageDetect(
                                   user_id,
