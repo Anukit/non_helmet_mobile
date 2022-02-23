@@ -12,7 +12,7 @@ Future<void> normalDialog(BuildContext context, String message) async {
       title: Text(
         message,
         style: const TextStyle(
-          fontSize: 15,
+          fontSize: 14,
         ),
       ),
       children: <Widget>[
@@ -27,6 +27,29 @@ Future<void> normalDialog(BuildContext context, String message) async {
             ),
           ],
         )
+      ],
+    ),
+  );
+}
+
+Future<void> dialogAuto(BuildContext context, String message) async {
+  Future.delayed(const Duration(seconds: 3), () {
+    Navigator.of(context).pop();
+  });
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => SimpleDialog(
+      children: [
+        Center(
+          child: Text(
+            message,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ],
     ),
   );

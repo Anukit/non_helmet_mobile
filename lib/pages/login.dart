@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:non_helmet_mobile/models/profile.dart';
+import 'package:non_helmet_mobile/models/setting_camera_modetl.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/pages/forgot_password.dart';
 import 'package:non_helmet_mobile/pages/homepage.dart';
@@ -251,6 +254,7 @@ class _Login_PageState extends State<Login_Page> {
         if (listdata["status"] == "Succeed") {
           int user_id = listdata["data"][0]["id"];
           setUserData(user_id);
+          settingList();
         } else if (listdata["data"] == "Invalid email") {
           normalDialog(context, "อีเมลไม่ถูกต้อง");
         } else if (listdata["data"] == "Incorrect password") {
@@ -272,5 +276,13 @@ class _Login_PageState extends State<Login_Page> {
         MaterialPageRoute(builder: (context) => HomePage()),
       );
     }
+  }
+
+  Future<void> settingList() async {
+    final prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> maps =
+        SettingCam("1", "true", "false", "true", "true").toJson();
+    String json = jsonEncode(maps);
+    prefs.setString("listSetting", json);
   }
 }

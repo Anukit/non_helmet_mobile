@@ -107,18 +107,20 @@ Future<Directory> checkDirectory(String folderName) async {
   }
 }
 
-///เช็คเน็ต
-checkInternet(context) async {
+///เช็คเน็ต return 1 = Mobile, 2 = Wifi, 3 = No internet
+Future<int> checkInternet(context) async {
   var connectivityResult = await (Connectivity().checkConnectivity());
   if (connectivityResult == ConnectivityResult.mobile) {
     print("I am connected to a mobile network.");
+    return 1;
     // I am connected to a mobile network.
   } else if (connectivityResult == ConnectivityResult.wifi) {
     // I am connected to a wifi network.
     print("I am connected to a wifi network.");
+    return 2;
   } else {
     print("No net");
-    normalDialog(context, "กรุณาตรวจสอบอินเทอร์เน็ต");
+    return 0;
   }
 }
 
