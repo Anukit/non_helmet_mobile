@@ -378,7 +378,8 @@ class _RegisterPageState extends State<RegisterPage> {
         "firstname": profiles.firstname,
         "lastname": profiles.lastname,
         "password": profiles.password,
-        "datetime": DateTime.now().toString()
+        "datetime": DateTime.now().toString(),
+        "role": 1
       });
       if (result.pass) {
         var listdata = result.data;
