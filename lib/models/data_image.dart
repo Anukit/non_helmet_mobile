@@ -42,5 +42,8 @@ class DataImageForCheck {
   int id;
   Uint8List img;
   DateTime datetimeDetected;
-  DataImageForCheck(this.id, this.img, this.datetimeDetected);
+  int active;
+  int totalNum; //จำนวนทั้งหมดรวมตัวที่ถูกลบด้วย
+  DataImageForCheck(
+      this.id, this.img, this.datetimeDetected, this.active, this.totalNum);
 }

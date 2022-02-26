@@ -38,234 +38,265 @@ class IsolateUtils {
     sendPort.send(port.sendPort);
 
     await for (final IsolateData isolateData in port) {
-      print("convertImage");
-      ////////////////////////ตัวแปร////////////////////////////////////////
-      //ไฟล์รูปจาก CameraImage
-      CameraImage image = isolateData.cameraImage;
-      //ข้อมูลที่ได้จากการตรวจจับ
-      List<dynamic>? recognitions = isolateData.recognitions;
-      //ลิสสำหรับเก็บภาพสำหรับนำไปเช็คค่า ทำ Tracking
-      List<DataImageForCheck> listImgForCheck = isolateData.listDataImgForCheck;
-      //ตัวแปรหมุนจอ
-      int rotation_detect = isolateData.rotation_value;
+      try {
+        print("convertImage");
+        ////////////////////////ตัวแปร////////////////////////////////////////
+        //ไฟล์รูปจาก CameraImage
+        CameraImage image = isolateData.cameraImage;
+        //ข้อมูลที่ได้จากการตรวจจับ
+        List<dynamic>? recognitions = isolateData.recognitions;
+        //ลิสสำหรับเก็บภาพสำหรับนำไปเช็คค่า ทำ Tracking
+        List<DataImageForCheck> listImgForCheck =
+            isolateData.listDataImgForCheck;
+        //ตัวแปรหมุนจอ
+        int rotation_detect = isolateData.rotation_value;
 
-      List<DataDetectedImage> listDataImage = []; //ลิสเก็บข้อมูลรูปภาพ
-      List<ListResultImage> listresult = []; //ลิสคำตอบที่จะรีเทิร์นกลับ
-      List<ModelTflite> recogNew = []; //ลิสค่า Recognition ใหม่
-      List<dynamic> dataforTrack = []; //ลิสเก็บข้อมูลไปแสดง Tracking
-      int? showpercentCheck;
-      int? avgColorID;
-      int countlistAvg = listImgForCheck.length;
-      /////////////////////////////////////////////////////////////////////
+        List<DataDetectedImage> listDataImage = []; //ลิสเก็บข้อมูลรูปภาพ
+        List<ListResultImage> listresult = []; //ลิสคำตอบที่จะรีเทิร์นกลับ
+        List<ModelTflite> recogNew = []; //ลิสค่า Recognition ใหม่
+        List<dynamic> dataforTrack = []; //ลิสเก็บข้อมูลไปแสดง Tracking
+        int? showpercentCheck;
+        int? avgColorID;
+        int countlistAvg = listImgForCheck.length;
+        //จำนวนข้อมูลที่มีในลิสที่ใช้ตรวจสอบรวมตัวที่ถูกลบด้วย
+        int total_num = 0;
+        /////////////////////////////////////////////////////////////////////
 
-      //รูปกรณีมีมากกว่า 1 คันใน 1 ภาพ
-      for (var i = 0; i < recognitions.length; i++) {
-        if (recognitions[i]["detectedClass"] == "Rider") {
-          //recogNew.add(recognitions[i]);
-          recogNew.add(ModelTflite(recognitions[i], null, null,
-              DateTime.now().millisecondsSinceEpoch));
+        //รูปกรณีมีมากกว่า 1 คันใน 1 ภาพ
+        for (int i = 0; i < recognitions.length; i++) {
+          if (recognitions[i]["detectedClass"] == "Rider") {
+            //recogNew.add(recognitions[i]);
+            recogNew.add(ModelTflite(recognitions[i], null, null,
+                DateTime.now().millisecondsSinceEpoch));
+          }
         }
-      }
 
-      //ตรวจสอบคลาส
-      if (recogNew.isNotEmpty) {
-        for (var i = 0; i < recogNew.length; i++) {
-          // print("recogNew : ${recogNew[i]}");
-          for (var y = 0; y < recognitions.length; y++) {
-            if (recognitions[y]["detectedClass"] != "Rider") {
-              double resultCheck = isObject(recogNew[i].rider, recognitions[y]);
-              //print("resultCheck = $resultCheck");
-              if (resultCheck > 0.02) {
-                // print("recogNew : ${recogNew[i]}");
-                // print("recognitions : ${recognitions[y]}");
-                if (recognitions[y]["detectedClass"] == "None-helmet") {
-                  recogNew[i] = ModelTflite(recogNew[i].rider, recognitions[y],
-                      recogNew[i].license_plate, recogNew[i].dateDetected);
-                } else if (recognitions[y]["detectedClass"] ==
-                    "License-plate") {
-                  recogNew[i] = ModelTflite(
-                      recogNew[i].rider,
-                      recogNew[i].helmet,
-                      recognitions[y],
-                      recogNew[i].dateDetected);
+        //ตรวจสอบคลาส
+        if (recogNew.isNotEmpty) {
+          for (int i = 0; i < recogNew.length; i++) {
+            // print("recogNew : ${recogNew[i]}");
+            for (int y = 0; y < recognitions.length; y++) {
+              if (recognitions[y]["detectedClass"] != "Rider") {
+                double resultCheck =
+                    isObject(recogNew[i].rider, recognitions[y]);
+                //print("resultCheck = $resultCheck");
+                if (resultCheck > 0.02) {
+                  // print("recogNew : ${recogNew[i]}");
+                  // print("recognitions : ${recognitions[y]}");
+                  if (recognitions[y]["detectedClass"] == "None-helmet") {
+                    recogNew[i] = ModelTflite(
+                        recogNew[i].rider,
+                        recognitions[y],
+                        recogNew[i].license_plate,
+                        recogNew[i].dateDetected);
+                  } else if (recognitions[y]["detectedClass"] ==
+                      "License-plate") {
+                    recogNew[i] = ModelTflite(
+                        recogNew[i].rider,
+                        recogNew[i].helmet,
+                        recognitions[y],
+                        recogNew[i].dateDetected);
+                  }
                 }
               }
             }
           }
-        }
 
-        //ตรวจสอบให้เหลือคลาสที่จะนำไปใช้
-        if (recogNew.isNotEmpty) {
-          for (var i = 0; i < recogNew.length; i++) {
-            if (recogNew[i].helmet == null ||
-                recogNew[i].license_plate == null) {
-              recogNew.removeAt(i);
-            } else {}
-          }
-        } else {
-          isolateData.responsePort!.send([]);
-        }
-
-        print("recogNew = $recogNew");
-        print("recogNew = ${recogNew.length}");
-        // print("rider = ${recogNew.first.rider}");
-        // print("helmet = ${recogNew.first.helmet}");
-        // print("license_plate = ${recogNew.first.license_plate}");
-
-        if (recogNew.isNotEmpty) {
-          //แปลง image stream to image
-          imglib.Image fixedImage =
-              await compute(yuv420toImageColor, isolateData);
-
-          for (var i = 0; i < recogNew.length; i++) {
-            //รับตำแหน่งภาพที่ได้จากการตรวจจับ Class Rider
-            PositionImage coorRider =
-                imagePosition(isolateData, recogNew[i].rider);
-
-            //ฟังก์ชัน Crop รูป Class Rider
-            imglib.Image destImageRider = copyCropp(
-              fixedImage, //ไฟล์รูปที่ได้จากการแปลง
-              coorRider.x.round(), //ค่า x
-              coorRider.y.round(), //ค่า y
-              coorRider.w.round(), //ค่า w
-              coorRider.h.round(), //ค่า h
-            );
-
-            //ฟังก์ชัน Crop รูป Class Rider สำหรับนำไปเช็คค่า
-            imglib.Image destImageCheck = copyCropp(
-                destImageRider, //ไฟล์รูปที่ได้จากการแปลง
-                (destImageRider.width / 4).round(), //ค่า x
-                (destImageRider.height / 4).round(), //ค่า y
-                (destImageRider.width / 3).round(), //ค่า w
-                (destImageRider.height / 2).round()); //ค่า h
-
-            //ไฟล์ภาพ Class Rider ที่ได้ Crop แล้ว
-            var riderImage = imglib.encodeJpg(destImageRider) as Uint8List?;
-            //ไฟล์ภาพ Class Rider ที่ได้ Crop แล้ว สำหรับนำไปเช็คค่า
-            var checkImage = imglib.encodeJpg(destImageCheck) as Uint8List?;
-
-            //รับค่าสี
-            //Color averageColor = getAverageColor(checkImage!);
-
-            //print("averageColor = ${averageColor}");
-            print("listAvgColors 3 = $listImgForCheck");
-            print("listImgForCheck 3 = $countlistAvg");
-
-            if (countlistAvg != listImgForCheck.length) {
-              isolateData.responsePort!.send([]);
+          //ตรวจสอบให้เหลือคลาสที่จะนำไปใช้
+          if (recogNew.isNotEmpty) {
+            for (int i = 0; i < recogNew.length; i++) {
+              if (recogNew[i].helmet == null ||
+                  recogNew[i].license_plate == null) {
+                recogNew.removeAt(i);
+              } else {}
             }
-
-            print("riderImage 1 = $listImgForCheck");
-
-            if (listImgForCheck.isNotEmpty) {
-              try {
-                //เปรียบเทียบภาพ
-                for (var i = 0; i < listImgForCheck.length; i++) {
-                  //วันเวลาสำหรับเช็คว่าภาพ Crop ที่จะนำไปใช้ในการตรวจสอบอยู่เก็บไว้นานเกิน 2 นาทีหรือยัง
-                  DateTime datetimeCheck = listImgForCheck[i]
-                      .datetimeDetected
-                      .add(const Duration(minutes: 2));
-
-                  //เช็คเวลา Crop มาเกินเวลาที่กำหนดหรือยังหรือยัง
-                  if (datetimeCheck.isBefore(DateTime.now())) {
-                    listImgForCheck.removeAt(i);
-                    continue;
-                  }
-                  // double checkColorImgs = await compareImages(
-                  //     src1: checkImage,
-                  //     src2: listImgForCheck[i].img,
-                  //     algorithm: IntersectionHistogram(/* ignoreAlpha: true */));
-                  double checkColorImgs = await compareImages(
-                      src1: checkImage,
-                      src2: listImgForCheck[i].img,
-                      algorithm: EuclideanColorDistance(ignoreAlpha: true));
-
-                  //สำหรับนำไปตรวจสอบค่า
-                  int checkColorImg = (checkColorImgs * 100).round();
-                  //สำหรับนำไปโชว์ Tracking
-                  showpercentCheck = ((1 - checkColorImgs) * 100).round();
-                  print("------------checkColorImg---------------");
-                  print("checkColorImg 1 list = ${listImgForCheck.length}");
-                  print("checkColorImg 2 % = $checkColorImg");
-                  print("checkColorImg 3 ID = ${listImgForCheck[i].id}");
-
-                  if (checkColorImg < 20) {
-                    avgColorID = listImgForCheck[i].id;
-                    listImgForCheck[i] = DataImageForCheck(
-                        listImgForCheck[i].id, checkImage!, DateTime.now());
-                    riderImage = null;
-                    break;
-                  } else {
-                    continue;
-                  }
-                }
-                // ignore: empty_catches
-              } catch (e) {}
-            }
-
-            print("riderImage 2 = $riderImage");
-            print("riderImage 3 = $showpercentCheck");
-
-            if (riderImage != null) {
-              //รับตำแหน่งภาพที่ได้จากการตรวจจับ Class License
-              PositionImage coorlicenseP =
-                  imagePosition(isolateData, recogNew[i].license_plate);
-
-              //ฟังก์ชัน Crop รูป Class license plate
-              imglib.Image destImagesLicense = copyCropp(
-                  fixedImage, //ไฟล์รูปที่ได้จากการแปลง
-                  coorlicenseP.x.round(), //ค่า x
-                  coorlicenseP.y.round(), //ค่า y
-                  min(coorlicenseP.w.round(),
-                      fixedImage.width - coorlicenseP.x.round()), //ค่า w
-                  min(coorlicenseP.h.round(),
-                      fixedImage.height - coorlicenseP.y.round())); //ค่า h
-
-              var licensePlateImg =
-                  imglib.encodeJpg(destImagesLicense) as Uint8List?;
-
-              listDataImage.add(DataDetectedImage(
-                  riderImage, licensePlateImg!, recogNew[i].dateDetected));
-
-              dataforTrack.add({
-                "id": listImgForCheck.length + 1,
-                "coorRider": recogNew[i].rider['rect'],
-                "confidenceTracking": showpercentCheck ??= 100
-              });
-
-              listImgForCheck.add(DataImageForCheck(
-                  listImgForCheck.length + 1,
-                  checkImage!,
-                  DateTime.fromMillisecondsSinceEpoch(
-                      recogNew[i].dateDetected)));
-            } else {
-              listDataImage = [];
-
-              dataforTrack.add({
-                "id": avgColorID,
-                "coorRider": recogNew[i].rider['rect'],
-                "confidenceTracking": showpercentCheck ??= 100
-              });
-            }
-          }
-          // print("listFileImage = ${listFileImage}");
-          // print("listFileImage = ${listAvaColors}");
-          if (listDataImage.isNotEmpty) {
-            print("ListImageIsnotempty");
-
-            listresult.add(
-                ListResultImage(listDataImage, listImgForCheck, dataforTrack));
-
-            isolateData.responsePort!.send(listresult);
           } else {
-            listresult.add(ListResultImage([], listImgForCheck, dataforTrack));
+            isolateData.responsePort!.send([]);
+          }
 
-            isolateData.responsePort!.send(listresult);
+          print("recogNew = $recogNew");
+          print("recogNew = ${recogNew.length}");
+          // print("rider = ${recogNew.first.rider}");
+          // print("helmet = ${recogNew.first.helmet}");
+          // print("license_plate = ${recogNew.first.license_plate}");
+
+          if (recogNew.isNotEmpty) {
+            //แปลง image stream to image
+            imglib.Image fixedImage =
+                await compute(yuv420toImageColor, isolateData);
+
+            for (int i = 0; i < recogNew.length; i++) {
+              //รับตำแหน่งภาพที่ได้จากการตรวจจับ Class Rider
+              PositionImage coorRider =
+                  imagePosition(isolateData, recogNew[i].rider);
+
+              //ฟังก์ชัน Crop รูป Class Rider
+              imglib.Image destImageRider = copyCropp(
+                fixedImage, //ไฟล์รูปที่ได้จากการแปลง
+                coorRider.x.round(), //ค่า x
+                coorRider.y.round(), //ค่า y
+                coorRider.w.round(), //ค่า w
+                coorRider.h.round(), //ค่า h
+              );
+
+              //ฟังก์ชัน Crop รูป Class Rider สำหรับนำไปเช็คค่า
+              imglib.Image destImageCheck = copyCropp(
+                  destImageRider, //ไฟล์รูปที่ได้จากการแปลง
+                  (destImageRider.width / 4).round(), //ค่า x
+                  (destImageRider.height / 4).round(), //ค่า y
+                  (destImageRider.width / 3).round(), //ค่า w
+                  (destImageRider.height / 2).round()); //ค่า h
+
+              //ไฟล์ภาพ Class Rider ที่ได้ Crop แล้ว
+              var riderImage = imglib.encodeJpg(destImageRider) as Uint8List?;
+              //ไฟล์ภาพ Class Rider ที่ได้ Crop แล้ว สำหรับนำไปเช็คค่า
+              var checkImage = imglib.encodeJpg(destImageCheck) as Uint8List?;
+
+              //รับค่าสี
+              //Color averageColor = getAverageColor(checkImage!);
+
+              //print("averageColor = ${averageColor}");
+              print("listAvgColors 3 = $listImgForCheck");
+              print("listImgForCheck 3 = $countlistAvg");
+
+              if (countlistAvg != listImgForCheck.length) {
+                isolateData.responsePort!.send([]);
+              }
+
+              print("riderImage 1 = $listImgForCheck");
+
+              if (listImgForCheck.isNotEmpty) {
+                try {
+                  total_num = listImgForCheck.last.totalNum;
+                  //เปรียบเทียบภาพ
+                  for (int index = 0; index < listImgForCheck.length; index++) {
+                    //วันเวลาสำหรับเช็คว่าภาพ Crop ที่จะนำไปใช้ในการตรวจสอบอยู่เก็บไว้นานเกิน 2 นาทีหรือยัง
+                    DateTime datetimeCheck = listImgForCheck[index]
+                        .datetimeDetected
+                        .add(const Duration(minutes: 5));
+
+                    //เช็คเวลา Crop มาเกินเวลาที่กำหนดหรือยังหรือยัง
+                    if (datetimeCheck.isBefore(DateTime.now())) {
+                      // listImgForCheck.removeAt(index);
+                      listImgForCheck[index].active = 0;
+                      continue;
+                    }
+                    // double checkColorImgs = await compareImages(
+                    //     src1: checkImage,
+                    //     src2: listImgForCheck[i].img,
+                    //     algorithm: IntersectionHistogram(/* ignoreAlpha: true */));
+                    double checkColorImgs = await compareImages(
+                        src1: checkImage,
+                        src2: listImgForCheck[index].img,
+                        algorithm: EuclideanColorDistance(ignoreAlpha: true));
+
+                    //สำหรับนำไปตรวจสอบค่า
+                    int checkColorImg = (checkColorImgs * 100).round();
+                    //สำหรับนำไปโชว์ Tracking
+                    showpercentCheck = ((1 - checkColorImgs) * 100).round();
+                    print("------------checkColorImg---------------");
+                    print("checkColorImg 1 list = ${listImgForCheck.length}");
+                    print("checkColorImg 2 % = $checkColorImg");
+                    print("checkColorImg 3 ID = ${listImgForCheck[index].id}");
+
+                    if (checkColorImg < 20) {
+                      avgColorID = listImgForCheck[index].id;
+                      listImgForCheck[index] = DataImageForCheck(
+                          listImgForCheck[index].id,
+                          checkImage!,
+                          DateTime.now(),
+                          1,
+                          listImgForCheck[index].totalNum);
+                      riderImage = null;
+                      break;
+                    } else {
+                      continue;
+                    }
+                  }
+                  //ลบข้อมูลที่นำไปใช้ตรวจสอบ เมื่อเวลาเกินที่กำหนด
+                  for (int x = 0; x < listImgForCheck.length; x++) {
+                    if (listImgForCheck[x].active == 0) {
+                      listImgForCheck.removeAt(x);
+                    }
+                  }
+                  // ignore: empty_catches
+                } catch (e) {
+                  print("Error 1 = $e");
+                  isolateData.responsePort!.send([]);
+                }
+              }
+
+              print("riderImage 2 = $riderImage");
+              print("riderImage 3 = $showpercentCheck");
+
+              if (riderImage != null) {
+                //รับตำแหน่งภาพที่ได้จากการตรวจจับ Class License
+                PositionImage coorlicenseP =
+                    imagePosition(isolateData, recogNew[i].license_plate);
+
+                //ฟังก์ชัน Crop รูป Class license plate
+                imglib.Image destImagesLicense = copyCropp(
+                    fixedImage, //ไฟล์รูปที่ได้จากการแปลง
+                    coorlicenseP.x.round(), //ค่า x
+                    coorlicenseP.y.round(), //ค่า y
+                    min(coorlicenseP.w.round(),
+                        fixedImage.width - coorlicenseP.x.round()), //ค่า w
+                    min(coorlicenseP.h.round(),
+                        fixedImage.height - coorlicenseP.y.round())); //ค่า h
+
+                var licensePlateImg =
+                    imglib.encodeJpg(destImagesLicense) as Uint8List?;
+
+                listDataImage.add(DataDetectedImage(
+                    riderImage, licensePlateImg!, recogNew[i].dateDetected));
+
+                dataforTrack.add({
+                  "id": total_num + 1,
+                  "coorRider": recogNew[i].rider['rect'],
+                  "confidenceTracking": showpercentCheck ??= 100
+                });
+
+                listImgForCheck.add(DataImageForCheck(
+                    // listImgForCheck.length + 1,
+                    total_num + 1,
+                    checkImage!,
+                    DateTime.fromMillisecondsSinceEpoch(
+                        recogNew[i].dateDetected),
+                    1,
+                    total_num + 1));
+              } else {
+                listDataImage = [];
+
+                dataforTrack.add({
+                  "id": avgColorID,
+                  "coorRider": recogNew[i].rider['rect'],
+                  "confidenceTracking": showpercentCheck ??= 100
+                });
+              }
+            }
+            // print("listFileImage = ${listFileImage}");
+            // print("listFileImage = ${listAvaColors}");
+            if (listDataImage.isNotEmpty) {
+              print("ListImageIsnotempty");
+
+              listresult.add(ListResultImage(
+                  listDataImage, listImgForCheck, dataforTrack));
+
+              isolateData.responsePort!.send(listresult);
+            } else {
+              listresult
+                  .add(ListResultImage([], listImgForCheck, dataforTrack));
+
+              isolateData.responsePort!.send(listresult);
+            }
+          } else {
+            isolateData.responsePort!.send([]);
           }
         } else {
           isolateData.responsePort!.send([]);
         }
-      } else {
+      } catch (e) {
+        print("Error 2 = $e");
         isolateData.responsePort!.send([]);
       }
     }
@@ -314,7 +345,7 @@ imglib.Image yuv420toImageColor(IsolateData isolateData) {
     }
   }
 
-  for (var i = 0; i < listuvIndex.length; i++) {
+  for (int i = 0; i < listuvIndex.length; i++) {
     var yp = image.planes[0].bytes[listindex[i]];
     var up = image.planes[1].bytes[listuvIndex[i]];
     var vp = image.planes[2].bytes[listuvIndex[i]];
