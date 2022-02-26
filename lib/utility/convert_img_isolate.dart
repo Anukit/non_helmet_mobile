@@ -214,11 +214,7 @@ class IsolateUtils {
                     }
                   }
                   //ลบข้อมูลที่นำไปใช้ตรวจสอบ เมื่อเวลาเกินที่กำหนด
-                  for (int x = 0; x < listImgForCheck.length; x++) {
-                    if (listImgForCheck[x].active == 0) {
-                      listImgForCheck.removeAt(x);
-                    }
-                  }
+                  listImgForCheck.removeWhere((item) => item.active == 0);
                   // ignore: empty_catches
                 } catch (e) {
                   print("Error 1 = $e");
