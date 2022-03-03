@@ -142,9 +142,9 @@ class IsolateUtils {
               //ฟังก์ชัน Crop รูป Class Rider สำหรับนำไปเช็คค่า
               imglib.Image destImageCheck = copyCropp(
                   destImageRider, //ไฟล์รูปที่ได้จากการแปลง
-                  (destImageRider.width / 4).round(), //ค่า x
-                  (destImageRider.height / 4).round(), //ค่า y
-                  (destImageRider.width / 3).round(), //ค่า w
+                  (destImageRider.width / 5).round(), //ค่า x
+                  (destImageRider.height / 6.5).round(), //ค่า y
+                  (destImageRider.width / 1.5).round(), //ค่า w
                   (destImageRider.height / 2).round()); //ค่า h
 
               //ไฟล์ภาพ Class Rider ที่ได้ Crop แล้ว
@@ -181,25 +181,31 @@ class IsolateUtils {
                       listImgForCheck[index].active = 0;
                       continue;
                     }
-                    // double checkColorImgs = await compareImages(
+
+                    // double checkColor2 = await compareImages(
                     //     src1: checkImage,
-                    //     src2: listImgForCheck[i].img,
-                    //     algorithm: IntersectionHistogram(/* ignoreAlpha: true */));
-                    double checkColorImgs = await compareImages(
+                    //     src2: listImgForCheck[index].img,
+                    //     algorithm: EuclideanColorDistance(ignoreAlpha: true));
+
+                    double checkColor1 = await compareImages(
                         src1: checkImage,
                         src2: listImgForCheck[index].img,
-                        algorithm: EuclideanColorDistance(ignoreAlpha: true));
+                        algorithm:
+                            ChiSquareDistanceHistogram(ignoreAlpha: true));
 
                     //สำหรับนำไปตรวจสอบค่า
-                    int checkColorImg = (checkColorImgs * 100).round();
-                    //สำหรับนำไปโชว์ Tracking
-                    showpercentCheck = ((1 - checkColorImgs) * 100).round();
-                    print("------------checkColorImg---------------");
-                    print("checkColorImg 1 list = ${listImgForCheck.length}");
-                    print("checkColorImg 2 % = $checkColorImg");
-                    print("checkColorImg 3 ID = ${listImgForCheck[index].id}");
+                    int perCompareImg = (checkColor1 * 100).round();
 
-                    if (checkColorImg < 20) {
+                    //สำหรับนำไปโชว์ Tracking
+                    showpercentCheck = ((100 - perCompareImg)).round();
+
+                    // print("testCompare index  = $index");
+                    // print("testCompare checkColor1  = ${checkColor1 * 100}");
+                    // print("testCompare track  = $showpercentCheck");
+                    // print("testCompare datetime  = ${DateTime.now()}");
+                    // print("testCompare=====================testCompare");
+
+                    if (perCompareImg < 20) {
                       avgColorID = listImgForCheck[index].id;
                       listImgForCheck[index] = DataImageForCheck(
                           listImgForCheck[index].id,
@@ -244,7 +250,7 @@ class IsolateUtils {
                     imglib.encodeJpg(destImagesLicense) as Uint8List?;
 
                 listDataImage.add(DataDetectedImage(
-                    riderImage, licensePlateImg!, recogNew[i].dateDetected));
+                    checkImage!, licensePlateImg!, recogNew[i].dateDetected));
 
                 dataforTrack.add({
                   "id": total_num + 1,
@@ -255,7 +261,7 @@ class IsolateUtils {
                 listImgForCheck.add(DataImageForCheck(
                     // listImgForCheck.length + 1,
                     total_num + 1,
-                    checkImage!,
+                    checkImage,
                     DateTime.fromMillisecondsSinceEpoch(
                         recogNew[i].dateDetected),
                     1,
