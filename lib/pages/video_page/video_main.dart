@@ -33,7 +33,7 @@ class _VideoMainState extends State<VideoMain> {
   void initState() {
     super.initState();
     getuserID();
-    //getFile();
+    getFile();
   }
 
   @override
@@ -50,8 +50,10 @@ class _VideoMainState extends State<VideoMain> {
     Directory dir = await checkDirectory("Video");
     //ไฟล์รูป
     setState(() {
-      List<FileSystemEntity> _photoLists = dir.listSync();
-      List<FileSystemEntity> videoList = List.from(_photoLists.reversed);
+      listVideo.clear();
+      List<FileSystemEntity> videoList = dir.listSync();
+      // List<FileSystemEntity> videoList = List.from(_photoLists.reversed);
+      videoList.sort((a, b) => b.path.compareTo(a.path));
 
       if (user_id != 0) {
         for (var i = 0; i < videoList.length; i++) {
@@ -65,7 +67,6 @@ class _VideoMainState extends State<VideoMain> {
       }
       loadData = true;
     });
-    print("listVideo = ${listVideo}");
   }
 
   Stream<double> showloadingVideo() async* {
@@ -83,7 +84,7 @@ class _VideoMainState extends State<VideoMain> {
           getFile();
         });
       } else if (photoList.length <= listFrameImg) {
-        print("reuslt = ${((photoList.length * 100) / listFrameImg)}");
+        // print("result = ${((photoList.length * 100) / listFrameImg)}");
         yield ((photoList.length * 100) / listFrameImg);
       }
     }
@@ -155,7 +156,7 @@ class _VideoMainState extends State<VideoMain> {
           const SizedBox(
             height: 10,
           ),
-          loadData && loadnewVideo
+          loadData /* && loadnewVideo */
               ? listVideo.isNotEmpty && listVideo != null
                   ? ListView.builder(
                       // scrollDirection: Axis.horizontal,

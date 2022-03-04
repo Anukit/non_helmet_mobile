@@ -187,7 +187,14 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                                 (BuildContext context, AsyncSnapshot snapshot) {
                               if (snapshot.data != null) {
                                 return Container(
-                                    color: Colors.amber.shade100,
+                                    color: snapshot.data == "ยังไม่ถูกพิจารณา"
+                                        ? Colors.amber.shade100
+                                        : snapshot.data == "ถูกพิจารณาแล้ว"
+                                            ? Colors.blue.shade100
+                                            : snapshot.data ==
+                                                    "ถูกดำเนินคดีแล้ว"
+                                                ? Colors.green.shade100
+                                                : Colors.red.shade100,
                                     child: Text(snapshot.data));
                               } else {
                                 return const CircularProgressIndicator();

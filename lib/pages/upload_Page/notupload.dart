@@ -56,15 +56,16 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
       List<FileSystemEntity> _photoLists = dir.listSync();
 
       if (_photoLists.isNotEmpty) {
-        List<FileSystemEntity> _photoList = List.from(_photoLists.reversed);
+        // List<FileSystemEntity> _photoList = List.from(_photoLists.reversed);
+        _photoLists.sort((a, b) => b.path.compareTo(a.path));
 
         if (user_id != 0) {
-          for (var i = 0; i < _photoList.length; i++) {
+          for (var i = 0; i < _photoLists.length; i++) {
             String userIDFromFile =
-                _photoList[i].path.split('/').last.split('_').first;
+                _photoLists[i].path.split('/').last.split('_').first;
 
             if (user_id.toString() == userIDFromFile) {
-              listimg.add(FileDetectImg(i + 1, _photoList[i]));
+              listimg.add(FileDetectImg(i + 1, _photoLists[i]));
             }
           }
         }
