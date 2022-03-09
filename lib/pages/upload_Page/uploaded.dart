@@ -84,10 +84,13 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
 
   Widget buildDataImage(index) {
     return GestureDetector(
-        onTap: () {
+        onTap: () async {
           String urlImg =
               "${Constant().domain}/detectedImage/${listDataImg[index]["image_detection"]}";
-          zoomPictureDialog(context, urlImg, 2);
+          var result = await http.get(Uri.parse(urlImg));
+          if (result.statusCode == 200) {
+            zoomPictureDialog(context, urlImg, 2);
+          }
         },
         child: Container(
             margin: const EdgeInsets.all(8.0),
