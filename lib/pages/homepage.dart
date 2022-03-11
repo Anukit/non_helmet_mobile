@@ -381,7 +381,7 @@ class _HomePageState extends State<HomePage> {
             // displayDataStatics("เดือนนี้:", data.countAllRidertomonth),
             displayDataStatics("\t\tทั้งหมด", data.countAllRidertotal),
             btnSeeMoreStat(),
-            const SizedBox(height: 8.25),
+            const SizedBox(height: 10.25),
             showIconNavi(2)
           ],
         ));
