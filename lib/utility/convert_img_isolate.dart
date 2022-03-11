@@ -173,7 +173,7 @@ class IsolateUtils {
                     //วันเวลาสำหรับเช็คว่าภาพ Crop ที่จะนำไปใช้ในการตรวจสอบอยู่เก็บไว้นานเกิน 2 นาทีหรือยัง
                     DateTime datetimeCheck = listImgForCheck[index]
                         .datetimeDetected
-                        .add(const Duration(minutes: 5));
+                        .add(const Duration(minutes: 2));
 
                     //เช็คเวลา Crop มาเกินเวลาที่กำหนดหรือยังหรือยัง
                     if (datetimeCheck.isBefore(DateTime.now())) {
@@ -250,7 +250,7 @@ class IsolateUtils {
                     imglib.encodeJpg(destImagesLicense) as Uint8List?;
 
                 listDataImage.add(DataDetectedImage(
-                    checkImage!, licensePlateImg!, recogNew[i].dateDetected));
+                    riderImage, licensePlateImg!, recogNew[i].dateDetected));
 
                 dataforTrack.add({
                   "id": total_num + 1,
@@ -261,7 +261,7 @@ class IsolateUtils {
                 listImgForCheck.add(DataImageForCheck(
                     // listImgForCheck.length + 1,
                     total_num + 1,
-                    checkImage,
+                    checkImage!,
                     DateTime.fromMillisecondsSinceEpoch(
                         recogNew[i].dateDetected),
                     1,
