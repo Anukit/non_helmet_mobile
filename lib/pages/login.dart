@@ -260,7 +260,8 @@ class _Login_PageState extends State<Login_Page> {
         } else if (listdata["data"] == "Incorrect password") {
           normalDialog(context, "รหัสผ่านไม่ถูกต้อง");
         } else if (listdata["data"] == "Email is not verified") {
-          dialogOTP_login(context, listdata["userID"], profiles.email!);
+          dialogComfirmOTP(context, listdata["userID"], profiles.email!,
+              "อีเมลนี้ยังไม่ได้ยืนยันตัวตน\nต้องการยืนยันตัวตนหรือไม่");
         }
       }
     } catch (e) {}

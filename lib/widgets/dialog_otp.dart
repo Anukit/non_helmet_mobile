@@ -4,7 +4,7 @@ import 'package:non_helmet_mobile/widgets/load_dialog.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 
-///typeProcess 1 = register, 2 = forgot password, 3 = Login
+///typeProcess 1 = register, 2 = ยืนยันตัวตน
 Future<void> reqOTP(
     BuildContext context, int user_id, String email, int typeProcess) async {
   try {
