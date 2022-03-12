@@ -180,15 +180,16 @@ Future<void> zoomPictureDialog(BuildContext context, file, int type) async {
   );
 }
 
-Future<void> dialogOTP_login(
-    BuildContext context, int user_id, String email) async {
+Future<void> dialogComfirmOTP(
+    BuildContext context, int user_id, String email, String content) async {
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (context) => SimpleDialog(
-      title: const Text(
-        "อีเมลนี้ยังไม่ได้ยืนยันตัวตน\nกรุณายืนยัน OTP",
-        style: TextStyle(fontSize: 15),
+      titlePadding: const EdgeInsets.fromLTRB(15, 24.0, 0, 0),
+      title: Text(
+        content,
+        style: const TextStyle(fontSize: 14),
       ),
       children: <Widget>[
         Row(
@@ -201,7 +202,7 @@ Future<void> dialogOTP_login(
               ),
               onPressed: () {
                 ShowloadDialog().showLoading(context);
-                reqOTP(context, user_id, email, 3);
+                reqOTP(context, user_id, email, 2);
               },
             ),
             TextButton(

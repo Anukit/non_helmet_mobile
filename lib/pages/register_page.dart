@@ -390,6 +390,10 @@ class _RegisterPageState extends State<RegisterPage> {
         } else if (listdata["data"] == "Duplicate_Email") {
           Navigator.of(context, rootNavigator: true).pop();
           normalDialog(context, "มีอีเมลนี้แล้ว");
+        } else if (listdata["data"] == "Email is not verified") {
+          Navigator.of(context, rootNavigator: true).pop();
+          dialogComfirmOTP(context, listdata["userID"], profiles.email!,
+              "มีอีเมลนี้ในระบบแล้ว\tแต่ไม่ได้ยืนยันตัวตน\nต้องการยืนยันตัวตนหรือไม่");
         } else {
           Navigator.of(context, rootNavigator: true).pop();
           normalDialog(context, "ลงทะเบียนไม่สำเร็จ");

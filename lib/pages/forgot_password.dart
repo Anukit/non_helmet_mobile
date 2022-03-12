@@ -161,6 +161,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           dialogInputOTP();
         } else if (result.data["data"] == "Invalid email") {
           normalDialog(context, "ไม่มีอีเมลนี้ในระบบ");
+        } else if (result.data["data"] == "Email is not verified") {
+          dialogComfirmOTP(context, result.data["userID"], profiles.email!,
+              "มีอีเมลนี้ในระบบแล้ว\tแต่ไม่ได้ยืนยันตัวตน\nต้องการยืนยันตัวตนหรือไม่");
         } else {
           normalDialog(context, "บันทึกไม่สำเร็จ");
         }
