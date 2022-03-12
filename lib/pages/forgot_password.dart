@@ -36,7 +36,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           ),
         ),
         title: const Text(
-          'สร้างรหัสผ่านใหม่',
+          'ลืมรหัสผ่าน',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -53,6 +53,13 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             padding: const EdgeInsets.all(10),
             child: Column(
               children: <Widget>[
+                const SizedBox(
+                  height: 15,
+                ),
+                Text(
+                  "กรุณากรอกอีเมลเพื่อยืนยันตัวตน\n\t\tสำหรับการสร้างรหัสผ่านใหม่",
+                  style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+                ),
                 Row(
                   children: <Widget>[
                     Expanded(

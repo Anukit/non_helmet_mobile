@@ -290,7 +290,7 @@ class _SettingPageState extends State<SettingPage> {
             width: double.infinity,
             child: Row(children: [
               const Text(
-                'บัญชีผู้ใช้:\t',
+                'อีเมลผู้ใช้:\t',
                 style: TextStyle(fontSize: 15),
               ),
               // const SizedBox(w: 10.0),
