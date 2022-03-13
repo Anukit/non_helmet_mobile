@@ -33,10 +33,10 @@ String formatDate(String dateTime) {
 ///แปลงรูปแบบวันที่จากฐานข้อมูล
 String formatDateDatabase(String dateTime) {
   try {
-    print("dateTime = ${dateTime}");
+    // print("dateTime = ${dateTime}");
     DateTime dateNew =
-        DateFormat("yyyy-MM-ddTHH:mm:ssZ").parse(dateTime).toLocal();
-    print("dateNew = ${dateNew}");
+        DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(dateTime).toLocal();
+    // print("dateNew = ${dateNew}");
     DateTime datetimeTH = DateTime(dateNew.year + 543, dateNew.month,
         dateNew.day, dateNew.hour, dateNew.minute);
     String dateString = DateFormat("dd MMM yyyy เวลา HH:mm").format(datetimeTH);

@@ -92,7 +92,7 @@ class _EditProfileState extends State<EditProfile> {
           ),
         ),
         title: const Text(
-          'แก้ไขข้อมูลส่วนตัว',
+          'ข้อมูลส่วนตัว',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
