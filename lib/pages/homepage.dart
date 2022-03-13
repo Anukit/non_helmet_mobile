@@ -78,9 +78,11 @@ class _HomePageState extends State<HomePage> {
           return DataStatics(
             numDetectedImg,
             result.data["data"]["countMeRider"]["today"],
+            result.data["data"]["countMeRider"]["toweek"],
             result.data["data"]["countMeRider"]["tomonth"],
             result.data["data"]["countMeRider"]["total"],
             result.data["data"]["countAllRider"]["today"],
+            result.data["data"]["countAllRider"]["toweek"],
             result.data["data"]["countAllRider"]["tomonth"],
             result.data["data"]["countAllRider"]["total"],
           );

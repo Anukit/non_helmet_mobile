@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/models/data_statics.dart';
+import 'package:non_helmet_mobile/pages/homepage.dart';
 
 class ShowStatPage extends StatefulWidget {
   DataStatics dataStat;
@@ -18,7 +19,11 @@ class _ShowStatPageState extends State<ShowStatPage> {
         appBar: AppBar(
           leading: IconButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => HomePage()),
+                  (Route<dynamic> route) => false);
             },
             icon: const Icon(
               Icons.arrow_back_ios,
@@ -146,6 +151,7 @@ class _ShowStatPageState extends State<ShowStatPage> {
         ]),
         const SizedBox(height: 15),
         displayDataStatics("\t\tวันนี้:", data.countMeRidertoday),
+        displayDataStatics("\t\tสัปดาห์นี้:", data.countMeRidertoweek),
         displayDataStatics("\t\tเดือนนี้:", data.countMeRidertomonth),
         displayDataStatics("\t\tตรวจจับได้ทั้งหมด:", data.countMeRidertotal),
         const SizedBox(height: 15),
@@ -167,6 +173,7 @@ class _ShowStatPageState extends State<ShowStatPage> {
         ),
         const SizedBox(height: 15),
         displayDataStatics("\t\tวันนี้:", data.countAllRidertoday),
+        displayDataStatics("\t\tสัปดาห์นี้:", data.countAllRidertoweek),
         displayDataStatics("\t\tเดือนนี้:", data.countAllRidertomonth),
         displayDataStatics("\t\tในระบบทั้งหมด:", data.countAllRidertotal),
         const SizedBox(height: 15),
