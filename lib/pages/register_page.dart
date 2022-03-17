@@ -389,7 +389,7 @@ class _RegisterPageState extends State<RegisterPage> {
           reqOTP(context, user_id, profiles.email!, 1);
         } else if (listdata["data"] == "Duplicate_Email") {
           Navigator.of(context, rootNavigator: true).pop();
-          normalDialog(context, "มีอีเมลนี้แล้ว");
+          normalDialog(context, "มีอีเมลนี้ในระบบแล้ว");
         } else if (listdata["data"] == "Email is not verified") {
           Navigator.of(context, rootNavigator: true).pop();
           dialogComfirmOTP(context, listdata["userID"], profiles.email!,

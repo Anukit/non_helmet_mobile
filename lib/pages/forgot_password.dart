@@ -189,7 +189,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           } else if (result.data["data"] == "Invalid OTP") {
             normalDialog(context, "รหัส OTP ไม่ถูกต้อง");
           } else {
-            normalDialog(context, "หมดเวลาส่ง OTP กรุณาขอ OTP ใหม่อีกครั้ง");
+            normalDialog(context, "รหัส OTP หมดอายุ\nกรุณาขอ OTP ใหม่อีกครั้ง");
           }
         }
       } else {

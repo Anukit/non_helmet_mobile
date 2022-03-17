@@ -167,7 +167,7 @@ class _SettingCameraState extends State<SettingCamera> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text(
-          "อัปโหลดรูปภาพอัติโนมัติ",
+          "อัปโหลดรูปภาพอัตโนมัติ",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const SizedBox(width: 10.0),
