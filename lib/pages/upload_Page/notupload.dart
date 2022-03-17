@@ -385,7 +385,7 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                                   return const CircularProgressIndicator();
                                 }
                               }),
-                          const Text("ละติจูด, ลองติจูด",
+                          const Text("ละติจูด, ลองจิจูด",
                               style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 15,

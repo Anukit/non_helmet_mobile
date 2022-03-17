@@ -147,7 +147,7 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
                                 margin: const EdgeInsets.symmetric(vertical: 5),
                                 child: Text(formatDateDatabase(
                                     listDataImg[index]["detection_at"]))),
-                            const Text("ละติจูด, ลองติจูด",
+                            const Text("ละติจูด, ลองจิจูด",
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 15,
