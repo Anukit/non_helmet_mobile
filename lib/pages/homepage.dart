@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:exif/exif.dart';
 import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/models/data_statics.dart';
 import 'package:non_helmet_mobile/modules/constant.dart';
@@ -60,23 +61,53 @@ class _HomePageState extends State<HomePage> {
 
     Directory dir = await checkDirectory("Pictures");
     List<FileSystemEntity> _photoLists = dir.listSync();
-    int numDetectedImg = 0;
+    // int numDetectedImg = 0;
+    int numNotupRidertoday = 0;
+    int numNotupRidertoweek = 0;
+    int numNotupRidertomonth = 0;
+    int numNotupRidertotal = 0;
 
+    //คำนวณสถิติข้อมูลตรวจจับที่ผู้ใช้ไม่ยังอัปโหลด
     for (var i = 0; i < _photoLists.length; i++) {
       String userIDFromFile =
           _photoLists[i].path.split('/').last.split('_').first;
 
       if (user_id.toString() == userIDFromFile) {
-        numDetectedImg += 1;
+        final tags = await readExifFromFile(_photoLists[i]);
+        String dateTime = tags['EXIF DateTimeOriginal'].toString();
+        DateTime dateDetect = DateTime.parse(dateTime);
+        DateTime datenow = DateTime.now();
+        DateTime detectToWeek =
+            DateTime(dateDetect.year, dateDetect.month, dateDetect.day + 7);
+        //คำนวณสถิติรายวัน
+        if (DateUtils.dateOnly(dateDetect)
+            .isAtSameMomentAs(DateUtils.dateOnly(datenow))) {
+          numNotupRidertoday += 1;
+        }
+        //คำนวณสถิติรายสัปดาห์
+        if (detectToWeek.isAfter(datenow)) {
+          numNotupRidertoweek += 1;
+        }
+        //คำนวณสถิติรายเดือน
+        if ((dateDetect.month == datenow.month) &&
+            (dateDetect.year == datenow.year)) {
+          numNotupRidertomonth += 1;
+        }
+        //ทั้งหมด
+        numNotupRidertotal += 1;
       }
     }
 
+    //ดึงสถิติข้อมูลตรวจจับที่ผู้ใช้อัปโหลด
     try {
       var result = await getAmountRider(user_id);
       if (result.pass) {
         if (result.data["status"] == "Succeed") {
           return DataStatics(
-            numDetectedImg,
+            numNotupRidertoday,
+            numNotupRidertoweek,
+            numNotupRidertomonth,
+            numNotupRidertotal,
             result.data["data"]["countMeRider"]["today"],
             result.data["data"]["countMeRider"]["toweek"],
             result.data["data"]["countMeRider"]["tomonth"],
@@ -294,7 +325,7 @@ class _HomePageState extends State<HomePage> {
                   fontWeight: FontWeight.bold,
                 )),
             const SizedBox(height: 10),
-            displayDataStatics("\t\tทั้งหมด", data.countRiderNotup),
+            displayDataStatics("\t\tทั้งหมด", data.numNotupRidertotal),
             btnSeeMoreStat(),
             showIconNavi(0)
           ],

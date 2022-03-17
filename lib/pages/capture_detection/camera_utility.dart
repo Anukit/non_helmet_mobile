@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:non_helmet_mobile/models/data_image.dart';
-import 'package:non_helmet_mobile/utility/convert_image.dart';
 import 'package:non_helmet_mobile/utility/convert_img_isolate.dart';
 import 'package:non_helmet_mobile/utility/saveimage_video.dart';
 import 'package:non_helmet_mobile/utility/upload_detect_image.dart';

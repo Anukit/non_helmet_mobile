@@ -51,7 +51,7 @@ Future<void> checkOTP(BuildContext context, int user_id, String email,
         } else if (result.data["data"] == "Invalid OTP") {
           normalDialog(context, "รหัส OTP ไม่ถูกต้อง");
         } else {
-          normalDialog(context, "หมดเวลาส่ง OTP กรุณาขอ OTP ใหม่อีกครั้ง");
+          normalDialog(context, "รหัส OTP หมดอายุ\nกรุณาขอ OTP ใหม่อีกครั้ง");
         }
       }
     } else {

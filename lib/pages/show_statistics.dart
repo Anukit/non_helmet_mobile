@@ -51,7 +51,8 @@ class _ShowStatPageState extends State<ShowStatPage> {
                     shrinkWrap: true,
                     itemCount: 2,
                     itemBuilder: (context, index) =>
-                        displayStatics(index, widget.dataStat))
+                        displayStatics(index, widget.dataStat)),
+                const SizedBox(height: 20),
               ],
             ),
           )),
@@ -105,10 +106,10 @@ class _ShowStatPageState extends State<ShowStatPage> {
                   staticsNotUpload(data),
                   staticsRiderMe(data)
                 ] else ...[
-                  staticsRiderAll(data)
+                  staticsRiderAll(data),
                 ]
               ],
-            ))
+            )),
       ],
     );
   }
@@ -129,7 +130,10 @@ class _ShowStatPageState extends State<ShowStatPage> {
           ),
         ]),
         const SizedBox(height: 15),
-        displayDataStatics("\t\tทั้งหมด:", data.countRiderNotup),
+        displayDataStatics("\t\tวันนี้:", data.numNotupRidertoday),
+        displayDataStatics("\t\tสัปดาห์นี้:", data.numNotupRidertoweek),
+        displayDataStatics("\t\tเดือนนี้:", data.numNotupRidertomonth),
+        displayDataStatics("\t\tทั้งหมด:", data.numNotupRidertotal),
         const SizedBox(height: 15),
       ],
     );
@@ -153,7 +157,7 @@ class _ShowStatPageState extends State<ShowStatPage> {
         displayDataStatics("\t\tวันนี้:", data.countMeRidertoday),
         displayDataStatics("\t\tสัปดาห์นี้:", data.countMeRidertoweek),
         displayDataStatics("\t\tเดือนนี้:", data.countMeRidertomonth),
-        displayDataStatics("\t\tตรวจจับได้ทั้งหมด:", data.countMeRidertotal),
+        displayDataStatics("\t\tทั้งหมด:", data.countMeRidertotal),
         const SizedBox(height: 15),
       ],
     );
@@ -175,7 +179,7 @@ class _ShowStatPageState extends State<ShowStatPage> {
         displayDataStatics("\t\tวันนี้:", data.countAllRidertoday),
         displayDataStatics("\t\tสัปดาห์นี้:", data.countAllRidertoweek),
         displayDataStatics("\t\tเดือนนี้:", data.countAllRidertomonth),
-        displayDataStatics("\t\tในระบบทั้งหมด:", data.countAllRidertotal),
+        displayDataStatics("\t\tทั้งหมด:", data.countAllRidertotal),
         const SizedBox(height: 15),
       ],
     );
