@@ -256,9 +256,9 @@ class _Login_PageState extends State<Login_Page> {
           setUserData(user_id);
           settingList();
         } else if (listdata["data"] == "Invalid email") {
-          normalDialog(context, "อีเมลไม่ถูกต้อง");
+          normalDialog(context, "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
         } else if (listdata["data"] == "Incorrect password") {
-          normalDialog(context, "รหัสผ่านไม่ถูกต้อง");
+          normalDialog(context, "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
         } else if (listdata["data"] == "Email is not verified") {
           dialogComfirmOTP(context, listdata["userID"], profiles.email!,
               "อีเมลนี้ยังไม่ได้ยืนยันตัวตน\nต้องการยืนยันตัวตนหรือไม่");
