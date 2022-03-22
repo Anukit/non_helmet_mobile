@@ -139,9 +139,6 @@ class IsolateUtils {
               //ไฟล์ภาพ Class Rider ที่ได้ Crop แล้ว สำหรับนำไปเช็คค่า
               var checkImage = imglib.encodeJpg(destImageCheck) as Uint8List?;
 
-              //รับค่าสี
-              //Color averageColor = getAverageColor(checkImage!);
-
               if (countlistAvg != listImgForCheck.length) {
                 isolateData.responsePort!.send([]);
               }
