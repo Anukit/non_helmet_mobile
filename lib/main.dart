@@ -31,8 +31,6 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.amber,
           //fontFamily: 'NotoSansThai'
         ),
-        home: SplashPage()
-        //home: HomeScreen(cameras),
-        );
+        home: SplashPage());
   }
 }

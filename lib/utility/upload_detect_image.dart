@@ -7,7 +7,6 @@ import 'package:non_helmet_mobile/modules/constant.dart';
 ///อัปโหลดรูปภาพที่ถูกตรวจจับ class rider และ class license plate
 Future<void> uploadDatectedImage(int userID, Uint8List fileImgRider,
     Uint8List fileImgLicense, int datetimeDetect) async {
-  print("uploadDatectedImage");
   String uploadurl = "${Constant().domain}/DetectedImage/uploadImage";
 
   int genName = DateTime.now().millisecondsSinceEpoch;

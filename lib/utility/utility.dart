@@ -8,7 +8,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:non_helmet_mobile/models/position_image.dart';
 import 'package:non_helmet_mobile/utility/convert_img_isolate.dart';
-import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:location/location.dart' as lo;
@@ -33,10 +32,8 @@ String formatDate(String dateTime) {
 ///แปลงรูปแบบวันที่จากฐานข้อมูล
 String formatDateDatabase(String dateTime) {
   try {
-    // print("dateTime = ${dateTime}");
     DateTime dateNew =
         DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(dateTime).toLocal();
-    // print("dateNew = ${dateNew}");
     DateTime datetimeTH = DateTime(dateNew.year + 543, dateNew.month,
         dateNew.day, dateNew.hour, dateNew.minute);
     String dateString = DateFormat("dd MMM yyyy เวลา HH:mm").format(datetimeTH);
@@ -107,19 +104,17 @@ Future<Directory> checkDirectory(String folderName) async {
   }
 }
 
-///เช็คเน็ต return 1 = Mobile, 2 = Wifi, 3 = No internet
+///เช็คเน็ต return 1 = Mobile, 2 = Wifi, 0 = No internet
 Future<int> checkInternet(context) async {
   var connectivityResult = await (Connectivity().checkConnectivity());
   if (connectivityResult == ConnectivityResult.mobile) {
-    print("I am connected to a mobile network.");
     return 1;
     // I am connected to a mobile network.
   } else if (connectivityResult == ConnectivityResult.wifi) {
     // I am connected to a wifi network.
-    print("I am connected to a wifi network.");
     return 2;
   } else {
-    print("No net");
+    // No net
     return 0;
   }
 }
@@ -131,58 +126,12 @@ Future<dynamic> getDataSetting() async {
     final rawJson = prefs.getString('listSetting') ?? '';
     return jsonDecode(rawJson);
   } catch (e) {
-    //print("Error = $e");
     return "Error";
   }
 }
 
-// ///รับตำแหน่งภาพ สำหรับ Crop รูปภาพ
-// PositionImage imagePosition(List listdata, listRecogClass) {
-//   print("imagePosition");
-//   CameraImage image = listdata[0]; //ไฟล์รูปจาก CameraImage
-//   List<dynamic>? recognitions = listdata[1]; //ข้อมูลที่ได้จากการตรวจจับ
-//   Size? screen = listdata[2]; //ขนาดจอ
-//   int rotation_detect = listdata[4]; //ลิสสำหรับเก็บค่าเฉลี่ยสี
-//   int? previewH = math.max(image.height, image.width);
-//   int? previewW = math.min(image.height, image.width);
-//   PositionImage result; //ค่า x y w h สำหรับส่งกลับ
-
-//   final double _x = listRecogClass['rect']['x'] as double;
-//   final double _w = listRecogClass['rect']['w'] as double;
-//   final double _y = listRecogClass['rect']['y'] as double;
-//   final double _h = listRecogClass['rect']['h'] as double;
-//   double x, y, w, h;
-//   if (rotation_detect == 90 || rotation_detect == 270) {
-//     x = _x * previewW;
-//     y = _y * previewH;
-//     w = _w * previewW;
-//     h = _h * previewH;
-//   } else {
-//     var screenH = image.height;
-//     var screenW = image.width;
-//     var scaleH = screenH;
-//     var scaleW = screenW;
-//     var difH = (scaleH - screenH) / scaleH;
-//     x = _x * scaleW;
-//     w = _w * scaleW;
-//     y = (_y - difH / 2) * scaleH;
-//     h = _h * scaleH;
-//     if (_y < difH / 2) h -= (difH / 2 - _y) * scaleH;
-//   }
-
-//   // print(listRecogClass['detectedClass']);
-//   // print("x = $x");
-//   // print("y = $y");
-//   // print("w = $w");
-//   // print("h = $h");
-//   result = PositionImage(x, y, w, h);
-
-//   return result;
-// }
-
 ///รับตำแหน่งภาพ สำหรับ Crop รูปภาพ
 PositionImage imagePosition(IsolateData listdata, listRecogClass) {
-  print("imagePosition");
   CameraImage image = listdata.cameraImage; //ไฟล์รูปจาก CameraImage
   List<dynamic>? recognitions =
       listdata.recognitions; //ข้อมูลที่ได้จากการตรวจจับ
@@ -215,11 +164,6 @@ PositionImage imagePosition(IsolateData listdata, listRecogClass) {
     if (_y < difH / 2) h -= (difH / 2 - _y) * scaleH;
   }
 
-  // print(listRecogClass['detectedClass']);
-  // print("x = $x");
-  // print("y = $y");
-  // print("w = $w");
-  // print("h = $h");
   result = PositionImage(x, y, w, h);
 
   return result;
@@ -240,7 +184,6 @@ imglib.Image copyCropp(imglib.Image src, int x, int y, int w, int h) {
 
 ///รับค่าเฉลี่ยสี
 Color getAverageColor(Uint8List fileImage) {
-  print("getAverageColor");
   imglib.Image? bitmap = imglib.decodeImage(fileImage);
 
   int redBucket = 0;
@@ -266,7 +209,6 @@ Color getAverageColor(Uint8List fileImage) {
 
 ///เปรียบเทียบค่าสี
 int compareColor(Color col1, Color col2) {
-  print("compareColor");
   double maxColDist = 764.8339663572415;
   double rmean = (col1.red + col2.red) / 2;
   int r = col1.red - col2.red;

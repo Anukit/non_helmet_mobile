@@ -84,7 +84,6 @@ class _VideoMainState extends State<VideoMain> {
           getFile();
         });
       } else if (photoList.length <= listFrameImg) {
-        // print("result = ${((photoList.length * 100) / listFrameImg)}");
         yield ((photoList.length * 100) / listFrameImg);
       }
     }
@@ -473,7 +472,6 @@ class _VideoMainState extends State<VideoMain> {
 
   Future<int> downloadFile(List<FileVideo> listdatavideo) async {
     ShowloadDialog().showLoading(context);
-    print("downloadFile");
     try {
       String? tempPath = await ExtStorage.getExternalStoragePublicDirectory(
           ExtStorage.DIRECTORY_DOWNLOADS);
@@ -496,7 +494,6 @@ class _VideoMainState extends State<VideoMain> {
       });
 
       normalDialog(context, "ดาวน์โหลดสำเร็จ");
-      print("Succeed");
       return 0;
     } catch (e) {
       return 1;

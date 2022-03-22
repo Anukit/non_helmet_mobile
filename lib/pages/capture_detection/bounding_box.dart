@@ -42,11 +42,6 @@ class BoundingBox extends StatelessWidget {
           h = _h * scaleH;
           if (_y < difH / 2) h -= (difH / 2 - _y) * scaleH;
         }
-        // print("detectClass = ${re["detectedClass"]}");
-        // print("xB = $x");
-        // print("yB = $y");
-        // print("wB = $w");
-        // print("hB = $h");
 
         return Positioned(
           left: math.max(0, x),

@@ -65,8 +65,6 @@ class _ShowMapState extends State<ShowMap> {
         'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
     if (await canLaunch(googleUrl)) {
       await launch(googleUrl);
-    } else {
-      print("// Could not open the map.");
-    }
+    } else {}
   }
 }

@@ -8,13 +8,11 @@ import 'package:flutter_exif_plugin/flutter_exif_plugin.dart' as dd;
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:image/image.dart' as imglib;
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> saveImageDetect(int user_id, Uint8List riderImg,
     Uint8List licenseImg, int datetimeDetect) async {
-  print("saveImageDetect");
   //รับพิกัด
   var position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high);
@@ -42,8 +40,6 @@ Future<void> saveImageDetect(int user_id, Uint8List riderImg,
 }
 
 Future<void> saveVideo(giffile) async {
-  print("saveVideo");
-
   final FlutterFFmpeg _flutterFFmpeg =
       FlutterFFmpeg(); // Create new ffmpeg instance somewhere in your code
   int result;
@@ -60,7 +56,10 @@ Future<void> saveVideo(giffile) async {
           //แปลงไฟล์ gif => mp4
           result = await _flutterFFmpeg
               .execute("-f gif -i $inputFile -pix_fmt yuv420p $outputFile"),
-          if (result == 0) {await gifData.delete(), print("Succeed")}
+          if (result == 0)
+            {
+              await gifData.delete(),
+            }
         });
   } else {}
   //////////////////////////////////////////////////////////////////////////////
@@ -113,7 +112,6 @@ class SaveVideo {
 
   /// Handle the messages coming from the isolate สร้างเป็นวิดีโอ
   void mainMessageHandler(dynamic data, SendPort isolateSendPort) async {
-    print("SASSSSSSSSSSSSSSSSSSSSSSAS = $data");
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     String user_ID = data["userID"].toString();
@@ -130,18 +128,12 @@ class SaveVideo {
         "-framerate 4 -probesize 42M -i $_frameImgDirPath/img%d.jpg -preset ultrafast -pix_fmt yuv420p $filePathMP4");
 
     if (result == 0) {
-      print("True");
-      // for (var i = 0; i < _photoList.length; i++) {
-      //   File files = File(_frameImgDirPath + "/img${i + 1}.jpg");
-      //   files.delete();
-      // }
       final dir = Directory(_frameImgDirPath);
       dir.deleteSync(recursive: true);
       createFolder("FrameImage");
       await prefs.setInt('listFrameImg', 0);
       callback(true);
     } else {
-      print("False");
       await prefs.setInt('listFrameImg', -1);
       callback(false);
     }
@@ -156,7 +148,6 @@ class SaveVideo {
     int rotation = data["rotation"];
     int userID_data = data["userID"];
     List<FileSystemEntity> photoList = [];
-    print("data data listimg = ${listimg.length}");
 
     //แก้บัคเซฟวิดีโอ
     final File file = File('$frameImgDirPath/img.jpg');
@@ -215,7 +206,6 @@ class SaveVideo {
           fixedImage = imglib.copyRotate(fixedImage, 180);
           break;
         default: //แนวตั้งปกติ
-          //fixedImage = imglib.copyRotate(fixedImage, 90);
           break;
       }
 
@@ -231,7 +221,6 @@ class SaveVideo {
       }
 
       var filePath = "$frameImgDirPath/img$filename.jpg";
-      print("CCCCCCCCCCCCCCCC = $filePath");
       File(filePath).writeAsBytes(imglib.encodeJpg(fixedImage) as Uint8List);
       ////////////////////////////////////////////////////////////////////////
     }

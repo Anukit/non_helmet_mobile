@@ -4,13 +4,11 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:camera/camera.dart';
-import 'package:easy_isolate/easy_isolate.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_compare/image_compare.dart';
 import 'package:non_helmet_mobile/models/data_image.dart';
 import 'package:non_helmet_mobile/models/model_tflite.dart';
 import 'package:non_helmet_mobile/models/position_image.dart';
-import 'package:non_helmet_mobile/modules/constant.dart';
 import 'package:non_helmet_mobile/utility/utility.dart';
 import 'package:image/image.dart' as imglib;
 
@@ -39,7 +37,6 @@ class IsolateUtils {
 
     await for (final IsolateData isolateData in port) {
       try {
-        print("convertImage");
         ////////////////////////ตัวแปร////////////////////////////////////////
         //ไฟล์รูปจาก CameraImage
         CameraImage image = isolateData.cameraImage;
@@ -74,15 +71,11 @@ class IsolateUtils {
         //ตรวจสอบคลาส
         if (recogNew.isNotEmpty) {
           for (int i = 0; i < recogNew.length; i++) {
-            // print("recogNew : ${recogNew[i]}");
             for (int y = 0; y < recognitions.length; y++) {
               if (recognitions[y]["detectedClass"] != "Rider") {
                 double resultCheck =
                     isObject(recogNew[i].rider, recognitions[y]);
-                //print("resultCheck = $resultCheck");
                 if (resultCheck > 0.02) {
-                  // print("recogNew : ${recogNew[i]}");
-                  // print("recognitions : ${recognitions[y]}");
                   if (recognitions[y]["detectedClass"] == "None-helmet") {
                     recogNew[i] = ModelTflite(
                         recogNew[i].rider,
@@ -113,12 +106,6 @@ class IsolateUtils {
           } else {
             isolateData.responsePort!.send([]);
           }
-
-          print("recogNew = $recogNew");
-          print("recogNew = ${recogNew.length}");
-          // print("rider = ${recogNew.first.rider}");
-          // print("helmet = ${recogNew.first.helmet}");
-          // print("license_plate = ${recogNew.first.license_plate}");
 
           if (recogNew.isNotEmpty) {
             //แปลง image stream to image
@@ -155,15 +142,9 @@ class IsolateUtils {
               //รับค่าสี
               //Color averageColor = getAverageColor(checkImage!);
 
-              //print("averageColor = ${averageColor}");
-              print("listAvgColors 3 = $listImgForCheck");
-              print("listImgForCheck 3 = $countlistAvg");
-
               if (countlistAvg != listImgForCheck.length) {
                 isolateData.responsePort!.send([]);
               }
-
-              print("riderImage 1 = $listImgForCheck");
 
               if (listImgForCheck.isNotEmpty) {
                 try {
@@ -199,12 +180,6 @@ class IsolateUtils {
                     //สำหรับนำไปโชว์ Tracking
                     showpercentCheck = ((100 - perCompareImg)).round();
 
-                    // print("testCompare index  = $index");
-                    // print("testCompare checkColor1  = ${checkColor1 * 100}");
-                    // print("testCompare track  = $showpercentCheck");
-                    // print("testCompare datetime  = ${DateTime.now()}");
-                    // print("testCompare=====================testCompare");
-
                     if (perCompareImg < 20) {
                       avgColorID = listImgForCheck[index].id;
                       listImgForCheck[index] = DataImageForCheck(
@@ -223,13 +198,9 @@ class IsolateUtils {
                   listImgForCheck.removeWhere((item) => item.active == 0);
                   // ignore: empty_catches
                 } catch (e) {
-                  print("Error 1 = $e");
                   isolateData.responsePort!.send([]);
                 }
               }
-
-              print("riderImage 2 = $riderImage");
-              print("riderImage 3 = $showpercentCheck");
 
               if (riderImage != null) {
                 //รับตำแหน่งภาพที่ได้จากการตรวจจับ Class License
@@ -276,11 +247,8 @@ class IsolateUtils {
                 });
               }
             }
-            // print("listFileImage = ${listFileImage}");
-            // print("listFileImage = ${listAvaColors}");
-            if (listDataImage.isNotEmpty) {
-              print("ListImageIsnotempty");
 
+            if (listDataImage.isNotEmpty) {
               listresult.add(ListResultImage(
                   listDataImage, listImgForCheck, dataforTrack));
 
@@ -298,7 +266,6 @@ class IsolateUtils {
           isolateData.responsePort!.send([]);
         }
       } catch (e) {
-        print("Error 2 = $e");
         isolateData.responsePort!.send([]);
       }
     }
@@ -325,7 +292,6 @@ class IsolateData {
 
 ///แปลง Image Stream ในรูป yuv420 เป็นรูปภาพ
 imglib.Image yuv420toImageColor(IsolateData isolateData) {
-  print("yuv420toImageColor");
   CameraImage image = isolateData.cameraImage;
   int rotation_detect = isolateData.rotation_value;
   List listindex = [];
@@ -381,7 +347,6 @@ imglib.Image yuv420toImageColor(IsolateData isolateData) {
       fixedImage = imglib.copyRotate(fixedImage, 180);
       break;
     default: //แนวตั้งปกติ
-      //fixedImage = imglib.copyRotate(fixedImage, 90);
       break;
   }
 

@@ -43,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
           //numThreads: 4,
         );
     }
-    print(result);
   }
 
   onSelectModel(model) {
@@ -60,7 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _imageHeight = imageHeight;
         _imageWidth = imageWidth;
         _dataForTrack = dataForTrack;
-        // print("test = $dataForTrack");
       });
     }
   }
@@ -84,7 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (rusult) {
       var listdata = await getDataSetting();
       if (listdata != "Error") {
-        print("listdata = $listdata");
         boundingBox = listdata["boundingBox"];
         tracking = listdata["tracking"];
       } else {
@@ -101,17 +98,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     Size screen = MediaQuery.of(context).size;
     return Scaffold(
-      // appBar: AppBar(
-      //   leading: IconButton(
-      //     onPressed: () {
-      //       Navigator.pop(context);
-      //     },
-      //     icon: const Icon(
-      //       Icons.arrow_back_ios,
-      //       color: Colors.black,
-      //     ),
-      //   ),
-      // ),
       body: _model == ""
           ? Container()
           : Stack(

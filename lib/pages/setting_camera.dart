@@ -30,14 +30,12 @@ class _SettingCameraState extends State<SettingCamera> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getData();
   }
 
   getData() async {
     var listdata = await getDataSetting();
-    print("listdata = $listdata");
     if (listdata != "Error") {
       setState(() {
         valueRes = resolution[int.parse(listdata["resolution"]) - 1];
@@ -143,7 +141,6 @@ class _SettingCameraState extends State<SettingCamera> {
             setState(() {
               valueRes = newValue!;
             });
-            print("valueRes = ${valueRes!.id}");
           },
           items: resolution.map((Resolution resValue) {
             return new DropdownMenuItem<Resolution>(
@@ -183,7 +180,6 @@ class _SettingCameraState extends State<SettingCamera> {
             setState(() {
               autoUpload = value;
             });
-            print("autoUpload = ${autoUpload}");
           },
         )
       ],
@@ -211,7 +207,6 @@ class _SettingCameraState extends State<SettingCamera> {
             setState(() {
               recordVideo = value;
             });
-            print("recordVideo = ${recordVideo}");
           },
         )
       ],
@@ -239,7 +234,6 @@ class _SettingCameraState extends State<SettingCamera> {
             setState(() {
               boundingBox = value;
             });
-            print("boundingBox = ${boundingBox}");
           },
         )
       ],
@@ -267,7 +261,6 @@ class _SettingCameraState extends State<SettingCamera> {
             setState(() {
               tracking = value;
             });
-            print("Tracking = $tracking");
           },
         )
       ],
