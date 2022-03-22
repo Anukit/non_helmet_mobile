@@ -104,7 +104,6 @@ class _MyPageState extends State<_MyPage> with AutomaticKeepAliveClientMixin {
 
       return 0;
     } catch (e) {
-      print("Error => $e");
       return 1;
     }
   }

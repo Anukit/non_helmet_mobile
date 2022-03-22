@@ -62,12 +62,6 @@ class _ChangePasswordState extends State<ChangePassword> {
                             const SizedBox(
                               height: 20,
                             ),
-                            // const Text("ลงทะเบียนผู้ใช้",
-                            //     style: TextStyle(
-                            //         fontSize: 25, fontWeight: FontWeight.bold)),
-                            // const SizedBox(
-                            //   height: 30,
-                            // ),
                             buildCurrentPassword(),
                             const SizedBox(
                               height: 15,
@@ -202,8 +196,6 @@ class _ChangePasswordState extends State<ChangePassword> {
         children: <Widget>[
           Checkbox(
             value: _showpass,
-            //checkColor: Colors.white,
-            //activeColor: Colors.black,
             onChanged: (value) {
               setState(() {
                 _showpass = value!;

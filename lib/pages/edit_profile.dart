@@ -44,7 +44,6 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<void> getData() async {
-    print("getData");
     final prefs = await SharedPreferences.getInstance();
     user_id = prefs.getInt('user_id') ?? 0;
 
@@ -67,9 +66,7 @@ class _EditProfileState extends State<EditProfile> {
     setState(() {
       if (image != null) {
         _image = File(image.path);
-      } else {
-        print('No image selected.');
-      }
+      } else {}
     });
   }
 
@@ -80,11 +77,6 @@ class _EditProfileState extends State<EditProfile> {
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
-            // Navigator.pushAndRemoveUntil(
-            //     context,
-            //     MaterialPageRoute(
-            //         builder: (BuildContext context) => HomePage()),
-            //     (Route<dynamic> route) => false);
           },
           icon: const Icon(
             Icons.arrow_back_ios,
@@ -103,11 +95,6 @@ class _EditProfileState extends State<EditProfile> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-            //physics: AlwaysScrollableScrollPhysics(),
-            // padding: const EdgeInsets.symmetric(
-            //   horizontal: 100.0,
-            //   vertical: 24.0,
-            // ),
             child: Center(
                 child: Form(
                     key: formKey,
@@ -131,7 +118,6 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Widget buildShowPic() {
-    print("buildShowPic");
     return SizedBox(
       height: 120,
       width: 120,
@@ -145,9 +131,6 @@ class _EditProfileState extends State<EditProfile> {
                 ? FutureBuilder(
                     future: getImageDB(),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      // print("snapshot.data = ${snapshot.data}");
-                      // print("snapshot.hasError = ${snapshot.hasError}");
-                      // print("snapshot.hasData = ${snapshot.connectionState}");
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircleAvatar(
                           child: CircularProgressIndicator(),
@@ -302,7 +285,6 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<String> getImageDB() async {
-    print("getImageDB");
     if (imageName != "") {
       try {
         String urlImage = "${Constant().domain}/profiles/${imageName}";

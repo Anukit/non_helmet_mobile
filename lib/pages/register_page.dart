@@ -6,7 +6,6 @@ import 'package:non_helmet_mobile/pages/login.dart';
 import 'package:non_helmet_mobile/widgets/dialog_otp.dart';
 import 'package:non_helmet_mobile/widgets/load_dialog.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
-import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key? key}) : super(key: key);
@@ -91,10 +90,6 @@ class _RegisterPageState extends State<RegisterPage> {
                             const SizedBox(
                               height: 30,
                             ),
-                            // buildAcceptCheckbox(),
-                            // const SizedBox(
-                            //   height: 30,
-                            // ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [backbt(), summitbt()],
@@ -267,8 +262,6 @@ class _RegisterPageState extends State<RegisterPage> {
         children: <Widget>[
           Checkbox(
             value: _showpass,
-            //checkColor: Colors.white,
-            //activeColor: Colors.black,
             onChanged: (value) {
               setState(() {
                 _showpass = value!;
@@ -294,8 +287,6 @@ class _RegisterPageState extends State<RegisterPage> {
         children: <Widget>[
           Checkbox(
             value: _acceptRegis,
-            // checkColor: Colors.white,
-            // activeColor: Colors.black,
             onChanged: (value) {
               setState(() {
                 _acceptRegis = value!;
@@ -347,10 +338,8 @@ class _RegisterPageState extends State<RegisterPage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Colors.amber.shade400,
-        // border: Border.all(color: Colors.amber),
       ),
       child: MaterialButton(
-        // padding: const EdgeInsets.all(5.0),
         child: Text(
           'ขอ OTP \n เพื่อสมัคร',
           style: TextStyle(
@@ -370,7 +359,6 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> postdataUser() async {
-    // if (_acceptRegis) {
     ShowloadDialog().showLoading(context);
     try {
       var result = await registerUser({
@@ -385,7 +373,6 @@ class _RegisterPageState extends State<RegisterPage> {
         var listdata = result.data;
         if (listdata["status"] == "Succeed") {
           int user_id = listdata["data"][0]["user_id"];
-          // reqOTP();
           reqOTP(context, user_id, profiles.email!, 1);
         } else if (listdata["data"] == "Duplicate_Email") {
           Navigator.of(context, rootNavigator: true).pop();
@@ -401,155 +388,5 @@ class _RegisterPageState extends State<RegisterPage> {
       }
       // ignore: empty_catches
     } catch (e) {}
-    // } else {
-    //   normalDialog(context, "กรุณากดยอมรับข้อตกลง");
-    // }
   }
-
-  // Future<void> reqOTP() async {
-  //   try {
-  //     var result = await req_OTP({
-  //       "user_id": user_id,
-  //       "email": profiles.email,
-  //       "type": 1,
-  //       "datetime": DateTime.now().toString()
-  //     });
-  //     if (result.pass) {
-  //       Navigator.of(context, rootNavigator: true).pop();
-  //       if (result.data["status"] == "Succeed") {
-  //         dialogInputOTP();
-  //       } else if (result.data["data"] == "Invalid email") {
-  //         normalDialog(context, "ไม่มีอีเมลนี้ในระบบ");
-  //       } else {
-  //         normalDialog(context, "บันทึกไม่สำเร็จ");
-  //       }
-  //     }
-  //   } catch (e) {}
-  // }
-
-  // Future<void> checkOTP() async {
-  //   ShowloadDialog().showLoading(context);
-  //   try {
-  //     if (otpUser != "") {
-  //       var result = await check_OTP({
-  //         "otp": otpUser,
-  //         "user_id": user_id,
-  //         "email": profiles.email,
-  //         "type": 1,
-  //         "datetime": DateTime.now().toString()
-  //       });
-  //       if (result.pass) {
-  //         Navigator.of(context, rootNavigator: true).pop();
-  //         if (result.data["status"] == "Succeed") {
-  //           succeedDialog(context, "ลงทะเบียนสำเร็จ", SplashPage());
-  //         } else if (result.data["data"] == "Invalid OTP") {
-  //           normalDialog(context, "รหัส OTP ไม่ถูกต้อง");
-  //         } else {
-  //           normalDialog(context, "หมดเวลาส่ง OTP กรุณาขอ OTP ใหม่อีกครั้ง");
-  //         }
-  //       }
-  //     } else {
-  //       Navigator.of(context, rootNavigator: true).pop();
-  //       normalDialog(context, "กรุณากรอก OTP");
-  //     }
-  //   } catch (e) {}
-  // }
-
-  // dialogInputOTP() {
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder: (context) => SimpleDialog(
-  //       title: const Text(
-  //         'กรอกรหัส OTP ที่ได้รับใน 5 นาที',
-  //         style: TextStyle(
-  //           fontSize: 16,
-  //         ),
-  //       ),
-  //       children: <Widget>[
-  //         SingleChildScrollView(
-  //             child: Column(children: [
-  //           Container(
-  //             padding: const EdgeInsets.all(10),
-  //             child: TextFormField(
-  //               keyboardType: TextInputType.number,
-  //               style: const TextStyle(fontSize: 18),
-  //               decoration: InputDecoration(
-  //                 labelText: 'รหัส OTP',
-  //                 labelStyle:
-  //                     TextStyle(fontSize: 18, color: Colors.grey.shade600),
-  //                 fillColor: Colors.white,
-  //                 errorStyle: const TextStyle(color: Colors.red, fontSize: 14),
-  //                 prefixIcon: const Icon(
-  //                   Icons.email,
-  //                   color: Colors.grey,
-  //                 ),
-  //                 border: const OutlineInputBorder(
-  //                   borderRadius: BorderRadius.all(
-  //                     Radius.circular(10),
-  //                   ),
-  //                 ),
-  //               ),
-  //               onChanged: (value) {
-  //                 otpUser = value;
-  //               },
-  //             ),
-  //           ),
-  //           TextButton(
-  //             child: const Text('ขอ OTP อีกครั้ง',
-  //                 style: TextStyle(
-  //                     fontSize: 15,
-  //                     fontWeight: FontWeight.bold,
-  //                     color: Colors.orange)),
-  //             style: TextButton.styleFrom(fixedSize: const Size.fromHeight(10)),
-  //             onPressed: () {
-  //               reqOTP();
-  //             },
-  //           ),
-  //         ])),
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: [
-  //             Container(
-  //               margin: const EdgeInsets.fromLTRB(10, 12, 10, 12),
-  //               child: ElevatedButton(
-  //                 child: Container(
-  //                   margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-  //                   child: const Text(
-  //                     'ตกลง',
-  //                     style:
-  //                         TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-  //                   ),
-  //                 ),
-  //                 onPressed: () {
-  //                   checkOTP();
-  //                 },
-  //               ),
-  //             ),
-  //             Container(
-  //               margin: const EdgeInsets.fromLTRB(10, 12, 10, 12),
-  //               child: ElevatedButton(
-  //                 style: ElevatedButton.styleFrom(
-  //                   primary: Colors.grey.shade300,
-  //                 ),
-  //                 child: Container(
-  //                   margin: const EdgeInsets.fromLTRB(2, 10, 2, 10),
-  //                   child: const Text(
-  //                     'ยกเลิก',
-  //                     style:
-  //                         TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-  //                   ),
-  //                 ),
-  //                 onPressed: () {
-  //                   otpUser = "";
-  //                   Navigator.of(context).pop();
-  //                 },
-  //               ),
-  //             ),
-  //           ],
-  //         )
-  //       ],
-  //     ),
-  //   );
-  // }
 }

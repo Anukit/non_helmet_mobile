@@ -74,9 +74,6 @@ class _ShowStatPageState extends State<ShowStatPage> {
         Container(
             decoration: const BoxDecoration(
                 color: Color.fromRGBO(62, 73, 122, 1),
-                // border: Border.all(
-                //   color: Colors.black,
-                // ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black,
@@ -233,54 +230,4 @@ class _ShowStatPageState extends State<ShowStatPage> {
           ),
         ));
   }
-
-  ///แสดงข้อมูล ทั้งหมด
-  // Widget displayAllStatics(String title, int data) {
-  //   return Card(
-  //       color: Colors.grey[350],
-  //       child: SizedBox(
-  //         width: valueWidth,
-  //         child: Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             Text(
-  //               title,
-  //               style: const TextStyle(
-  //                   color: Colors.black,
-  //                   fontWeight: FontWeight.bold,
-  //                   fontSize: 13),
-  //             ),
-  //             Row(children: [
-  //               Container(
-  //                 margin: const EdgeInsets.all(8.0),
-  //                 height: 25.0,
-  //                 width: 80.0,
-  //                 decoration: const BoxDecoration(
-  //                   shape: BoxShape.rectangle,
-  //                   color: Colors.white,
-  //                   // ignore: unnecessary_const
-  //                   boxShadow: const [
-  //                     BoxShadow(
-  //                       color: Colors.black26,
-  //                       offset: Offset(0, 2),
-  //                       blurRadius: 6.0,
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 child: Align(
-  //                     alignment: Alignment.center,
-  //                     child: Text(data.toString())),
-  //               ),
-  //               const Text(
-  //                 'คัน\t\t',
-  //                 style: TextStyle(
-  //                   color: Colors.black,
-  //                   fontWeight: FontWeight.bold,
-  //                 ),
-  //               )
-  //             ])
-  //           ],
-  //         ),
-  //       ));
-  // }
 }

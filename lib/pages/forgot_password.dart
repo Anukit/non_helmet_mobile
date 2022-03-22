@@ -5,7 +5,6 @@ import 'package:non_helmet_mobile/modules/service.dart';
 import 'package:non_helmet_mobile/widgets/load_dialog.dart';
 import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:non_helmet_mobile/widgets/splash_logo_app.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ForgotPassword extends StatefulWidget {
   ForgotPassword({Key? key}) : super(key: key);

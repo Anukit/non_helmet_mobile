@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:non_helmet_mobile/modules/service.dart';
-import 'package:non_helmet_mobile/pages/about_app.dart';
 import 'package:non_helmet_mobile/pages/changepassword.dart';
 import 'package:non_helmet_mobile/pages/edit_profile.dart';
 import 'package:non_helmet_mobile/pages/homepage.dart';
@@ -88,13 +87,7 @@ class _SettingPageState extends State<SettingPage> {
               buildEditProfile(),
               const SizedBox(height: 10.0),
               buildChangePw(),
-              // const SizedBox(height: 10.0),
-              // buildFeedb(),
-              // const SizedBox(height: 10.0),
-              // buildAbout(),
               const SizedBox(height: 250.0),
-              // const SizedBox(height: 10.0),
-              // buildReport(),
               const SizedBox(height: 10.0),
               buildEmailAdmin(),
               const SizedBox(height: 20.0),
@@ -108,7 +101,6 @@ class _SettingPageState extends State<SettingPage> {
 
   //หน้าตั้งค่ากล้อง
   Widget buildSettingCamera() {
-    print("1");
     return ElevatedButton(
       onPressed: () {
         Navigator.push(
@@ -144,7 +136,6 @@ class _SettingPageState extends State<SettingPage> {
 
   //แก้ไขข้อมูลส่วนตัว
   Widget buildEditProfile() {
-    print("2");
     return ElevatedButton(
       onPressed: () {
         Navigator.push(
@@ -180,7 +171,6 @@ class _SettingPageState extends State<SettingPage> {
 
   //เปลี่ยนรหัสผ่าน
   Widget buildChangePw() {
-    print("3");
     return ElevatedButton(
       onPressed: () {
         Navigator.push(
@@ -205,72 +195,6 @@ class _SettingPageState extends State<SettingPage> {
               margin: const EdgeInsets.only(left: 10.0),
               child: const Text(
                 "เปลี่ยนรหัสผ่าน",
-                style: TextStyle(fontSize: 16.0, color: Colors.black),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  //Feedback
-  Widget buildFeedb() {
-    return ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        primary: Colors.grey[300],
-      ),
-      child: Container(
-        padding: const EdgeInsets.only(top: 10.0, bottom: 10),
-        child: Row(
-          children: [
-            const Align(
-                alignment: Alignment.centerLeft,
-                child: Icon(
-                  Icons.feedback,
-                  color: Colors.black,
-                )),
-            Container(
-              margin: const EdgeInsets.only(left: 10.0),
-              child: const Text(
-                "Feedback",
-                style: TextStyle(fontSize: 16.0, color: Colors.black),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  //About App
-  Widget buildAbout() {
-    return ElevatedButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AboutApp()),
-        );
-      },
-      style: ElevatedButton.styleFrom(
-        primary: Colors.grey[300],
-      ),
-      child: Container(
-        padding: const EdgeInsets.only(top: 10.0, bottom: 10),
-        child: Row(
-          children: [
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Icon(
-                Icons.error,
-                color: Colors.black,
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.only(left: 10.0),
-              child: const Text(
-                "About App",
                 style: TextStyle(fontSize: 16.0, color: Colors.black),
               ),
             ),
@@ -340,35 +264,6 @@ class _SettingPageState extends State<SettingPage> {
             ),
           ),
         )
-      ],
-    );
-  }
-
-  //แจ้งปัญหา
-  Widget buildReport() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'แจ้งปัญหา',
-          style: TextStyle(fontSize: 15),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 2.5),
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-                primary: Colors.white, minimumSize: const Size(0, 45)),
-            child: const Text(
-              'กรุณากดปุ่มนี้ หากต้องการแจ้งปัญหา',
-              style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
       ],
     );
   }

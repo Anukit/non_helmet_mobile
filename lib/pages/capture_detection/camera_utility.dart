@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:isolate';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
@@ -103,7 +102,6 @@ class _CameraState extends State<Camera> {
 
   imageDetect() {
     if (widget.cameras.isEmpty) {
-      print('No camera is found');
     } else {
       controller = CameraController(
           widget.cameras[0],
@@ -182,20 +180,14 @@ class _CameraState extends State<Camera> {
                 if (recognitions!.isNotEmpty) {
                   if (i == 0) {
                     i = 1;
-                    print("Datetime process 1 = ${DateTime.now()}");
                     inference(IsolateData(img, recognitions, screen!,
                             listDataImg, rotation_value))
                         .then((value) {
                       if (value.isNotEmpty) {
-                        //print("listAvgColors = ${value[0].averageColor} 2");
-                        //print("data track = ${value[0].dataforTrack}");
                         listDataForTrack = value[0].dataforTrack;
                         listDataImg = value[0].listdataImg;
-                        print("Datetime process 2 = ${DateTime.now()}");
 
                         if (value[0].dataImage.isNotEmpty) {
-                          // print("ListColorss = ${value[0].listAvgColor}");
-                          // print("Listimage = ${value[0].dataImage}");
                           for (var i = 0; i < value[0].dataImage.length; i++) {
                             if (autoUpload == "true") {
                               //เช็คอินเทอร์เน็ต
@@ -226,15 +218,12 @@ class _CameraState extends State<Camera> {
                       i = 0;
                     });
                   }
-
-                  // print("listDataForTrack = $listDataForTrack 1");
                 } else {
                   listDataForTrack = [];
                 }
                 //////////////////////////////////////////////////////////////////
                 // endTime = DateTime.now().millisecondsSinceEpoch;
-                // print("Detection took ${endTime - startTime}ms");
-                // print("listDataForTrack = $listDataForTrack 2");
+
                 widget.setRecognitions(
                     recognitions, img.height, img.width, listDataForTrack);
                 isDetecting = false;
@@ -265,9 +254,8 @@ class _CameraState extends State<Camera> {
       if (readyforRecord == null || readyforRecord == true) {
         if (frameImgDirPath.isNotEmpty && videoDirPath.isNotEmpty) {
           SaveVideo(user_id, listCameraimg, frameImgDirPath, videoDirPath,
-              rotation_value, (value) {
-            print("value from record video = $value");
-          }).init();
+                  rotation_value, (value) {})
+              .init();
         }
       } else if (listCameraimg.isNotEmpty) {
         Timer.periodic(const Duration(milliseconds: 1000), (timer) {
@@ -275,9 +263,8 @@ class _CameraState extends State<Camera> {
             if (value) {
               timer.cancel();
               SaveVideo(user_id, listCameraimg, frameImgDirPath, videoDirPath,
-                  rotation_value, (value) {
-                print("value from record video = $value");
-              }).init();
+                      rotation_value, (value) {})
+                  .init();
             }
           });
         });

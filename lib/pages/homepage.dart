@@ -524,7 +524,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildMenuBtn(onPressed, icon, content) {
-    print("1");
     return Container(
         decoration: BoxDecoration(
           //shape: BoxShape.rectangle,
@@ -553,7 +552,6 @@ class _HomePageState extends State<HomePage> {
                   try {
                     cameras = await availableCameras();
                   } on CameraException catch (e) {
-                    print('Error: $e.code \n Eooro Message: $e.message');
                     cameras = [];
                   }
                   Navigator.push(
@@ -664,8 +662,6 @@ class _HomePageState extends State<HomePage> {
         return "false";
       }
     } catch (e) {
-      // ignore: avoid_print
-      print(e);
       return "Error";
     }
   }

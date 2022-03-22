@@ -1,8 +1,6 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:non_helmet_mobile/models/model_tflite.dart';
-
 //ข้อมูลของรูปภาพ
 class DataImage {
   var fileImage;

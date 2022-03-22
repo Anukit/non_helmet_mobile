@@ -143,9 +143,7 @@ Future<void> zoomPictureDialog(BuildContext context, file, int type) async {
       return SizedBox.expand(
         child: Stack(
           children: <Widget>[
-            /*     Expanded(
-              flex: 5, */
-            /* child: */ SizedBox.expand(
+            SizedBox.expand(
                 child: Center(
               child: InteractiveViewer(
                   panEnabled: true, // Set it to false
@@ -166,7 +164,6 @@ Future<void> zoomPictureDialog(BuildContext context, file, int type) async {
                           fit: BoxFit.contain,
                         )),
             )),
-            /*   ), */
             Positioned(
               top: 25,
               child: TextButton(
