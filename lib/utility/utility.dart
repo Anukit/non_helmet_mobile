@@ -182,46 +182,6 @@ imglib.Image copyCropp(imglib.Image src, int x, int y, int w, int h) {
   return dst;
 }
 
-///รับค่าเฉลี่ยสี
-Color getAverageColor(Uint8List fileImage) {
-  imglib.Image? bitmap = imglib.decodeImage(fileImage);
-
-  int redBucket = 0;
-  int greenBucket = 0;
-  int blueBucket = 0;
-  int pixelCount = 0;
-
-  for (int y = 0; y < bitmap!.height; y++) {
-    for (int x = 0; x < bitmap.width; x++) {
-      int c = bitmap.getPixel(x, y);
-
-      pixelCount++;
-      redBucket += imglib.getRed(c);
-      greenBucket += imglib.getGreen(c);
-      blueBucket += imglib.getBlue(c);
-    }
-  }
-
-  Color averageColor = Color.fromRGBO(redBucket ~/ pixelCount,
-      greenBucket ~/ pixelCount, blueBucket ~/ pixelCount, 1);
-  return averageColor;
-}
-
-///เปรียบเทียบค่าสี
-int compareColor(Color col1, Color col2) {
-  double maxColDist = 764.8339663572415;
-  double rmean = (col1.red + col2.red) / 2;
-  int r = col1.red - col2.red;
-  int g = col1.green - col2.green;
-  int b = col1.blue - col2.blue;
-  double weightR = 2 + rmean / 256;
-  double weightG = 4.0;
-  double weightB = 2 + (255 - rmean) / 256;
-  double result =
-      math.sqrt(weightR * r * r + weightG * g * g + weightB * b * b);
-  return (((maxColDist - result) / maxColDist) * 100).round();
-}
-
 ///ตรวจสอบว่าคลาสต่าง ๆ อยู่ในคลาส Rider หรือไม่
 double isObject(box1, box2) {
   double x1 = box1['rect']['x'];
