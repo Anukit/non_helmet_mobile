@@ -92,7 +92,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: [backbt(), summitbt()],
+                              children: [backbt(), submitbtn()],
                             )
                           ],
                         ),
@@ -331,7 +331,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Widget summitbt() {
+  Widget submitbtn() {
     return Container(
       margin: const EdgeInsets.all(8),
       padding: const EdgeInsets.all(8),
