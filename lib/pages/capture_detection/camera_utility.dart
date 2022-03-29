@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:non_helmet_mobile/models/data_image.dart';
+import 'package:non_helmet_mobile/pages/homepage.dart';
 import 'package:non_helmet_mobile/utility/convert_img_isolate.dart';
 import 'package:non_helmet_mobile/utility/saveimage_video.dart';
 import 'package:non_helmet_mobile/utility/upload_detect_image.dart';
@@ -20,8 +21,7 @@ typedef Callback = void Function(
 class Camera extends StatefulWidget {
   final List<CameraDescription> cameras;
   final Callback setRecognitions;
-  final String model;
-  const Camera(this.cameras, this.model, this.setRecognitions);
+  const Camera(this.cameras, this.setRecognitions);
 
   @override
   _CameraState createState() => _CameraState();
@@ -194,17 +194,21 @@ class _CameraState extends State<Camera> {
                               checkInternet(context).then((status) {
                                 if (status != 0) {
                                   uploadDatectedImage(
+                                      context,
                                       user_id,
                                       value[0].dataImage[i].riderImg,
                                       value[0].dataImage[i].license_plateImg,
                                       value[0].dataImage[i].datetimeDetected);
                                 } else {
-                                  dialogAuto(context,
-                                      "ไม่สามารถอัปโหลดได้\nกรุณาตรวจสอบอินเทอร์เน็ต");
+                                  succeedDialog(
+                                      context,
+                                      "ไม่สามารถอัปโหลดได้\nกรุณาตรวจสอบอินเทอร์เน็ต",
+                                      HomePage());
                                 }
                               });
                             } else {
                               saveImageDetect(
+                                  context,
                                   user_id,
                                   value[0].dataImage[i].riderImg,
                                   value[0].dataImage[i].license_plateImg,
@@ -288,7 +292,9 @@ class _CameraState extends State<Camera> {
   @override
   Widget build(BuildContext context) {
     if (controller == null || !controller!.value.isInitialized) {
-      return Container();
+      return Container(
+        color: Colors.black,
+      );
     }
 
     screen = MediaQuery.of(context).size; //สำหรับ Crop
@@ -328,10 +334,9 @@ class _CameraState extends State<Camera> {
             maxWidth: screenRatio > previewRatio
                 ? screenH / previewH * previewW
                 : screenW,
-            child: Stack(children: [
+            child: Stack(alignment: Alignment.center, children: [
               CameraPreview(controller!),
               Positioned(
-                  left: screenW / 2,
                   bottom: 40,
                   child: MaterialButton(
                     onPressed: () {
@@ -357,11 +362,10 @@ class _CameraState extends State<Camera> {
             maxWidth: screenRatio > previewRatio
                 ? screenH
                 : screenW / previewW * previewH,
-            child: Stack(children: [
+            child: Stack(alignment: Alignment.center, children: [
               CameraPreview(controller!),
               Positioned(
                   left: 20,
-                  bottom: screenW / 2,
                   child: MaterialButton(
                     onPressed: () {
                       setState(() {

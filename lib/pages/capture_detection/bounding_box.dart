@@ -7,10 +7,9 @@ class BoundingBox extends StatelessWidget {
   final int previewW;
   final double screenH;
   final double screenW;
-  final String model;
 
-  const BoundingBox(this.results, this.previewH, this.previewW, this.screenH,
-      this.screenW, this.model);
+  const BoundingBox(
+      this.results, this.previewH, this.previewW, this.screenH, this.screenW);
 
   @override
   Widget build(BuildContext context) {

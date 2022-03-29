@@ -4,39 +4,46 @@ import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:easy_isolate/easy_isolate.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_exif_plugin/flutter_exif_plugin.dart' as dd;
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:non_helmet_mobile/pages/homepage.dart';
+import 'package:non_helmet_mobile/widgets/showdialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as imglib;
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<void> saveImageDetect(int user_id, Uint8List riderImg,
-    Uint8List licenseImg, int datetimeDetect) async {
-  //รับพิกัด
-  var position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high);
-  final exif = dd.FlutterExif.fromBytes(riderImg);
-  await exif.setLatLong(position.latitude, position.longitude);
-  await exif.setAttribute("DateTimeOriginal",
-      DateTime.fromMillisecondsSinceEpoch(datetimeDetect).toString());
-  await exif.saveAttributes();
+Future<void> saveImageDetect(BuildContext context, int user_id,
+    Uint8List riderImg, Uint8List licenseImg, int datetimeDetect) async {
+  try {
+    //รับพิกัด
+    var position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    final exif = dd.FlutterExif.fromBytes(riderImg);
+    await exif.setLatLong(position.latitude, position.longitude);
+    await exif.setAttribute("DateTimeOriginal",
+        DateTime.fromMillisecondsSinceEpoch(datetimeDetect).toString());
+    await exif.saveAttributes();
 
-  final modifiedImage = await exif.imageData;
-  /////////////////////////////////////////////////////////////////////
-  String tempPathPic = await createFolder("Pictures");
-  String tempPathLic = await createFolder("License_plate");
+    final modifiedImage = await exif.imageData;
+    /////////////////////////////////////////////////////////////////////
+    String tempPathPic = await createFolder("Pictures");
+    String tempPathLic = await createFolder("License_plate");
 
-  if (tempPathPic.isNotEmpty && tempPathLic.isNotEmpty) {
-    String filename = DateTime.now().millisecondsSinceEpoch.toString();
+    if (tempPathPic.isNotEmpty && tempPathLic.isNotEmpty) {
+      String filename = DateTime.now().millisecondsSinceEpoch.toString();
 
-    var filePathRider = tempPathPic + '/${user_id}_$filename.jpg';
-    var filePathLicense = tempPathLic + '/${user_id}_$filename.jpg';
+      var filePathRider = tempPathPic + '/${user_id}_$filename.jpg';
+      var filePathLicense = tempPathLic + '/${user_id}_$filename.jpg';
 
-    File(filePathRider).writeAsBytes(modifiedImage!);
-    File(filePathLicense).writeAsBytes(licenseImg);
-  } else {}
-  /////////////////////////////////////////////////////////////////////
+      File(filePathRider).writeAsBytes(modifiedImage!);
+      File(filePathLicense).writeAsBytes(licenseImg);
+    } else {}
+    /////////////////////////////////////////////////////////////////////
+  } catch (e) {
+    succeedDialog(context, "ไม่สามารถบันทึกภาพได้\nกรุณาเปิด GPS", HomePage());
+  }
 }
 
 Future<void> saveVideo(giffile) async {

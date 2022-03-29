@@ -13,8 +13,6 @@ import 'dart:math' as math;
 import 'bounding_box.dart';
 import 'camera_utility.dart';
 
-const String ssd = "My model";
-
 class HomeScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
 
@@ -29,27 +27,16 @@ class _HomeScreenState extends State<HomeScreen> {
   List<dynamic>? _dataForTrack;
   int _imageHeight = 0;
   int _imageWidth = 0;
-  String _model = "";
+
   String? boundingBox;
   String? tracking;
 
   loadModel() async {
-    String? result;
-    switch (_model) {
-      case ssd:
-        result = await Tflite.loadModel(
-          labels: "assets/tflite/label_map_N2.txt",
-          model: "assets/tflite/detect4.tflite",
-          //numThreads: 4,
+    await Tflite.loadModel(
+        labels: "assets/tflite/label_map_N2.txt",
+        model: "assets/tflite/detect4.tflite"
+        //numThreads: 4,
         );
-    }
-  }
-
-  onSelectModel(model) {
-    setState(() {
-      _model = model;
-    });
-    loadModel();
   }
 
   setRecognitions(recognitions, imageHeight, imageWidth, dataForTrack) {
@@ -69,11 +56,6 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
 
-    // checkGPS().then((value) => value
-    //     ? onSelectModel(ssd)
-    //     : succeedDialog(context, "กรุณาเปิด GPS", HomePage()));
-
-    //onSelectModel(ssd);
     getData();
   }
 
@@ -88,9 +70,10 @@ class _HomeScreenState extends State<HomeScreen> {
         boundingBox = "true";
         tracking = "true";
       }
-      onSelectModel(ssd);
+      loadModel();
     } else {
-      succeedDialog(context, "กรุณาเปิด GPS", HomePage());
+      succeedDialog(
+          context, "กรุณาเปิด GPS\nเพื่อใช้งานระบบตรวจจับ", HomePage());
     }
   }
 
@@ -98,45 +81,43 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     Size screen = MediaQuery.of(context).size;
     return Scaffold(
-      body: _model == ""
-          ? Container()
-          : Stack(
-              children: [
-                Camera(widget.cameras, _model, setRecognitions),
-                Positioned(
-                  left: 10.0,
-                  top: 35.0,
-                  child: IconButton(
-                    icon: const Icon(Icons.cancel, color: Colors.white),
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) => HomePage()),
-                          (Route<dynamic> route) => false);
-                    },
-                  ),
-                ),
-                boundingBox == "true" && boundingBox != null
-                    ? BoundingBox(
-                        _recognitions ?? [],
-                        math.max(_imageHeight, _imageWidth),
-                        math.min(_imageHeight, _imageWidth),
-                        screen.height,
-                        screen.width,
-                        _model)
-                    : Container(),
-                tracking == "true" && tracking != null
-                    ? Tracking(
-                        _dataForTrack ?? [],
-                        math.max(_imageHeight, _imageWidth),
-                        math.min(_imageHeight, _imageWidth),
-                        screen.height,
-                        screen.width,
-                      )
-                    : Container(),
-              ],
+      body: Stack(
+        children: [
+          Camera(widget.cameras, setRecognitions),
+          Positioned(
+            left: 10.0,
+            top: 35.0,
+            child: IconButton(
+              icon: const Icon(Icons.cancel, color: Colors.white),
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => HomePage()),
+                    (Route<dynamic> route) => false);
+              },
             ),
+          ),
+          boundingBox == "true" && boundingBox != null
+              ? BoundingBox(
+                  _recognitions ?? [],
+                  math.max(_imageHeight, _imageWidth),
+                  math.min(_imageHeight, _imageWidth),
+                  screen.height,
+                  screen.width,
+                )
+              : Container(),
+          tracking == "true" && tracking != null
+              ? Tracking(
+                  _dataForTrack ?? [],
+                  math.max(_imageHeight, _imageWidth),
+                  math.min(_imageHeight, _imageWidth),
+                  screen.height,
+                  screen.width,
+                )
+              : Container(),
+        ],
+      ),
     );
   }
 }
