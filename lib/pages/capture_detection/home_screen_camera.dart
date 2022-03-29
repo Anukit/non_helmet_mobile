@@ -31,6 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String? boundingBox;
   String? tracking;
 
+  bool readyDetect = false;
+
   loadModel() async {
     await Tflite.loadModel(
         labels: "assets/tflite/label_map_N2.txt",
@@ -71,6 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
         tracking = "true";
       }
       loadModel();
+      setState(() {
+        readyDetect = true;
+      });
     } else {
       succeedDialog(
           context, "กรุณาเปิด GPS\nเพื่อใช้งานระบบตรวจจับ", HomePage());
@@ -81,43 +86,45 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     Size screen = MediaQuery.of(context).size;
     return Scaffold(
-      body: Stack(
-        children: [
-          Camera(widget.cameras, setRecognitions),
-          Positioned(
-            left: 10.0,
-            top: 35.0,
-            child: IconButton(
-              icon: const Icon(Icons.cancel, color: Colors.white),
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => HomePage()),
-                    (Route<dynamic> route) => false);
-              },
+      body: !readyDetect
+          ? Container()
+          : Stack(
+              children: [
+                Camera(widget.cameras, setRecognitions),
+                Positioned(
+                  left: 10.0,
+                  top: 35.0,
+                  child: IconButton(
+                    icon: const Icon(Icons.cancel, color: Colors.white),
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => HomePage()),
+                          (Route<dynamic> route) => false);
+                    },
+                  ),
+                ),
+                boundingBox == "true" && boundingBox != null
+                    ? BoundingBox(
+                        _recognitions ?? [],
+                        math.max(_imageHeight, _imageWidth),
+                        math.min(_imageHeight, _imageWidth),
+                        screen.height,
+                        screen.width,
+                      )
+                    : Container(),
+                tracking == "true" && tracking != null
+                    ? Tracking(
+                        _dataForTrack ?? [],
+                        math.max(_imageHeight, _imageWidth),
+                        math.min(_imageHeight, _imageWidth),
+                        screen.height,
+                        screen.width,
+                      )
+                    : Container(),
+              ],
             ),
-          ),
-          boundingBox == "true" && boundingBox != null
-              ? BoundingBox(
-                  _recognitions ?? [],
-                  math.max(_imageHeight, _imageWidth),
-                  math.min(_imageHeight, _imageWidth),
-                  screen.height,
-                  screen.width,
-                )
-              : Container(),
-          tracking == "true" && tracking != null
-              ? Tracking(
-                  _dataForTrack ?? [],
-                  math.max(_imageHeight, _imageWidth),
-                  math.min(_imageHeight, _imageWidth),
-                  screen.height,
-                  screen.width,
-                )
-              : Container(),
-        ],
-      ),
     );
   }
 }
