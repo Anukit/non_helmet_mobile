@@ -74,10 +74,11 @@ Future<void> succeedDialog(
             TextButton(
               child: const Text('ปิด'),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => onpressed),
-                );
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => onpressed),
+                    (Route<dynamic> route) => false);
               },
             ),
           ],
